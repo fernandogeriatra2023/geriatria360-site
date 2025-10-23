@@ -1,5 +1,6 @@
-const AS='assessments_pro_v3';
+const AS='assessments_pro_v4';
 let AUTH=false, CUR={score:0,interp:'—',label:'—'};
+const uploads = {clock:null, square:null, circle:null};
 
 // login
 async function loginMed(){
@@ -8,7 +9,7 @@ async function loginMed(){
     const cfg=await fetch('data.json').then(r=>r.json());
     if(pass===(cfg.auth?.med_password||'medico123')){
       AUTH=true; document.getElementById('app').style.display='grid';
-      buildIVCF(); buildMNA(); buildGDS(); buildKatz(); buildLawton(); bindUploads();
+      buildIVCF(); buildMNA(); buildGDS(); buildKatz(); buildLawton(); buildPfeffer(); bindUploads();
       renderList(); calc();
     }else alert('Senha inválida');
   }catch(e){ alert('Não encontrei data.json'); }
@@ -96,6 +97,18 @@ function buildLawton(){
     box.appendChild(c);
   });
 }
+function buildPfeffer(){
+  const itens=Array.from({length:10},(_,i)=>`FAQ ${i+1}`);
+  const box=document.getElementById('pfeffer'); box.innerHTML='';
+  itens.forEach((t,i)=>{
+    const c=document.createElement('div'); c.className='card';
+    c.innerHTML=`<div class="hint">${t}</div>`;
+    [['Independente (0)',0],['Ajuda (1)',1],['Dependente (2)',2],['Não realiza (3)',3]].forEach(([lab,v])=>{
+      const d=document.createElement('span'); d.className='pill'; d.textContent=lab; d.dataset.key='faq'+(i+1); d.dataset.val=v; d.onclick=(e)=>selectPill(e.target); c.appendChild(d);
+    });
+    box.appendChild(c);
+  });
+}
 
 // seleção pill
 function selectPill(p){ const key=p.dataset.key, val=p.dataset.val;
@@ -104,21 +117,11 @@ function selectPill(p){ const key=p.dataset.key, val=p.dataset.val;
 }
 
 // uploads (cognição)
-const uploads = {clock:null, square:null, circle:null};
-function bindUploads(){
-  hookUpload('upClock','imgClock','clock');
-  hookUpload('upSquare','imgSquare','square');
-  hookUpload('upCircle','imgCircle','circle');
-}
+function bindUploads(){ hookUpload('upClock','imgClock','clock'); hookUpload('upSquare','imgSquare','square'); hookUpload('upCircle','imgCircle','circle'); }
 function hookUpload(labelId, imgId, key){
-  const box=document.getElementById(labelId);
-  const input=box.querySelector('input');
-  const img=document.getElementById(imgId);
+  const box=document.getElementById(labelId), input=box.querySelector('input'), img=document.getElementById(imgId);
   box.onclick = ()=> input.click();
-  input.onchange = (e)=>{
-    const f=e.target.files?.[0]; if(!f) return;
-    const r=new FileReader(); r.onload=()=>{uploads[key]=r.result; img.src=r.result; img.style.display='block';}; r.readAsDataURL(f);
-  };
+  input.onchange = (e)=>{ const f=e.target.files?.[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{uploads[key]=r.result; img.src=r.result; img.style.display='block';}; r.readAsDataURL(f); };
 }
 
 // helpers
@@ -148,11 +151,14 @@ function calc(){
   }
 
   if(id==='cognicao'){
+    const edu=Number(document.getElementById('edu').value||0);
+    const meem = Number(document.getElementById('meem').value||0);
+    const moca = Number(document.getElementById('moca').value||0) + Number(document.getElementById('moca_adj').value||0);
     const minicog = Number(document.getElementById('register').value||0) + Number(document.getElementById('clock_ok').value||0) + Number(document.getElementById('recall').value||0);
     const cdt = Number(document.getElementById('cdt_score').value||0);
-    score = minicog + cdt;
-    label='Cognição (Mini-Cog + CDT)';
-    interp = (minicog>=3 && cdt>=4) ? 'Sugere normalidade' : 'Sugere comprometimento';
+    score = meem + moca + minicog + cdt;
+    label='Cognição (MEEM + MoCA + Mini-Cog + CDT)';
+    interp = interpretCognition({meem,moca,minicog,cdt,edu});
   }
 
   if(id==='mobilidade'){
@@ -173,8 +179,9 @@ function calc(){
   }
 
   if(id==='funcional'){
+    const pfe=Array.from({length:10},(_,i)=>Number((document.querySelector(`.pill[data-key='faq${i+1}'].active`)||{}).dataset?.val||0)).reduce((a,b)=>a+b,0);
     const katz = getPillSum('katz',6); const law = getPillSum('law',8);
-    score = katz + law; label='Funcional (Katz + Lawton)'; interp = `Katz ${katz}/6 · Lawton ${law}/8`;
+    score = pfe + katz + law; label='Funcional (Pfeffer + Katz + Lawton)'; interp = `Pfeffer ${pfe}/30 · Katz ${katz}/6 · Lawton ${law}/8`;
   }
 
   CUR={score,interp,label};
@@ -183,21 +190,42 @@ function calc(){
   document.getElementById('label').textContent=label;
 }
 
+// interpretação cognitiva simples (regras locais)
+function interpretCognition({meem,moca,minicog,cdt,edu}){
+  const mocaCut = (edu<=12) ? 26 : 26; // adj já somado
+  let flags=0;
+  if(minicog<3) flags++;
+  if(cdt<4) flags++;
+  if(moca<mocaCut) flags++;
+  // MEEM varia por escolaridade; aqui deixo cortes aproximados
+  const meemCut = edu<=4 ? 24 : 26;
+  if(meem<meemCut) flags++;
+  if(flags===0) return 'Sem evidências de comprometimento';
+  if(flags===1) return 'Triagem limítrofe — monitorar';
+  if(flags===2) return 'Triagem positiva para CCL';
+  return 'Suspeita de transtorno neurocognitivo maior';
+}
+
 // coleta + storage
 function collect(){
   const d={};
   document.querySelectorAll('.pill.active').forEach(p=>{d[p.dataset.key]=p.dataset.val});
-  ['sf1','sf2','sf3','sf4','sf5','cfs','register','clock_ok','recall','tug','mh','md','ma','mt','mm','mc','cdt_score']
+  ['sf1','sf2','sf3','sf4','sf5','cfs','register','clock_ok','recall','tug','mh','md','ma','mt','mm','mc','cdt_score','meem','moca','moca_adj']
     .forEach(id=>{const el=document.getElementById(id); if(el) d[id]=el.value;});
   if(uploads.clock) d.imgClock=uploads.clock;
   if(uploads.square) d.imgSquare=uploads.square;
   if(uploads.circle) d.imgCircle=uploads.circle;
+  // dados clínicos
+  d.edu=document.getElementById('edu').value||'';
+  d.contexto=document.getElementById('contexto').value||'';
+  d.meds=document.getElementById('meds').value||'';
+  d.companion=document.getElementById('companion').value||'';
   return d;
 }
 function all(){ try{return JSON.parse(localStorage.getItem(AS)||'[]')}catch(_){return []} }
 function saveAssessment(){
   const id=document.getElementById('pid').value.trim(); if(!id) return alert('Informe ID');
-  const it={id,age:document.getElementById('age').value||'',notes:document.getElementById('notes').value||'',
+  const it={id,age:document.getElementById('age').value||'',notes:document.getElementById('notes')?.value||'',
             label:CUR.label,score:CUR.score,interp:CUR.interp,at:new Date().toISOString(),
             data:collect()};
   const arr=all(); arr.push(it); localStorage.setItem(AS, JSON.stringify(arr));
@@ -218,42 +246,138 @@ function renderList(){
   });
 }
 function delIt(i){ const arr=all(); arr.splice(i,1); localStorage.setItem(AS, JSON.stringify(arr)); renderList(); }
-function view(i){ const it=all()[i]; const w=window.open('','_blank'); w.document.write(summaryHTML(it)); }
+function view(i){ const it=all()[i]; const w=window.open('','_blank'); w.document.write(aiReportHTML(it)); }
 
-// laudo (print/PDF)
+// impressão simples
 function printSummary(){
-  const it={id:document.getElementById('pid').value||'(sem id)',age:document.getElementById('age').value||'',
-            notes:document.getElementById('notes').value||'',
-            label:CUR.label,score:CUR.score,interp:CUR.interp,data:collect(),at:new Date().toISOString()};
-  const w=window.open('','_blank'); w.document.write(summaryHTML(it)); w.print();
+  const it=currentSnapshot();
+  const w=window.open('','_blank'); w.document.write(aiReportHTML(it)); w.print();
 }
-function blockFromData(d){
-  const parts=[];
-  if('cfs' in d){ parts.push(`CFS: ${d.cfs}. SARC-F: ${Number(d.sf1)+Number(d.sf2)+Number(d.sf3)+Number(d.sf4)+Number(d.sf5)}.`); }
-  if('register' in d){ parts.push(`Mini-Cog: registro ${d.register}, relógio ${d.clock_ok}, recordação ${d.recall}. CDT ${d.cdt_score}.`); }
-  if('mh' in d){ const morse = ['mh','md','ma','mt','mm','mc'].map(k=>Number(d[k]||0)).reduce((a,b)=>a+b,0); parts.push(`Morse: ${morse}. TUG: ${d.tug||0}s.`); }
-  if('mnaA' in d){ const mna=['mnaA','mnaB','mnaC','mnaD','mnaE','mnaF'].map(k=>Number(d[k]||0)).reduce((a,b)=>a+b,0); parts.push(`MNA-SF: ${mna}.`); }
-  if('gds1' in d || 'gds15' in d){ let g=0; for(let i=1;i<=15;i++){ g += Number(d['gds'+i]||0);} parts.push(`GDS-15: ${g}.`); }
-  if('katz1' in d){ let k=0; for(let i=1;i<=6;i++){ k+=Number(d['katz'+i]||0);} let l=0; for(let i=1;i<=8;i++){ l+=Number(d['law'+i]||0);} parts.push(`Katz ${k}/6, Lawton ${l}/8.`); }
-  return parts.join(' ');
+function currentSnapshot(){
+  return {
+    id:document.getElementById('pid').value||'(sem id)',
+    age:document.getElementById('age').value||'',
+    notes:document.getElementById('notes')?.value||'',
+    label:CUR.label,score:CUR.score,interp:CUR.interp,at:new Date().toISOString(),
+    data:collect()
+  };
 }
-function summaryHTML(it){
-  const rows=Object.entries(it.data||{}).map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('');
-  const pics = ['imgClock','imgSquare','imgCircle'].map(k=> it.data?.[k] ? `<div style="margin:6px 0"><b>${k.replace('img','')}</b><br><img src="${it.data[k]}" style="max-width:260px;border:1px solid #ddd;border-radius:10px"/></div>` : '' ).join('');
-  const insights = blockFromData(it.data||{});
-  return `<!doctype html><html><head><meta charset='utf-8'><title>Laudo — ${it.id}</title>
-    <style>body{font-family:Arial, sans-serif;margin:24px} h1,h2{margin:0 0 8px} .muted{color:#64748b} table{width:100%;border-collapse:collapse;margin-top:12px} td,th{border:1px solid #ddd;padding:8px}</style>
-    </head><body>
-      <h1>Laudo — ${it.label}</h1>
-      <p class="muted"><b>Paciente:</b> ${it.id} &nbsp; | &nbsp; <b>Idade:</b> ${it.age||'-'} &nbsp; | &nbsp; <b>Data:</b> ${(new Date(it.at)).toLocaleString('pt-BR')}</p>
-      <p><b>Pontuação agregada:</b> ${it.score} &nbsp; — &nbsp; <b>Interpretação:</b> ${it.interp}</p>
-      ${it.notes? `<p><b>Observações do médico:</b> ${it.notes}</p>`:''}
-      ${pics? `<h2>Imagens anexas</h2>${pics}`:''}
-      <h2>Resumo clínico</h2>
-      <p>${insights || '—'}</p>
-      <h2>Valores brutos</h2>
-      <table><thead><tr><th>Item</th><th>Valor</th></tr></thead><tbody>${rows}</tbody></table>
-    </body></html>`;
+
+// ————————————————————————————————————————————————
+// IA local: gerar Laudo estruturado
+// ————————————————————————————————————————————————
+function generateAIReport(){
+  const it=currentSnapshot();
+  const w=window.open('','_blank');
+  w.document.write(aiReportHTML(it));
+}
+
+function aiReportHTML(it){
+  const d=it.data||{};
+  const edu = Number(d.edu||0);
+  const meem = Number(d.meem||0);
+  const moca = Number(d.moca||0)+Number(d.moca_adj||0);
+  const minicog = Number(d.register||0)+Number(d.clock_ok||0)+Number(d.recall||0);
+  const cdt = Number(d.cdt_score||0);
+  let gds=0; for(let i=1;i<=15;i++) gds+=Number(d['gds'+i]||0);
+  const pfe=Array.from({length:10},(_,i)=>Number(d['faq'+(i+1)]||0)).reduce((a,b)=>a+b,0);
+  const katz=Array.from({length:6},(_,i)=>Number(d['katz'+(i+1)]||0)).reduce((a,b)=>a+b,0);
+  const law=Array.from({length:8},(_,i)=>Number(d['law'+(i+1)]||0)).reduce((a,b)=>a+b,0);
+
+  // interpretações
+  const cognit = interpretCognition({meem,moca,minicog,cdt,edu});
+  const func = (pfe>=5? 'Disfunção em AIVDs provável (Pfeffer ≥5).' : 'AIVDs preservadas pelo Pfeffer.')
+               + ` Katz ${katz}/6, Lawton ${law}/8.`;
+  const mood = gds>=5 ? 'Sintomas depressivos prováveis (GDS-15 ≥5).' : 'Triagem negativa para depressão (GDS-15 <5).';
+
+  const medsTxt = d.meds ? `Usa/Possível uso de anticolinérgicos/sedativos: ${d.meds}.` : 'Sem uso relevante de anticolinérgicos/sedativos reportado.';
+  const contexto = d.contexto || '—';
+  const comp = d.companion || '—';
+
+  const pics = ['imgClock','imgSquare','imgCircle'].map(k=> d[k] ? `<div style="margin:6px 0"><b>${k.replace('img','')}</b><br><img src="${d[k]}" style="max-width:260px;border:1px solid #ddd;border-radius:10px"/></div>` : '' ).join('');
+
+  // plano padrão (editável após impressão)
+  const plano = `
+• Laboratorial básico: hemograma, eletrólitos, TSH, T4 livre, B12, folato, glicemia/HbA1c, função renal/hepática; conforme caso (VDRL/HIV/Vit. D).
+• Imagem (se indicado): TC ou RM de encéfalo.
+• Não farmacológico: educação do cuidador, rotina estruturada, atividade física aeróbica/força, treino cognitivo, higiene do sono, controle de fatores vasculares.
+• Farmacológico (se TNC maior degenerativo e sem contraindicações): considerar I-AChE ou memantina conforme fenótipo/gravidade.
+• Seguimento: reavaliação em 6–12 semanas (ajustar).`.trim();
+
+  return `<!doctype html><html><head><meta charset="utf-8"><title>Laudo — ${it.id}</title>
+  <style>
+    body{font-family:Arial, sans-serif;margin:26px;line-height:1.4}
+    h1,h2{margin:0 0 8px}
+    .muted{color:#64748b}
+    .box{border:1px solid #ddd;border-radius:10px;padding:14px;margin-top:10px}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    td,th{border:1px solid #ddd;padding:8px;text-align:left}
+    .cols{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+    @media print{.no-print{display:none}}
+  </style></head><body>
+
+  <h1>Laudo de Avaliação Neurocognitiva</h1>
+  <p class="muted">
+    <b>Paciente:</b> ${it.id} &nbsp; | &nbsp; <b>Idade:</b> ${it.age||'-'} &nbsp; | &nbsp; <b>Escolaridade:</b> ${edu||'-'} anos &nbsp; | &nbsp; <b>Acompanhante:</b> ${comp}<br>
+    <b>Data:</b> ${(new Date(it.at)).toLocaleString('pt-BR')}
+  </p>
+
+  <div class="box"><b>Contexto/Queixa principal:</b> ${contexto}</div>
+  <div class="box"><b>Medicações:</b> ${medsTxt}</div>
+
+  <h2 style="margin-top:12px">Instrumentos aplicados e resultados</h2>
+  <table>
+    <tr><th>MEEM (0–30)</th><td>${meem}/30</td><th>MoCA (0–30)</th><td>${moca}/30</td></tr>
+    <tr><th>Mini-Cog (0–5)</th><td>${minicog}/5</td><th>TDR — Shulman (0–5)</th><td>${cdt}/5</td></tr>
+    <tr><th>Pfeffer FAQ (0–30)</th><td>${pfe}/30</td><th>GDS-15 (0–15)</th><td>${gds}/15</td></tr>
+  </table>
+
+  <h2 style="margin-top:12px">Exame cognitivo/funcional — achados qualitativos</h2>
+  <div class="cols">
+    <div class="box">
+      <b>Memória imediata/recente:</b><br>
+      _________________________________________________
+    </div>
+    <div class="box">
+      <b>Atenção e funções executivas:</b><br>
+      _________________________________________________
+    </div>
+    <div class="box">
+      <b>Linguagem (nomeação/repetição/compreensão):</b><br>
+      _________________________________________________
+    </div>
+    <div class="box">
+      <b>Visuoespacial/Construção (relógio/cópia):</b><br>
+      _________________________________________________
+    </div>
+    <div class="box">
+      <b>Orientação (tempo/lugar/pessoa):</b><br>
+      _________________________________________________
+    </div>
+    <div class="box">
+      <b>Funcionalidade (AIVDs/ABVDs):</b><br>
+      _________________________________________________
+    </div>
+  </div>
+
+  ${pics? `<h2 style="margin-top:12px">Imagens anexas</h2>${pics}`:''}
+
+  <h2 style="margin-top:12px">Interpretação</h2>
+  <div class="box">
+    <p><b>Cognição:</b> ${cognit}</p>
+    <p><b>Humor:</b> ${mood}</p>
+    <p><b>Funcionalidade:</b> ${func}</p>
+    <p><b>Resumo global:</b> ${it.interp}</p>
+  </div>
+
+  <h2 style="margin-top:12px">Plano / Condutas sugeridas</h2>
+  <div class="box" style="white-space:pre-wrap">${plano}</div>
+
+  <h2 style="margin-top:12px">Assinatura</h2>
+  <div class="box">Dr. Fernando João Rocha – CRM/SC 28480<br>UBS Universitário Marcos Aurélio – Tijucas/SC</div>
+
+  <p class="muted no-print">Obs.: laudo gerado automaticamente com apoio de regras clínicas locais (IA embarcada). Revisar/editar antes de imprimir.</p>
+  </body></html>`;
 }
 
 // reset
