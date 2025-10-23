@@ -43,10 +43,13 @@
   <div id="app" style="display:none;margin-top:16px" class="grid g2">
     <!-- Coluna esquerda -->
     <div class="card sticky">
-      <h3>Paciente</h3>
+      <h3>Dados do Paciente</h3>
       <label>ID (iniciais/código)</label><input id="pid" placeholder="AB-001">
       <label>Idade</label><input id="age" type="number" placeholder="75">
-      <label>Observações</label><textarea id="notes" rows="3"></textarea>
+      <label>Escolaridade (anos)</label><input id="edu" type="number" min="0" max="30" placeholder="12">
+      <label>Acompanhante</label><input id="companion" placeholder="—">
+      <label>Contexto / Queixa principal</label><textarea id="contexto" rows="2" placeholder="Queixa de memória/atenção, início insidioso há ..."></textarea>
+      <label>Medicações potencialmente anticolinérgicas/sedativas</label><textarea id="meds" rows="2" placeholder="ex.: difenidramina, amitriptilina, benzodiazepínicos..."></textarea>
       <div class="hint" style="margin-top:6px">⚠️ Evite nome completo — use código.</div>
 
       <div class="kpi" style="margin-top:12px">
@@ -57,7 +60,8 @@
 
       <div class="toolbar" style="margin-top:10px;position:static">
         <button class="btn" onclick="saveAssessment()">Salvar</button>
-        <button class="btn" onclick="printSummary()">Gerar Laudo</button>
+        <button class="btn" onclick="printSummary()">Imprimir</button>
+        <button class="btn cta" onclick="generateAIReport()">Gerar Laudo (IA)</button>
         <button class="btn" onclick="resetForms()">Limpar</button>
       </div>
     </div>
@@ -130,28 +134,33 @@
 
       <!-- Cognição -->
       <div id="cognicao" class="sect" style="display:none">
-        <h4>Mini-Cog</h4>
+        <h4>MEEM e MoCA</h4>
+        <div class="grid g3">
+          <div><label>MEEM (0–30)</label><input id="meem" type="number" min="0" max="30" value="0" oninput="calc()"></div>
+          <div><label>MoCA (0–30)</label><input id="moca" type="number" min="0" max="30" value="0" oninput="calc()"></div>
+          <div><label>+1 ponto MoCA se ≤12 anos estudo</label><select id="moca_adj" onchange="calc()"><option value="0">não</option><option value="1">sim</option></select></div>
+        </div>
+
+        <h4 style="margin-top:14px">Mini-Cog e TDR (CDT)</h4>
         <div class="grid g3">
           <div><label>Registro (0–3)</label><input id="register" type="number" min="0" max="3" value="0" oninput="calc()"></div>
           <div><label>Relógio (0/2)</label><select id="clock_ok" onchange="calc()"><option value="0">0 = incorreto</option><option value="2">2 = correto</option></select></div>
           <div><label>Recordação (0–3)</label><input id="recall" type="number" min="0" max="3" value="0" oninput="calc()"></div>
         </div>
-        <p class="hint">≥3 sugere normalidade.</p>
+        <div class="toolbar" style="position:static;margin-top:10px">
+          <label>Pontuação CDT (Shulman 0–5)</label>
+          <select id="cdt_score" onchange="calc()">
+            <option value="5">5 = perfeito</option><option value="4">4 = pequenos erros</option>
+            <option value="3">3 = desorganizado</option><option value="2">2 = marcadores incorretos</option>
+            <option value="1">1 = severamente desorganizado</option><option value="0">0 = incapaz</option>
+          </select>
+        </div>
 
         <h4 style="margin-top:14px">Imagens do desenho (upload)</h4>
         <div class="grid g3">
           <label class="drop" id="upClock">Relógio<br><img id="imgClock" alt="" style="display:none"><input type="file" accept="image/*" style="display:none"></label>
           <label class="drop" id="upSquare">Quadrado<br><img id="imgSquare" alt="" style="display:none"><input type="file" accept="image/*" style="display:none"></label>
           <label class="drop" id="upCircle">Círculo<br><img id="imgCircle" alt="" style="display:none"><input type="file" accept="image/*" style="display:none"></label>
-        </div>
-
-        <div class="toolbar" style="position:static;margin-top:10px">
-          <label style="margin-left:auto">Pontuação CDT (Shulman 0–5)</label>
-          <select id="cdt_score" onchange="calc()">
-            <option value="5">5 = perfeito</option><option value="4">4 = pequenos erros</option>
-            <option value="3">3 = desorganizado</option><option value="2">2 = marcadores incorretos</option>
-            <option value="1">1 = severamente desorganizado</option><option value="0">0 = incapaz</option>
-          </select>
         </div>
       </div>
 
@@ -185,14 +194,18 @@
       <div id="depressao" class="sect" style="display:none">
         <h4>GDS-15 (0–15)</h4>
         <div id="gds" class="grid g3"></div>
-        <p class="hint">≥5 sugere depressão. (Pontuação indicativa; avaliar clinicamente.)</p>
+        <p class="hint">≥5 sugere sintomas depressivos.</p>
       </div>
 
       <!-- Funcional -->
       <div id="funcional" class="sect" style="display:none">
-        <h4>Katz — Atividades Básicas (0–6 independências)</h4>
+        <h4>Pfeffer FAQ (0–30)</h4>
+        <div id="pfeffer" class="grid g3"></div>
+        <p class="hint">≥5 sugere disfunção em AIVDs.</p>
+
+        <h4 style="margin-top:12px">Katz — ABVDs (0–6 independências)</h4>
         <div id="katz" class="grid g3"></div>
-        <h4 style="margin-top:12px">Lawton — Atividades Instrumentais (0–8 independências)</h4>
+        <h4 style="margin-top:12px">Lawton — AIVDs (0–8 independências)</h4>
         <div id="lawton" class="grid g3"></div>
       </div>
 
