@@ -1,0 +1,12 @@
+{
+  "site": {
+    "name": "Geriatria 360",
+    "whatsapp_link": "https://wa.me/5548999999999?text=Olá%20Geriatria%20360,%20gostaria%20de%20agendar%20uma%20consulta.",
+    "agenda_link": "https://wa.me/5548999999999?text=Quero%20marcar%20consulta",
+    "address": "Rua Exemplo, 123 — Centro — Cidade/UF"
+  },
+  "auth": {
+    "admin_password": "admin123",
+    "med_password": "medico123"
+  }
+}

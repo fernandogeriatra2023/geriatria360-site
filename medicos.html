@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Geriatria 360 — Área Médicos (UX Pro)</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top"><div class="container row"><a class="btn" href="index.html">← Início</a><strong>Área Médicos — Consulta</strong></div></header>
+<section class="container section">
+  <div class="card">
+    <h2>Entrar</h2>
+    <p class="small">Senha em <code>data.json</code> (protótipo).</p>
+    <div class="toolbar" style="position:static">
+      <input id="med-pass" type="password" placeholder="••••••••" style="max-width:280px">
+      <button class="btn cta" onclick="loginMed()">Entrar</button>
+    </div>
+  </div>
+  <div id="app" style="display:none;margin-top:16px" class="grid g2">
+    <div class="card sticky">
+      <h3>Paciente</h3>
+      <label>ID (iniciais/código)</label><input id="pid" placeholder="AB-001">
+      <label>Idade</label><input id="age" type="number" placeholder="75">
+      <label>Observações</label><textarea id="notes" rows="3"></textarea>
+      <div class="hint" style="margin-top:6px">⚠️ Evite nome completo — use código.</div>
+      <div class="kpi" style="margin-top:12px">
+        <div class="k"><div class="hint">Pontuação</div><div id="score" class="v">0</div></div>
+        <div class="k"><div class="hint">Classificação</div><div id="classif">—</div></div>
+        <div class="k"><div class="hint">Bloco</div><div id="label">—</div></div>
+      </div>
+      <div class="toolbar" style="margin-top:10px;position:static">
+        <button class="btn" onclick="saveAssessment()">Salvar</button>
+        <button class="btn" onclick="printSummary()">Exportar PDF</button>
+        <button class="btn" onclick="resetForms()">Limpar</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Fluxo da consulta</h3>
+      <div class="steps">
+        <div class="step active" data-tab="triagem"   onclick="tab(this)">Triagem</div>
+        <div class="step"        data-tab="cognicao"  onclick="tab(this)">Cognição</div>
+        <div class="step"        data-tab="mobilidade"onclick="tab(this)">Mobilidade/Quedas</div>
+        <div class="step"        data-tab="nutricao"  onclick="tab(this)">Nutrição</div>
+        <div class="step"        data-tab="humor"     onclick="tab(this)">Humor</div>
+        <div class="step"        data-tab="funcional" onclick="tab(this)">Funcional</div>
+        <div class="step"        data-tab="historico" onclick="tab(this)">Histórico</div>
+      </div>
+      <div id="triagem" class="sect">
+        <h4>Escala Clínica de Fragilidade (CFS 1–9)</h4>
+        <input id="cfs" type="range" min="1" max="9" step="1" value="4" oninput="calc()">
+        <div class="hint">1–3: robusto · 4: vulnerável · 5–6: frágil leve/mod · 7–8: grave · 9: terminal</div>
+        <div style="margin-top:14px" class="grid g3">
+          <div class="card">
+            <div class="hint">SARC‑F</div>
+            <label>Força</label><select id="sf1" onchange="calc()"><option>0</option><option>1</option><option>2</option></select>
+            <label>Caminhar</label><select id="sf2" onchange="calc()"><option>0</option><option>1</option><option>2</option></select>
+            <label>Levantar</label><select id="sf3" onchange="calc()"><option>0</option><option>1</option><option>2</option></select>
+            <label>Escadas</label><select id="sf4" onchange="calc()"><option>0</option><option>1</option><option>2</option></select>
+            <label>Quedas</label><select id="sf5" onchange="calc()"><option>0</option><option>1</option><option>2</option></select>
+            <div class="hint">≥4 sugere sarcopenia provável.</div>
+          </div>
+          <div class="card" style="grid-column:span 2">
+            <div class="hint">IVCF‑20 (20 itens, 0–2)</div>
+            <div class="seg" id="ivcf"></div>
+            <div class="hint" style="margin-top:6px">≥15 sugere rastreio positivo/alto risco.</div>
+          </div>
+        </div>
+      </div>
+      <div id="cognicao" class="sect" style="display:none">
+        <h4>Mini‑Cog</h4>
+        <div class="grid g3">
+          <div><label>Registro (0–3)</label><input id="register" type="number" min="0" max="3" value="0" oninput="calc()"></div>
+          <div><label>Relógio (0/2)</label><select id="clock_ok" onchange="calc()"><option value="0">0 = incorreto</option><option value="2">2 = correto</option></select></div>
+          <div><label>Recordação (0–3)</label><input id="recall" type="number" min="0" max="3" value="0" oninput="calc()"></div>
+        </div>
+        <p class="hint">≥3 sugere normalidade.</p>
+        <h4 style="margin-top:14px">Clock Drawing Test (Shulman 0–5)</h4>
+        <div class="canvasbox"><canvas id="cdt" width="420" height="420"></canvas></div>
+        <div class="toolbar" style="position:static">
+          <button class="btn" onclick="pen()">Caneta</button>
+          <button class="btn" onclick="eraser()">Borracha</button>
+          <button class="btn" onclick="clearCanvas()">Limpar</button>
+          <label style="margin-left:auto">Pontuação</label>
+          <select id="cdt_score" onchange="calc()">
+            <option value="5">5 = perfeito</option><option value="4">4 = pequenos erros</option>
+            <option value="3">3 = desorganizado</option><option value="2">2 = marcadores incorretos</option>
+            <option value="1">1 = severamente desorganizado</option><option value="0">0 = incapaz</option>
+          </select>
+        </div>
+      </div>
+      <div id="mobilidade" class="sect" style="display:none">
+        <h4>Timed Up and Go (TUG)</h4>
+        <div class="grid g3">
+          <div><label>Segundos</label><input id="tug" type="number" min="0" step="0.1" value="0" oninput="calc()"></div>
+          <div class="hint" style="align-self:end">&lt;10 normal · 10–19 ok · 20–29 variável · ≥30 comprometido</div>
+        </div>
+        <h4 style="margin-top:14px">Morse</h4>
+        <div class="grid g3">
+          <div><label>Histórico de quedas</label><select id="mh" onchange="calc()"><option value="0">Não (0)</option><option value="25">Sim (25)</option></select></div>
+          <div><label>Dx secundário</label><select id="md" onchange="calc()"><option value="0">Não (0)</option><option value="15">Sim (15)</option></select></div>
+          <div><label>Auxílio marcha</label><select id="ma" onchange="calc()"><option value="0">Nenhum/cadeira (0)</option><option value="15">Muleta/bengala/andador (15)</option><option value="30">Apoio em móveis (30)</option></select></div>
+          <div><label>Terapia EV</label><select id="mt" onchange="calc()"><option value="0">Não (0)</option><option value="20">Sim (20)</option></select></div>
+          <div><label>Marcha</label><select id="mm" onchange="calc()"><option value="0">Normal (0)</option><option value="10">Fraca (10)</option><option value="20">Comprometida (20)</option></select></div>
+          <div><label>Estado mental</label><select id="mc" onchange="calc()"><option value="0">Orientado (0)</option><option value="15">Superestima (15)</option></select></div>
+        </div>
+        <p class="hint">Baixo &lt;25 · moderado 25–44 · alto ≥45.</p>
+      </div>
+      <div id="nutricao" class="sect" style="display:none">
+        <h4>MNA‑SF (0–14)</h4>
+        <div id="mna" class="grid g3"></div>
+        <p class="hint">12–14 normal · 8–11 risco · 0–7 desnutrição provável.</p>
+      </div>
+      <div id="humor" class="sect" style="display:none">
+        <h4>GDS‑15 (0–15)</h4>
+        <div id="gds" class="grid g3"></div>
+        <p class="hint">≥5 sugere depressão. (Pontuação indicativa; avaliar clinicamente.)</p>
+      </div>
+      <div id="funcional" class="sect" style="display:none">
+        <h4>Katz — Atividades Básicas (0–6 independências)</h4>
+        <div id="katz" class="grid g3"></div>
+        <h4 style="margin-top:12px">Lawton — Atividades Instrumentais (0–8 independências)</h4>
+        <div id="lawton" class="grid g3"></div>
+      </div>
+      <div id="historico" class="sect" style="display:none">
+        <h4>Avaliações salvas (local)</h4>
+        <table class="table" id="list"><thead><tr><th>Paciente</th><th>Bloco</th><th>Data</th><th>Pontos</th><th>Thumb</th><th>Ações</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+  </div>
+</section>
+<script src="testspro.js"></script>
+</body></html>
