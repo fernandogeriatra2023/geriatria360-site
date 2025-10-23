@@ -3,85 +3,150 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Geriatria 360 — Área Médicos (UX Pro)</title>
+  <title>Geriatria 360 — Área Médicos</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    .steps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    .step{padding:8px 12px;border:1px solid #e5e7eb;border-radius:999px;background:#fff;cursor:pointer}
+    .step.active{background:linear-gradient(90deg,#0ea5a4,#047857);color:#fff;border-color:transparent}
+    .grid{display:grid;gap:18px}.g2{grid-template-columns:1fr}.g3{grid-template-columns:1fr}
+    @media(min-width:960px){.g2{grid-template-columns:1.1fr .9fr}.g3{grid-template-columns:repeat(3,1fr)}}
+    input,select,textarea{width:100%;padding:11px 12px;border:1px solid #e5e7eb;border-radius:12px}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 12px 28px rgba(2,8,23,.06);padding:18px}
+    .sticky{position:sticky;top:84px}
+    .pill{border:1px solid #e5e7eb;border-radius:999px;padding:8px 12px;display:inline-block;margin:4px;cursor:pointer}
+    .pill.active{background:#0ea5a4;color:#fff;border-color:#0ea5a4}
+    .kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .kpi .k{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px;text-align:center}
+    .k .v{font-size:22px;font-weight:800}
+    .drop{border:2px dashed #e5e7eb;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;padding:16px;cursor:pointer;text-align:center}
+    .drop img{max-width:100%;max-height:180px;border-radius:12px;border:1px solid #e5e7eb;object-fit:contain;background:#fff}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap;border:1px solid #e5e7eb;border-radius:12px;padding:8px;background:#fff;position:sticky;top:72px}
+    .table{width:100%;border-collapse:collapse}.table td,.table th{border-bottom:1px solid #e5e7eb;padding:10px;text-align:left}
+    .hint{font-size:12px;color:#64748b}
+    @media print{.top,.toolbar,.steps,.step{display:none}}
+  </style>
 </head>
 <body>
-<header class="top"><div class="container row"><a class="btn" href="index.html">← Início</a><strong>Área Médicos — Consulta</strong></div></header>
+<header class="top"><div class="container row"><a class="btn" href="index.html">← Início</a><strong>Área Médicos</strong></div></header>
+
 <section class="container section">
   <div class="card">
     <h2>Entrar</h2>
-    <p class="small">Senha em <code>data.json</code> (protótipo).</p>
+    <p class="hint">Senha em <code>data.json</code> (protótipo: <code>medico123</code>).</p>
     <div class="toolbar" style="position:static">
       <input id="med-pass" type="password" placeholder="••••••••" style="max-width:280px">
       <button class="btn cta" onclick="loginMed()">Entrar</button>
     </div>
   </div>
+
   <div id="app" style="display:none;margin-top:16px" class="grid g2">
+    <!-- Coluna esquerda -->
     <div class="card sticky">
       <h3>Paciente</h3>
       <label>ID (iniciais/código)</label><input id="pid" placeholder="AB-001">
       <label>Idade</label><input id="age" type="number" placeholder="75">
       <label>Observações</label><textarea id="notes" rows="3"></textarea>
       <div class="hint" style="margin-top:6px">⚠️ Evite nome completo — use código.</div>
+
       <div class="kpi" style="margin-top:12px">
         <div class="k"><div class="hint">Pontuação</div><div id="score" class="v">0</div></div>
         <div class="k"><div class="hint">Classificação</div><div id="classif">—</div></div>
         <div class="k"><div class="hint">Bloco</div><div id="label">—</div></div>
       </div>
+
       <div class="toolbar" style="margin-top:10px;position:static">
         <button class="btn" onclick="saveAssessment()">Salvar</button>
-        <button class="btn" onclick="printSummary()">Exportar PDF</button>
+        <button class="btn" onclick="printSummary()">Gerar Laudo</button>
         <button class="btn" onclick="resetForms()">Limpar</button>
       </div>
     </div>
+
+    <!-- Coluna direita -->
     <div class="card">
-      <h3>Fluxo da consulta</h3>
+      <h3>Fluxo</h3>
       <div class="steps">
         <div class="step active" data-tab="triagem"   onclick="tab(this)">Triagem</div>
         <div class="step"        data-tab="cognicao"  onclick="tab(this)">Cognição</div>
         <div class="step"        data-tab="mobilidade"onclick="tab(this)">Mobilidade/Quedas</div>
         <div class="step"        data-tab="nutricao"  onclick="tab(this)">Nutrição</div>
-        <div class="step"        data-tab="humor"     onclick="tab(this)">Humor</div>
+        <div class="step"        data-tab="depressao" onclick="tab(this)">Depressão</div>
         <div class="step"        data-tab="funcional" onclick="tab(this)">Funcional</div>
         <div class="step"        data-tab="historico" onclick="tab(this)">Histórico</div>
       </div>
+
+      <!-- Triagem -->
       <div id="triagem" class="sect">
         <h4>Escala Clínica de Fragilidade (CFS 1–9)</h4>
         <input id="cfs" type="range" min="1" max="9" step="1" value="4" oninput="calc()">
-        <div class="hint">1–3: robusto · 4: vulnerável · 5–6: frágil leve/mod · 7–8: grave · 9: terminal</div>
+        <div class="hint">1–3 robusto · 4 vulnerável · 5–6 frágil leve/mod · 7–8 grave · 9 terminal</div>
+
         <div style="margin-top:14px" class="grid g3">
           <div class="card">
-            <div class="hint">SARC‑F</div>
-            <label>Força</label><select id="sf1" onchange="calc()"><option>0</option><option>1</option><option>2</option></select>
-            <label>Caminhar</label><select id="sf2" onchange="calc()"><option>0</option><option>1</option><option>2</option></select>
-            <label>Levantar</label><select id="sf3" onchange="calc()"><option>0</option><option>1</option><option>2</option></select>
-            <label>Escadas</label><select id="sf4" onchange="calc()"><option>0</option><option>1</option><option>2</option></select>
-            <label>Quedas</label><select id="sf5" onchange="calc()"><option>0</option><option>1</option><option>2</option></select>
+            <div class="hint">SARC-F</div>
+            <label>Força</label>
+            <select id="sf1" onchange="calc()">
+              <option value="0">0 — Sem dificuldade</option>
+              <option value="1">1 — Alguma dificuldade</option>
+              <option value="2">2 — Muita / não consegue</option>
+            </select>
+            <label>Caminhar</label>
+            <select id="sf2" onchange="calc()">
+              <option value="0">0 — Sem dificuldade</option>
+              <option value="1">1 — Alguma dificuldade</option>
+              <option value="2">2 — Muita / não consegue</option>
+            </select>
+            <label>Levantar</label>
+            <select id="sf3" onchange="calc()">
+              <option value="0">0 — Sem dificuldade</option>
+              <option value="1">1 — Alguma dificuldade</option>
+              <option value="2">2 — Muita / não consegue</option>
+            </select>
+            <label>Escadas</label>
+            <select id="sf4" onchange="calc()">
+              <option value="0">0 — Sem dificuldade</option>
+              <option value="1">1 — Alguma dificuldade</option>
+              <option value="2">2 — Muita / não consegue</option>
+            </select>
+            <label>Quedas</label>
+            <select id="sf5" onchange="calc()">
+              <option value="0">0 — Nenhuma</option>
+              <option value="1">1 — uma</option>
+              <option value="2">2 — ≥2 quedas</option>
+            </select>
             <div class="hint">≥4 sugere sarcopenia provável.</div>
           </div>
+
           <div class="card" style="grid-column:span 2">
-            <div class="hint">IVCF‑20 (20 itens, 0–2)</div>
-            <div class="seg" id="ivcf"></div>
-            <div class="hint" style="margin-top:6px">≥15 sugere rastreio positivo/alto risco.</div>
+            <details open>
+              <summary style="cursor:pointer">
+                <div class="hint">IVCF-20 (0–40) — <b id="ivcfSum">0</b> pontos • <span class="small">≥15 positivo</span></div>
+              </summary>
+              <div id="ivcf" style="margin-top:10px"></div>
+            </details>
           </div>
         </div>
       </div>
+
+      <!-- Cognição -->
       <div id="cognicao" class="sect" style="display:none">
-        <h4>Mini‑Cog</h4>
+        <h4>Mini-Cog</h4>
         <div class="grid g3">
           <div><label>Registro (0–3)</label><input id="register" type="number" min="0" max="3" value="0" oninput="calc()"></div>
           <div><label>Relógio (0/2)</label><select id="clock_ok" onchange="calc()"><option value="0">0 = incorreto</option><option value="2">2 = correto</option></select></div>
           <div><label>Recordação (0–3)</label><input id="recall" type="number" min="0" max="3" value="0" oninput="calc()"></div>
         </div>
         <p class="hint">≥3 sugere normalidade.</p>
-        <h4 style="margin-top:14px">Clock Drawing Test (Shulman 0–5)</h4>
-        <div class="canvasbox"><canvas id="cdt" width="420" height="420"></canvas></div>
-        <div class="toolbar" style="position:static">
-          <button class="btn" onclick="pen()">Caneta</button>
-          <button class="btn" onclick="eraser()">Borracha</button>
-          <button class="btn" onclick="clearCanvas()">Limpar</button>
-          <label style="margin-left:auto">Pontuação</label>
+
+        <h4 style="margin-top:14px">Imagens do desenho (upload)</h4>
+        <div class="grid g3">
+          <label class="drop" id="upClock">Relógio<br><img id="imgClock" alt="" style="display:none"><input type="file" accept="image/*" style="display:none"></label>
+          <label class="drop" id="upSquare">Quadrado<br><img id="imgSquare" alt="" style="display:none"><input type="file" accept="image/*" style="display:none"></label>
+          <label class="drop" id="upCircle">Círculo<br><img id="imgCircle" alt="" style="display:none"><input type="file" accept="image/*" style="display:none"></label>
+        </div>
+
+        <div class="toolbar" style="position:static;margin-top:10px">
+          <label style="margin-left:auto">Pontuação CDT (Shulman 0–5)</label>
           <select id="cdt_score" onchange="calc()">
             <option value="5">5 = perfeito</option><option value="4">4 = pequenos erros</option>
             <option value="3">3 = desorganizado</option><option value="2">2 = marcadores incorretos</option>
@@ -89,6 +154,8 @@
           </select>
         </div>
       </div>
+
+      <!-- Mobilidade -->
       <div id="mobilidade" class="sect" style="display:none">
         <h4>Timed Up and Go (TUG)</h4>
         <div class="grid g3">
@@ -106,22 +173,30 @@
         </div>
         <p class="hint">Baixo &lt;25 · moderado 25–44 · alto ≥45.</p>
       </div>
+
+      <!-- Nutrição -->
       <div id="nutricao" class="sect" style="display:none">
-        <h4>MNA‑SF (0–14)</h4>
+        <h4>MNA-SF (0–14)</h4>
         <div id="mna" class="grid g3"></div>
         <p class="hint">12–14 normal · 8–11 risco · 0–7 desnutrição provável.</p>
       </div>
-      <div id="humor" class="sect" style="display:none">
-        <h4>GDS‑15 (0–15)</h4>
+
+      <!-- Depressão -->
+      <div id="depressao" class="sect" style="display:none">
+        <h4>GDS-15 (0–15)</h4>
         <div id="gds" class="grid g3"></div>
         <p class="hint">≥5 sugere depressão. (Pontuação indicativa; avaliar clinicamente.)</p>
       </div>
+
+      <!-- Funcional -->
       <div id="funcional" class="sect" style="display:none">
         <h4>Katz — Atividades Básicas (0–6 independências)</h4>
         <div id="katz" class="grid g3"></div>
         <h4 style="margin-top:12px">Lawton — Atividades Instrumentais (0–8 independências)</h4>
         <div id="lawton" class="grid g3"></div>
       </div>
+
+      <!-- Histórico -->
       <div id="historico" class="sect" style="display:none">
         <h4>Avaliações salvas (local)</h4>
         <table class="table" id="list"><thead><tr><th>Paciente</th><th>Bloco</th><th>Data</th><th>Pontos</th><th>Thumb</th><th>Ações</th></tr></thead><tbody></tbody></table>
@@ -130,4 +205,5 @@
   </div>
 </section>
 <script src="testspro.js"></script>
-</body></html>
+</body>
+</html>
