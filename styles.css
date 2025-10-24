@@ -57,3 +57,17 @@ input:focus,textarea:focus,select:focus{outline:2px solid rgba(14,165,164,.28);b
 .sticky{position:sticky;top:80px}
 .canvasbox{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff}
 @media print{.top,.actions,nav,.hide-print{display:none} body{background:#fff} .card{box-shadow:none}}
+/* ---- Extras da aba Evolução Médica ---- */
+.title-ev{font-weight:600;color:#075e54}
+.lbl{font-weight:600;margin-bottom:6px;display:block}
+
+.cid-box{position:relative}
+.cid-results{
+  position:absolute;left:0;right:0;top:40px;z-index:5;
+  background:#fff;border:1px solid var(--border);border-radius:10px;
+  box-shadow:0 10px 25px rgba(0,0,0,.08);max-height:260px;overflow:auto
+}
+.cid-item{padding:10px 12px;cursor:pointer;border-bottom:1px solid #f2f2f2}
+.cid-item:hover{background:#f9fafb}
+
+.actions-right{display:flex;gap:8px;align-items:flex-end;justify-content:flex-end}
