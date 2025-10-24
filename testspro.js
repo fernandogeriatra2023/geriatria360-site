@@ -1,3 +1,9 @@
+// Evolução + CID-10
+const EVO = 'evolutions_pro_v1';
+let CID_LIST = [];   // CIDs selecionados (chips)
+let CID_DB = [];     // Base completa do CID-10
+let CID_READY = false;
+
 const AS='assessments_pro_v4';
 let AUTH=false, CUR={score:0,interp:'—',label:'—'};
 const uploads = {clock:null, square:null, circle:null};
