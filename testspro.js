@@ -1,27 +1,45 @@
-// Evolução + CID-10
-const EVO = 'evolutions_pro_v1';
-let CID_LIST = [];   // CIDs selecionados (chips)
-let CID_DB = [];     // Base completa do CID-10
+/* ==========================================================
+   Geriatria360 — Médicos (consolidado)
+   - Triagem/Testes (IVCF, MNA-SF, GDS-15 com perguntas, Katz, Lawton, Pfeffer)
+   - Uploads de desenho (relógio/quadrado/círculo)
+   - CID-10: busca por código/termo + chips
+   - Evolução médica: salvar/listar/imprimir (localStorage)
+   - Laudo IA local (HTML imprimível)
+   - Documentos: atestado, receita, pedido de exames
+   ========================================================== */
+
+// -------------------- Stores / Flags -----------------------
+const EVO = 'evolutions_pro_v1';           // evoluções
+const AS  = 'assessments_pro_v4';          // avaliações
+let CID_LIST  = [];                         // chips de CID-10
+let CID_DB    = [];                         // base CID-10
 let CID_READY = false;
 
-const AS='assessments_pro_v4';
 let AUTH=false, CUR={score:0,interp:'—',label:'—'};
 const uploads = {clock:null, square:null, circle:null};
 
-// login
+// ------------------------- Login ---------------------------
 async function loginMed(){
   const pass=document.getElementById('med-pass').value.trim();
   try{
     const cfg=await fetch('data.json').then(r=>r.json());
     if(pass===(cfg.auth?.med_password||'medico123')){
       AUTH=true; document.getElementById('app').style.display='grid';
+      // builders
       buildIVCF(); buildMNA(); buildGDS(); buildKatz(); buildLawton(); buildPfeffer(); bindUploads();
+
+      // CID-10 + Evolução
+      await loadCidDb();
+      renderCIDChips();
+      renderEvos();
+
+      // histórico de testes + cálculo inicial
       renderList(); calc();
     }else alert('Senha inválida');
   }catch(e){ alert('Não encontrei data.json'); }
 }
 
-// navegação
+// --------------------- Navegação Tabs ----------------------
 function tab(el){
   document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
   el.classList.add('active');
@@ -29,12 +47,14 @@ function tab(el){
   document.querySelectorAll('.sect').forEach(s=>s.style.display='none');
   document.getElementById(id).style.display='block';
   if(id==='historico') renderList();
+  if(id==='evolucao')  renderEvos();
   calc();
 }
 
-// builders
+// ------------------------ Builders -------------------------
 function buildIVCF(){
-  const box=document.getElementById('ivcf'); box.innerHTML='';
+  const box=document.getElementById('ivcf'); if(!box) return;
+  box.innerHTML='';
   for(let i=1;i<=20;i++){
     const row=document.createElement('div');
     row.innerHTML = `<div class="hint" style="margin:6px 0">Item ${i}</div>`;
@@ -46,6 +66,107 @@ function buildIVCF(){
     box.appendChild(row);
   }
 }
+
+// ------------------------ CID-10 ---------------------------
+async function loadCidDb(){
+  try{
+    const res = await fetch('cid10.min.json'); // coloque o JSON na raiz
+    CID_DB = await res.json();
+    CID_READY = Array.isArray(CID_DB) && CID_DB.length>0;
+  }catch(_){
+    // fallback mínimo só pra testes
+    CID_DB = [
+      {code:'Z00.0', desc:'Exame geral e investigação de pessoas sem queixas ou diagnóstico relatado'},
+      {code:'F03',   desc:'Demência não especificada'},
+      {code:'E11',   desc:'Diabetes mellitus não-insulino-dependente'}
+    ];
+    CID_READY = true;
+  }
+  bindCidSearch();
+}
+function bindCidSearch(){
+  const inp = document.getElementById('cidSearch');
+  if(!inp) return;
+  let t=null;
+  inp.addEventListener('input', ()=>{
+    clearTimeout(t);
+    t=setTimeout(()=> showCidMatches(inp.value.trim()), 150);
+  });
+  inp.addEventListener('keydown',(e)=>{
+    if(e.key==='Enter'){ e.preventDefault(); pickFirstCid(); }
+  });
+}
+function normalizeCidCode(raw){
+  if(!raw) return '';
+  let s = raw.toUpperCase().replace(/[^A-Z0-9]/g,''); // z000 -> Z000
+  if(/^[A-Z][0-9]{3,4}$/.test(s)){
+    if(s.length===5) s = s.slice(0,4)+'.'+s.slice(4); // LDDD.D
+  }
+  return s;
+}
+function showCidMatches(q){
+  const box = document.getElementById('cidResults'); if(!box) return;
+  if(!q){ box.style.display='none'; box.innerHTML=''; return; }
+
+  const norm = normalizeCidCode(q);
+  const term = q.toLowerCase();
+
+  let res = CID_DB.filter(x =>
+    x.code.toLowerCase().startsWith(norm.toLowerCase()) ||
+    x.desc.toLowerCase().includes(term)
+  ).slice(0,30);
+
+  if(res.length===0){ box.style.display='none'; box.innerHTML=''; return; }
+
+  box.innerHTML = res.map(x=>(
+    `<div class="cid-item" data-code="${x.code}" data-desc="${x.desc}">
+      <b>${x.code}</b> — ${x.desc}
+    </div>`
+  )).join('');
+  box.style.display='block';
+
+  [...box.querySelectorAll('.cid-item')].forEach(it=>{
+    it.onclick=()=>{
+      addCID(`${it.dataset.code} — ${it.dataset.desc}`);
+      box.style.display='none';
+      const inp=document.getElementById('cidSearch'); if(inp) inp.value='';
+    };
+  });
+}
+function pickFirstCid(){
+  const box=document.getElementById('cidResults');
+  const first = box && box.querySelector('.cid-item');
+  if(first){
+    addCID(`${first.dataset.code} — ${first.dataset.desc}`);
+    box.style.display='none';
+    const inp=document.getElementById('cidSearch'); if(inp) inp.value='';
+  }else{
+    const inp=document.getElementById('cidSearch');
+    const v = normalizeCidCode(inp?.value||'');
+    const hit = CID_DB.find(x=>x.code.toLowerCase()===v.toLowerCase());
+    if(hit){ addCID(`${hit.code} — ${hit.desc}`); if(inp) inp.value=''; }
+  }
+}
+function addCID(txt){
+  if(!txt) return;
+  if(!CID_LIST.includes(txt)) CID_LIST.push(txt);
+  renderCIDChips();
+}
+function renderCIDChips(){
+  const wrap=document.getElementById('cidChips'); if(!wrap) return;
+  wrap.innerHTML='';
+  CID_LIST.forEach((t,idx)=>{
+    const chip=document.createElement('span');
+    chip.className='pill active';
+    chip.style.marginRight='6px';
+    chip.textContent=t;
+    chip.title='Remover';
+    chip.onclick=()=>{ CID_LIST.splice(idx,1); renderCIDChips(); };
+    wrap.appendChild(chip);
+  });
+}
+
+// ------------------------ MNA-SF --------------------------
 function buildMNA(){
   const qs=[
     {k:'mnaA',t:'Ingesta alimentar (declínio?)',opts:[['grande declínio',0],['moderado',1],['sem declínio',2]]},
@@ -55,7 +176,8 @@ function buildMNA(){
     {k:'mnaE',t:'Problemas neuropsicológicos',opts:[['demência/depressão grave',0],['leve',1],['nenhum',2]]},
     {k:'mnaF',t:'IMC/CC',opts:[['IMC<19 ou CC<31',0],['IMC 19–21',1],['IMC 21–23',2],['IMC>23',3]]},
   ];
-  const box=document.getElementById('mna'); box.innerHTML='';
+  const box=document.getElementById('mna'); if(!box) return;
+  box.innerHTML='';
   qs.forEach(q=>{
     const c=document.createElement('div'); c.className='card';
     const h=document.createElement('div'); h.className='hint'; h.textContent=q.t; c.appendChild(h);
@@ -68,12 +190,9 @@ function buildMNA(){
   });
 }
 
-// >>> NOVA GDS COM PERGUNTAS <<<
+// ---------------------- GDS-15 (Q&A) ----------------------
 function buildGDS(){
-  // Itens "positivos": pontuam quando a resposta é NÃO
-  const positivos = [1,5,7,11,13];
-
-  // Enunciados oficiais em PT-BR (GDS-15)
+  const positivos = [1,5,7,11,13]; // pontuam quando a resposta é NÃO
   const Q = [
     '1) Está satisfeito(a) com sua vida?',
     '2) Você abandonou muitas das suas atividades e interesses?',
@@ -91,48 +210,30 @@ function buildGDS(){
     '14) Você acha que a sua situação é sem esperança?',
     '15) Você sente que a maioria das pessoas está em melhor situação do que você?'
   ];
-
-  const box = document.getElementById('gds');
+  const box = document.getElementById('gds'); if(!box) return;
   box.innerHTML = '';
-
   Q.forEach((texto, idx) => {
     const i = idx + 1;
-    const card = document.createElement('div');
-    card.className = 'card';
-
-    const h = document.createElement('div');
-    h.className = 'hint';
-    h.textContent = `Item ${i}`;
-    card.appendChild(h);
-
-    const q = document.createElement('div');
-    q.style.margin = '6px 0 10px';
-    q.style.lineHeight = '1.3';
-    q.textContent = texto;
-    card.appendChild(q);
-
+    const card = document.createElement('div'); card.className = 'card';
+    const h = document.createElement('div'); h.className = 'hint'; h.textContent = `Item ${i}`; card.appendChild(h);
+    const q = document.createElement('div'); q.style.margin = '6px 0 10px'; q.style.lineHeight='1.3'; q.textContent = texto; card.appendChild(q);
     const optWrap = document.createElement('div');
-    [['Não', positivos.includes(i) ? 1 : 0],
-     ['Sim', positivos.includes(i) ? 0 : 1]]
+    [['Não', positivos.includes(i) ? 1 : 0], ['Sim', positivos.includes(i) ? 0 : 1]]
       .forEach(([lab, val]) => {
         const d = document.createElement('span');
-        d.className = 'pill';
-        d.textContent = `${lab} (+${val})`;
-        d.dataset.key = 'gds' + i;
-        d.dataset.val = val;
-        d.onclick = (e) => selectPill(e.target);
+        d.className = 'pill'; d.textContent = `${lab} (+${val})`;
+        d.dataset.key = 'gds' + i; d.dataset.val = val; d.onclick = (e) => selectPill(e.target);
         optWrap.appendChild(d);
       });
-
     card.appendChild(optWrap);
     box.appendChild(card);
   });
 }
-// >>> FIM GDS <<<
 
+// ---------------------- Katz / Lawton / Pfeffer ----------
 function buildKatz(){
   const acts=['Banho','Vestuário','Higiene','Transferência','Continência','Alimentação'];
-  const box=document.getElementById('katz'); box.innerHTML='';
+  const box=document.getElementById('katz'); if(!box) return; box.innerHTML='';
   acts.forEach((t,i)=>{
     const c=document.createElement('div'); c.className='card';
     c.innerHTML=`<div class="hint">${t}</div>`;
@@ -144,7 +245,7 @@ function buildKatz(){
 }
 function buildLawton(){
   const acts=['Telefone','Compras','Comida','Casa','Lavanderia','Transporte','Medicação','Finanças'];
-  const box=document.getElementById('lawton'); box.innerHTML='';
+  const box=document.getElementById('lawton'); if(!box) return; box.innerHTML='';
   acts.forEach((t,i)=>{
     const c=document.createElement('div'); c.className='card';
     c.innerHTML=`<div class="hint">${t}</div>`;
@@ -156,7 +257,7 @@ function buildLawton(){
 }
 function buildPfeffer(){
   const itens=Array.from({length:10},(_,i)=>`FAQ ${i+1}`);
-  const box=document.getElementById('pfeffer'); box.innerHTML='';
+  const box=document.getElementById('pfeffer'); if(!box) return; box.innerHTML='';
   itens.forEach((t,i)=>{
     const c=document.createElement('div'); c.className='card';
     c.innerHTML=`<div class="hint">${t}</div>`;
@@ -167,40 +268,39 @@ function buildPfeffer(){
   });
 }
 
-// seleção pill
+// ----------------------- Seletor / Uploads ---------------
 function selectPill(p){ const key=p.dataset.key, val=p.dataset.val;
   [...document.querySelectorAll(`.pill[data-key='${key}']`)].forEach(x=>x.classList.remove('active'));
   p.classList.add('active'); p.parentElement.dataset.value=val; calc();
 }
-
-// uploads (cognição)
 function bindUploads(){ hookUpload('upClock','imgClock','clock'); hookUpload('upSquare','imgSquare','square'); hookUpload('upCircle','imgCircle','circle'); }
 function hookUpload(labelId, imgId, key){
-  const box=document.getElementById(labelId), input=box.querySelector('input'), img=document.getElementById(imgId);
+  const box=document.getElementById(labelId), input=box?.querySelector('input'), img=document.getElementById(imgId);
+  if(!box||!input||!img) return;
   box.onclick = ()=> input.click();
   input.onchange = (e)=>{ const f=e.target.files?.[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{uploads[key]=r.result; img.src=r.result; img.style.display='block';}; r.readAsDataURL(f); };
 }
 
-// helpers
+// --------------------------- Helpers ----------------------
 function getPillSum(prefix,count){ let s=0; for(let i=1;i<=count;i++){const el=document.querySelector(`.pill[data-key='${prefix}${i}'].active`); s+=Number(el?.dataset?.val||0);} return s; }
 function getGroupSum(keys){ return keys.reduce((a,k)=> a + Number((document.querySelector(`.pill[data-key='${k}'].active`)||{}).dataset?.val||0), 0); }
 function riskChip(text){
-  const el = document.getElementById('classif');
+  const el = document.getElementById('classif'); if(!el) return;
   el.textContent = text;
   el.style.padding = '4px 10px'; el.style.borderRadius = '999px'; el.style.display = 'inline-block'; el.style.color = '#fff';
   el.style.background = /alto|grave|positivo/i.test(text) ? '#dc2626' : /moderad|limítrofe|risco/i.test(text) ? '#b45309' : '#047857';
 }
 
-// cálculo principal
+// ----------------------- Cálculo principal ----------------
 function calc(){
   let label='—', score=0, interp='—';
   const visible = [...document.querySelectorAll('.sect')].find(s=>s.style.display!=='none');
   const id = visible ? visible.id : 'triagem';
 
   if(id==='triagem'){
-    const sarc=['sf1','sf2','sf3','sf4','sf5'].map(k=>Number(document.getElementById(k).value||0)).reduce((a,b)=>a+b,0);
+    const sarc=['sf1','sf2','sf3','sf4','sf5'].map(k=>Number(document.getElementById(k)?.value||0)).reduce((a,b)=>a+b,0);
     const iv = getPillSum('iv',20);
-    const cfs = Number(document.getElementById('cfs').value||0);
+    const cfs = Number(document.getElementById('cfs')?.value||0);
     const ivEl=document.getElementById('ivcfSum'); if(ivEl) ivEl.textContent = iv;
     score = sarc + iv + cfs;
     label='Triagem (CFS + SARC-F + IVCF)';
@@ -208,19 +308,19 @@ function calc(){
   }
 
   if(id==='cognicao'){
-    const edu=Number(document.getElementById('edu').value||0);
-    const meem = Number(document.getElementById('meem').value||0);
-    const moca = Number(document.getElementById('moca').value||0) + Number(document.getElementById('moca_adj').value||0);
-    const minicog = Number(document.getElementById('register').value||0) + Number(document.getElementById('clock_ok').value||0) + Number(document.getElementById('recall').value||0);
-    const cdt = Number(document.getElementById('cdt_score').value||0);
+    const edu=Number(document.getElementById('edu')?.value||0);
+    const meem = Number(document.getElementById('meem')?.value||0);
+    const moca = Number(document.getElementById('moca')?.value||0) + Number(document.getElementById('moca_adj')?.value||0);
+    const minicog = Number(document.getElementById('register')?.value||0) + Number(document.getElementById('clock_ok')?.value||0) + Number(document.getElementById('recall')?.value||0);
+    const cdt = Number(document.getElementById('cdt_score')?.value||0);
     score = meem + moca + minicog + cdt;
     label='Cognição (MEEM + MoCA + Mini-Cog + CDT)';
     interp = interpretCognition({meem,moca,minicog,cdt,edu});
   }
 
   if(id==='mobilidade'){
-    const morse=['mh','md','ma','mt','mm','mc'].map(k=>Number(document.getElementById(k).value||0)).reduce((a,b)=>a+b,0);
-    const tug = Number(document.getElementById('tug').value||0);
+    const morse=['mh','md','ma','mt','mm','mc'].map(k=>Number(document.getElementById(k)?.value||0)).reduce((a,b)=>a+b,0);
+    const tug = Number(document.getElementById('tug')?.value||0);
     score = morse + tug; label='Mobilidade/Quedas (TUG + Morse)';
     if(morse<25) interp='Risco baixo (Morse)'; else if(morse<45) interp='Risco moderado (Morse)'; else interp='Risco alto (Morse)';
     if(tug>=30) interp += ' · TUG: comprometido'; else if(tug>=20) interp += ' · TUG: limítrofe'; else if(tug>=10) interp += ' · TUG: ok'; else interp += ' · TUG: normal';
@@ -242,17 +342,15 @@ function calc(){
   }
 
   CUR={score,interp,label};
-  document.getElementById('score').textContent=score;
+  const sc = document.getElementById('score'); if(sc) sc.textContent=score;
   riskChip(interp);
-  document.getElementById('label').textContent=label;
+  const lb = document.getElementById('label'); if(lb) lb.textContent=label;
 }
-
-// interpretação cognitiva simples (regras locais)
 function interpretCognition({meem,moca,minicog,cdt,edu}){
-  const mocaCut = (edu<=12) ? 26 : 26; // adj já somado
+  const mocaCut = 26; // ajuste de escolaridade já somado
   let flags=0;
   if(minicog<3) flags++;
-  if(cdt<4) flags++;
+  if(cdt<4)    flags++;
   if(moca<mocaCut) flags++;
   const meemCut = edu<=4 ? 24 : 26;
   if(meem<meemCut) flags++;
@@ -262,32 +360,30 @@ function interpretCognition({meem,moca,minicog,cdt,edu}){
   return 'Suspeita de transtorno neurocognitivo maior';
 }
 
-// coleta + storage
+// ------------------- Coleta / Histórico (testes) ----------
 function collect(){
   const d={};
   document.querySelectorAll('.pill.active').forEach(p=>{d[p.dataset.key]=p.dataset.val});
   ['sf1','sf2','sf3','sf4','sf5','cfs','register','clock_ok','recall','tug','mh','md','ma','mt','mm','mc','cdt_score','meem','moca','moca_adj']
     .forEach(id=>{const el=document.getElementById(id); if(el) d[id]=el.value;});
-  if(uploads.clock) d.imgClock=uploads.clock;
+  if(uploads.clock)  d.imgClock=uploads.clock;
   if(uploads.square) d.imgSquare=uploads.square;
   if(uploads.circle) d.imgCircle=uploads.circle;
-  d.edu=document.getElementById('edu').value||'';
-  d.contexto=document.getElementById('contexto').value||'';
-  d.meds=document.getElementById('meds').value||'';
-  d.companion=document.getElementById('companion').value||'';
+  d.edu=document.getElementById('edu')?.value||'';
+  d.contexto=document.getElementById('contexto')?.value||'';
+  d.meds=document.getElementById('meds')?.value||'';
+  d.companion=document.getElementById('companion')?.value||'';
   return d;
 }
 function all(){ try{return JSON.parse(localStorage.getItem(AS)||'[]')}catch(_){return []} }
 function saveAssessment(){
   const id=document.getElementById('pid').value.trim(); if(!id) return alert('Informe ID');
-  const it={id,age:document.getElementById('age').value||'',notes:document.getElementById('notes')?.value||'',
+  const it={id,age:document.getElementById('age')?.value||'',notes:document.getElementById('notes')?.value||'',
             label:CUR.label,score:CUR.score,interp:CUR.interp,at:new Date().toISOString(),
             data:collect()};
   const arr=all(); arr.push(it); localStorage.setItem(AS, JSON.stringify(arr));
   renderList(); alert('Salvo localmente.');
 }
-
-// histórico
 function renderList(){
   const tb=document.querySelector('#list tbody'); if(!tb) return; tb.innerHTML='';
   all().sort((a,b)=>new Date(b.at)-new Date(a.at)).forEach((x,i)=>{
@@ -303,28 +399,137 @@ function renderList(){
 function delIt(i){ const arr=all(); arr.splice(i,1); localStorage.setItem(AS, JSON.stringify(arr)); renderList(); }
 function view(i){ const it=all()[i]; const w=window.open('','_blank'); w.document.write(aiReportHTML(it)); }
 
-// impressão simples
+// ---------------------- Impressões gerais -----------------
 function printSummary(){
   const it=currentSnapshot();
   const w=window.open('','_blank'); w.document.write(aiReportHTML(it)); w.print();
 }
 function currentSnapshot(){
   return {
-    id:document.getElementById('pid').value||'(sem id)',
-    age:document.getElementById('age').value||'',
+    id:document.getElementById('pid')?.value||'(sem id)',
+    age:document.getElementById('age')?.value||'',
     notes:document.getElementById('notes')?.value||'',
     label:CUR.label,score:CUR.score,interp:CUR.interp,at:new Date().toISOString(),
     data:collect()
   };
 }
 
-// IA local: gerar Laudo estruturado
+// ------------------- Evolução Médica (local) --------------
+function saveEvolution(){
+  const id=(document.getElementById('pid')?.value||'').trim();
+  if(!id) return alert('Informe o ID do paciente.');
+  const evoText=(document.getElementById('evoText')?.value||'').trim();
+  if(!evoText) return alert('Escreva a evolução.');
+
+  const item={
+    at:new Date().toISOString(),
+    id,
+    age:document.getElementById('age')?.value||'',
+    edu:document.getElementById('edu')?.value||'',
+    cids:[...CID_LIST],
+    text:evoText
+  };
+  const arr = getEvos(); arr.push(item); setEvos(arr);
+  const t=document.getElementById('evoText'); if(t) t.value='';
+  CID_LIST=[]; renderCIDChips(); renderEvos();
+  alert('Evolução salva localmente.');
+}
+function getEvos(){ try{return JSON.parse(localStorage.getItem(EVO)||'[]')}catch(_){return []} }
+function setEvos(v){ localStorage.setItem(EVO, JSON.stringify(v)); }
+function renderEvos(){
+  const tb=document.querySelector('#evoList tbody'); if(!tb) return; tb.innerHTML='';
+  getEvos().sort((a,b)=>new Date(b.at)-new Date(a.at)).forEach((x,i)=>{
+    const dt=new Date(x.at).toLocaleString('pt-BR');
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${dt}</td><td>${x.id}</td><td>${(x.cids||[]).join(', ')||'-'}</td>
+      <td style="max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${x.text}</td>
+      <td><button class="btn" onclick="printEvo(${i})">Imprimir</button> <button class="btn" onclick="delEvo(${i})">Del</button></td>`;
+    tb.appendChild(tr);
+  });
+}
+function delEvo(i){ const arr=getEvos(); arr.splice(i,1); setEvos(arr); renderEvos(); }
+function printEvo(i){
+  const x=getEvos()[i]; if(!x) return;
+  const body = `
+<p><b>Paciente:</b> ${x.id} &nbsp; | &nbsp; <b>Idade:</b> ${x.age||'-'} &nbsp; | &nbsp; <b>Escolaridade:</b> ${x.edu||'-'} anos</p>
+<p><b>Data/hora:</b> ${(new Date(x.at)).toLocaleString('pt-BR')}</p>
+<p><b>CID-10:</b> ${(x.cids||[]).join(', ')||'-'}</p>
+<div class="box"><pre style="white-space:pre-wrap">${x.text}</pre></div>`;
+  openDoc('Evolução Médica', body);
+}
+function printEvoFromCurrent(){
+  const id=(document.getElementById('pid')?.value||'(sem id)');
+  const age=(document.getElementById('age')?.value||'-');
+  const edu=(document.getElementById('edu')?.value||'-');
+  const txt=(document.getElementById('evoText')?.value||'');
+  const cids = CID_LIST.join(', ')||'-';
+  const body = `
+<p><b>Paciente:</b> ${id} &nbsp; | &nbsp; <b>Idade:</b> ${age} &nbsp; | &nbsp; <b>Escolaridade:</b> ${edu} anos</p>
+<p><b>CID-10:</b> ${cids}</p>
+<div class="box"><pre style="white-space:pre-wrap">${txt}</pre></div>`;
+  openDoc('Evolução Médica', body);
+}
+
+// -------------------- Documentos (básicos) ----------------
+function generateAtestado(){
+  const dias = document.getElementById('atest_dias')?.value||'';
+  const motivo = document.getElementById('atest_motivo')?.value||'';
+  const inicio = document.getElementById('atest_inicio')?.value||'';
+  const rest  = document.getElementById('atest_restr')?.value||'';
+  const paciente = document.getElementById('pid')?.value||'(sem id)';
+
+  const body = `
+<p>Atesto, para os devidos fins, que <b>${paciente}</b> necessita de <b>${dias||'__'}</b> dia(s) de afastamento das atividades, ${
+    inicio ? 'a contar de '+ new Date(inicio).toLocaleDateString('pt-BR') : 'a partir desta data'
+  }.</p>
+<p><b>Motivo:</b> ${motivo||'__'}</p>
+<p><b>Restrições/Atividades:</b> ${rest||'__'}</p>
+<p class="muted">Documento emitido eletronicamente.</p>`;
+  openDoc('Atestado Médico', body);
+}
+function generateReceita(){
+  const paciente = document.getElementById('pid')?.value||'(sem id)';
+  const linhas = (document.getElementById('rx_itens')?.value||'').split('\n').filter(Boolean);
+  const body = `
+<p><b>Paciente:</b> ${paciente}</p>
+<ol>${linhas.map(l=>`<li>${l}</li>`).join('')}</ol>
+<p class="muted">Orientações de uso conforme prescrição. Documento eletrônico.</p>`;
+  openDoc('Receituário', body);
+}
+function generatePedidoExame(){
+  const paciente = document.getElementById('pid')?.value||'(sem id)';
+  const exames = (document.getElementById('ped_exames')?.value||'').split('\n').filter(Boolean);
+  const just   = document.getElementById('ped_just')?.value||'';
+  const clin   = document.getElementById('ped_clinica')?.value||'';
+  const body = `
+<p><b>Paciente:</b> ${paciente}</p>
+<p><b>Exames solicitados:</b></p>
+<ul>${exames.map(e=>`<li>${e}</li>`).join('')}</ul>
+<p><b>Justificativa clínica:</b> ${just||'__'}</p>
+<p><b>Condições/Clínica:</b> ${clin||'__'}</p>`;
+  openDoc('Pedido de Exames', body);
+}
+function openDoc(title, inner){
+  const w=window.open('','_blank');
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${title}</title>
+  <style>
+    body{font-family:Arial, sans-serif;margin:26px;line-height:1.45}
+    h1{margin:0 0 10px}.box{border:1px solid #ddd;border-radius:10px;padding:14px;margin-top:8px}
+    .muted{color:#64748b}@media print{.no-print{display:none}}
+  </style></head><body>
+  <h1>${title}</h1>
+  ${inner}
+  <hr><p>Assinatura/Carimbo: ____________________________ &nbsp; CRM/SC 28480</p>
+  <p class="muted no-print">Documento gerado pelo sistema — revise antes de imprimir.</p>
+  </body></html>`);
+}
+
+// -------------------- Laudo IA (HTML) ---------------------
 function generateAIReport(){
   const it=currentSnapshot();
   const w=window.open('','_blank');
   w.document.write(aiReportHTML(it));
 }
-
 function aiReportHTML(it){
   const d=it.data||{};
   const edu = Number(d.edu||0);
@@ -385,30 +590,12 @@ function aiReportHTML(it){
 
   <h2 style="margin-top:12px">Exame cognitivo/funcional — achados qualitativos</h2>
   <div class="cols">
-    <div class="box">
-      <b>Memória imediata/recente:</b><br>
-      _________________________________________________
-    </div>
-    <div class="box">
-      <b>Atenção e funções executivas:</b><br>
-      _________________________________________________
-    </div>
-    <div class="box">
-      <b>Linguagem (nomeação/repetição/compreensão):</b><br>
-      _________________________________________________
-    </div>
-    <div class="box">
-      <b>Visuoespacial/Construção (relógio/cópia):</b><br>
-      _________________________________________________
-    </div>
-    <div class="box">
-      <b>Orientação (tempo/lugar/pessoa):</b><br>
-      _________________________________________________
-    </div>
-    <div class="box">
-      <b>Funcionalidade (AIVDs/ABVDs):</b><br>
-      _________________________________________________
-    </div>
+    <div class="box"><b>Memória imediata/recente:</b><br>___________________________________________</div>
+    <div class="box"><b>Atenção e funções executivas:</b><br>___________________________________________</div>
+    <div class="box"><b>Linguagem (nomeação/repetição/compreensão):</b><br>____________________________</div>
+    <div class="box"><b>Visuoespacial/Construção (relógio/cópia):</b><br>____________________________</div>
+    <div class="box"><b>Orientação (tempo/lugar/pessoa):</b><br>____________________________</div>
+    <div class="box"><b>Funcionalidade (AIVDs/ABVDs):</b><br>____________________________</div>
   </div>
 
   ${pics? `<h2 style="margin-top:12px">Imagens anexas</h2>${pics}`:''}
@@ -431,7 +618,7 @@ function aiReportHTML(it){
   </body></html>`;
 }
 
-// reset
+// ----------------------------- Reset ----------------------
 function resetForms(){
   document.querySelectorAll('input[type=number], input[type=range]').forEach(e=>e.value=0);
   document.querySelectorAll('select').forEach(e=>e.value=0);
