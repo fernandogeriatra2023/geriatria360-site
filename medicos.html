@@ -730,25 +730,41 @@
           <div id="lawton" class="grid g3"></div>
         </div>
 
-        <!-- Evolução -->
-        <div id="evolucao" class="sect">
-          <h4>Evolução Médica</h4>
-          <div class="card">
-            <label>Adicionar CID-10</label>
-            <div class="toolbar" style="position:static">
-              <input id="cidInput" placeholder="Ex.: F03 — Demência não especificada" style="flex:1;min-width:240px">
-              <button class="btn" onclick="addCID()">Adicionar CID</button>
-            </div>
-            <div id="cidChips" style="margin-top:8px"></div>
+<!-- EVOLUÇÃO MÉDICA (limpo, sem relógio) -->
+<div id="evolucao" class="sect" style="display:none">
+  <h4 class="title-ev">Evolução Médica</h4>
 
-            <label style="margin-top:12px">Texto da evolução</label>
-            <textarea id="evoText" rows="6" placeholder="Evolução em 23/10/2025: Paciente relata ... Exame físico ... Conduta ..."></textarea>
+  <div class="card">
+    <label for="evoText" class="lbl">Texto da evolução</label>
+    <textarea id="evoText" rows="10" placeholder="Descreva aqui a evolução..."></textarea>
 
-            <div class="toolbar" style="position:static;margin-top:10px">
-              <button class="btn" onclick="saveEvolution()">Salvar evolução</button>
-              <button class="btn danger" onclick="clearEvolution()">Limpar</button>
-            </div>
-          </div>
+    <div class="grid g2" style="margin-top:12px">
+      <div>
+        <label for="cidSearch" class="lbl">CID-10 (digite código ou termo)</label>
+        <div class="cid-box">
+          <input id="cidSearch" placeholder="Ex.: z000  •  ou  'diabetes'">
+          <div id="cidResults" class="cid-results" style="display:none"></div>
+        </div>
+        <div id="cidChips" style="margin-top:8px"></div>
+      </div>
+
+      <div class="actions-right">
+        <button class="btn" onclick="saveEvolution()">Salvar evolução</button>
+        <button class="btn" onclick="generateAIReport()">Laudo IA</button>
+        <button class="btn" onclick="printEvoFromCurrent()">Gerar PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <h4 style="margin-top:18px">Evoluções salvas (local)</h4>
+  <table class="table" id="evoList">
+    <thead>
+      <tr><th>Data</th><th>Paciente</th><th>CIDs</th><th>Resumo</th><th>Ações</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
 
           <h4 class="mt-2">Evoluções salvas (local)</h4>
           <table class="table" id="evoList">
