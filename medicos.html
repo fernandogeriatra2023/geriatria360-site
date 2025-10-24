@@ -209,6 +209,67 @@
         <div id="lawton" class="grid g3"></div>
       </div>
 <div class="step" data-tab="evolucao" onclick="tab(this)">Evolução</div>   
+<!-- Evolução / Documentos -->
+<div id="evolucao" class="sect" style="display:none">
+  <h4>Evolução Médica</h4>
+  <div class="card">
+    <label>Adicionar CID-10</label>
+    <div class="toolbar" style="position:static">
+      <input id="cidInput" placeholder="Ex.: F03 — Demência não especificada" style="flex:1;min-width:240px">
+      <button class="btn" onclick="addCID()">Adicionar CID</button>
+    </div>
+    <div id="cidChips" style="margin-top:8px"></div>
+
+    <label style="margin-top:12px">Texto da evolução (data, conduta, achados)</label>
+    <textarea id="evoText" rows="6" placeholder="Evolução em 23/10/2025: Paciente relata ... Exame físico ... Conduta ..."></textarea>
+
+    <div class="toolbar" style="position:static;margin-top:10px">
+      <button class="btn" onclick="saveEvolution()">Salvar evolução</button>
+      <button class="btn" onclick="clearEvolution()">Limpar</button>
+    </div>
+  </div>
+
+  <h4 style="margin-top:14px">Evoluções salvas (local)</h4>
+  <table class="table" id="evoList">
+    <thead><tr><th>Data</th><th>Paciente</th><th>CIDs</th><th>Resumo</th><th>Ações</th></tr></thead>
+    <tbody></tbody>
+  </table>
+
+  <h4 style="margin-top:18px">Documentos</h4>
+  <div class="grid g3">
+    <!-- Atestado -->
+    <div class="card">
+      <div class="hint">Atestado</div>
+      <label>Dias de afastamento</label>
+      <input id="attDias" type="number" min="1" value="3">
+      <label>Motivo/diagnóstico (opcional)</label>
+      <input id="attMotivo" placeholder="Conforme CIDs e avaliação clínica">
+      <label>Data início (opcional)</label>
+      <input id="attInicio" type="date">
+      <label>Restrição/atividade (opcional)</label>
+      <input id="attAtiv" placeholder="Evitar esforço físico / dirigir / etc.">
+      <button class="btn cta" style="margin-top:8px" onclick="generateAtestado()">Gerar Atestado</button>
+    </div>
+
+    <!-- Receita -->
+    <div class="card">
+      <div class="hint">Receita</div>
+      <label>Medicamentos (um por linha)</label>
+      <textarea id="rxText" rows="10" placeholder="Nome — dose — posologia — duração&#10;Ex.: Donepezila 5 mg — 1 cp à noite — por 30 dias"></textarea>
+      <button class="btn cta" style="margin-top:8px" onclick="generateReceita()">Gerar Receita</button>
+    </div>
+
+    <!-- Pedido de Exame -->
+    <div class="card">
+      <div class="hint">Pedido de Exame</div>
+      <label>Exames solicitados (um por linha)</label>
+      <textarea id="pxText" rows="8" placeholder="TSH, T4 livre&#10;Vitamina B12&#10;Hemograma, eletrólitos"></textarea>
+      <label>Justificativa clínica</label>
+      <textarea id="pxJust" rows="4" placeholder="Triagem de causas reversíveis de comprometimento cognitivo, conforme avaliação."></textarea>
+      <button class="btn cta" style="margin-top:8px" onclick="generatePedido()">Gerar Pedido</button>
+    </div>
+  </div>
+</div>
 
       <!-- Histórico -->
       <div id="historico" class="sect" style="display:none">
