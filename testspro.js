@@ -61,18 +61,69 @@ function buildMNA(){
     box.appendChild(c);
   });
 }
+
+// >>> NOVA GDS COM PERGUNTAS <<<
 function buildGDS(){
-  const pos=[1,5,7,11,13]; const box=document.getElementById('gds'); box.innerHTML='';
-  for(let i=1;i<=15;i++){
-    const c=document.createElement('div'); c.className='card';
-    const q=document.createElement('div'); q.className='hint'; q.textContent=`Item ${i}`; c.appendChild(q);
-    ['Não','Sim'].forEach((lab,idx)=>{
-      const v = (pos.includes(i) ? (idx===0?1:0) : (idx===1?1:0));
-      const d=document.createElement('span'); d.className='pill'; d.textContent=`${lab} (+${v})`; d.dataset.key='gds'+i; d.dataset.val=v; d.onclick=(e)=>selectPill(e.target); c.appendChild(d);
-    });
-    box.appendChild(c);
-  }
+  // Itens "positivos": pontuam quando a resposta é NÃO
+  const positivos = [1,5,7,11,13];
+
+  // Enunciados oficiais em PT-BR (GDS-15)
+  const Q = [
+    '1) Está satisfeito(a) com sua vida?',
+    '2) Você abandonou muitas das suas atividades e interesses?',
+    '3) Você sente que sua vida está vazia?',
+    '4) Você se aborrece com frequência?',
+    '5) Você se sente de bem com a vida a maior parte do tempo?',
+    '6) Você tem medo que algo ruim possa lhe acontecer?',
+    '7) Você se sente feliz a maior parte do tempo?',
+    '8) Você se sente frequentemente desamparado(a)?',
+    '9) Você prefere ficar em casa a sair e fazer coisas novas?',
+    '10) Você acha que tem mais problemas de memória do que a maioria?',
+    '11) Você acha maravilhoso estar vivo(a) agora?',
+    '12) Você se sente sem valor (inútil)?',
+    '13) Você se sente cheio(a) de energia?',
+    '14) Você acha que a sua situação é sem esperança?',
+    '15) Você sente que a maioria das pessoas está em melhor situação do que você?'
+  ];
+
+  const box = document.getElementById('gds');
+  box.innerHTML = '';
+
+  Q.forEach((texto, idx) => {
+    const i = idx + 1;
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    const h = document.createElement('div');
+    h.className = 'hint';
+    h.textContent = `Item ${i}`;
+    card.appendChild(h);
+
+    const q = document.createElement('div');
+    q.style.margin = '6px 0 10px';
+    q.style.lineHeight = '1.3';
+    q.textContent = texto;
+    card.appendChild(q);
+
+    const optWrap = document.createElement('div');
+    [['Não', positivos.includes(i) ? 1 : 0],
+     ['Sim', positivos.includes(i) ? 0 : 1]]
+      .forEach(([lab, val]) => {
+        const d = document.createElement('span');
+        d.className = 'pill';
+        d.textContent = `${lab} (+${val})`;
+        d.dataset.key = 'gds' + i;
+        d.dataset.val = val;
+        d.onclick = (e) => selectPill(e.target);
+        optWrap.appendChild(d);
+      });
+
+    card.appendChild(optWrap);
+    box.appendChild(card);
+  });
 }
+// >>> FIM GDS <<<
+
 function buildKatz(){
   const acts=['Banho','Vestuário','Higiene','Transferência','Continência','Alimentação'];
   const box=document.getElementById('katz'); box.innerHTML='';
@@ -197,7 +248,6 @@ function interpretCognition({meem,moca,minicog,cdt,edu}){
   if(minicog<3) flags++;
   if(cdt<4) flags++;
   if(moca<mocaCut) flags++;
-  // MEEM varia por escolaridade; aqui deixo cortes aproximados
   const meemCut = edu<=4 ? 24 : 26;
   if(meem<meemCut) flags++;
   if(flags===0) return 'Sem evidências de comprometimento';
@@ -215,7 +265,6 @@ function collect(){
   if(uploads.clock) d.imgClock=uploads.clock;
   if(uploads.square) d.imgSquare=uploads.square;
   if(uploads.circle) d.imgCircle=uploads.circle;
-  // dados clínicos
   d.edu=document.getElementById('edu').value||'';
   d.contexto=document.getElementById('contexto').value||'';
   d.meds=document.getElementById('meds').value||'';
@@ -263,9 +312,7 @@ function currentSnapshot(){
   };
 }
 
-// ————————————————————————————————————————————————
 // IA local: gerar Laudo estruturado
-// ————————————————————————————————————————————————
 function generateAIReport(){
   const it=currentSnapshot();
   const w=window.open('','_blank');
@@ -284,7 +331,6 @@ function aiReportHTML(it){
   const katz=Array.from({length:6},(_,i)=>Number(d['katz'+(i+1)]||0)).reduce((a,b)=>a+b,0);
   const law=Array.from({length:8},(_,i)=>Number(d['law'+(i+1)]||0)).reduce((a,b)=>a+b,0);
 
-  // interpretações
   const cognit = interpretCognition({meem,moca,minicog,cdt,edu});
   const func = (pfe>=5? 'Disfunção em AIVDs provável (Pfeffer ≥5).' : 'AIVDs preservadas pelo Pfeffer.')
                + ` Katz ${katz}/6, Lawton ${law}/8.`;
@@ -296,7 +342,6 @@ function aiReportHTML(it){
 
   const pics = ['imgClock','imgSquare','imgCircle'].map(k=> d[k] ? `<div style="margin:6px 0"><b>${k.replace('img','')}</b><br><img src="${d[k]}" style="max-width:260px;border:1px solid #ddd;border-radius:10px"/></div>` : '' ).join('');
 
-  // plano padrão (editável após impressão)
   const plano = `
 • Laboratorial básico: hemograma, eletrólitos, TSH, T4 livre, B12, folato, glicemia/HbA1c, função renal/hepática; conforme caso (VDRL/HIV/Vit. D).
 • Imagem (se indicado): TC ou RM de encéfalo.
