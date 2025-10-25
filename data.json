@@ -1,12 +1,14 @@
 {
-  "site": {
-    "name": "Geriatria 360",
-    "whatsapp_link": "https://wa.me/5548999999999?text=Olá%20Geriatria%20360,%20gostaria%20de%20agendar%20uma%20consulta.",
-    "agenda_link": "https://wa.me/5548999999999?text=Quero%20marcar%20consulta",
-    "address": "Rua Exemplo, 123 — Centro — Cidade/UF"
-  },
-  "auth": {
-    "admin_password": "admin123",
-    "med_password": "medico123"
-  }
+  "banner": [
+    { "title": "Campanha de Vacinação", "date": "2025-10-20", "tag": "Importante" },
+    { "title": "Quedas: 5 cuidados dentro de casa", "date": "2025-10-15", "tag": "Prevenção" }
+  ],
+  "news": [
+    { "title": "Campanha de Vacinação", "type": "Notícia", "date": "2025-10-20", "href": "post.html?id=1" },
+    { "title": "Sarcopenia: sinais de alerta", "type": "Artigo", "date": "2025-10-10", "href": "post.html?id=2" }
+  ],
+  "topics": [
+    { "title": "Doença de Alzheimer", "subtitle": "Sinais e condutas iniciais.", "href": "post.html?id=alzheimer" },
+    { "title": "Prevenção de quedas", "subtitle": "TUG, ambiente e treino.", "href": "post.html?id=quedas" }
+  ]
 }
