@@ -1,898 +1,141 @@
 <!doctype html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Geriatria 360 — Área Médicos</title>
-  <link rel="stylesheet" href="styles.css">
-  <style>
-    /* === VARIÁVEIS E RESET === */
-    :root {
-      --primary: #0ea5a4;
-      --primary-dark: #047857;
-      --secondary: #64748b;
-      --light: #f8fafc;
-      --dark: #1e293b;
-      --border: #e5e7eb;
-      --danger: #ef4444;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --radius: 12px;
-      --shadow: 0 12px 28px rgba(2,8,23,.06);
-      --transition: all 0.3s ease;
-    }
-    
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      line-height: 1.6;
-      color: var(--dark);
-      background: #f1f5f9;
-    }
-    
-    /* === LAYOUT GERAL === */
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 16px;
-    }
-    
-    .section {
-      padding: 24px 0;
-    }
-    
-    .row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    
-    .grid {
-      display: grid;
-      gap: 20px;
-    }
-    
-    .g2 { grid-template-columns: 1fr; }
-    .g3 { grid-template-columns: 1fr; }
-    
-    @media(min-width: 960px) {
-      .g2 { grid-template-columns: 1.1fr .9fr; }
-      .g3 { grid-template-columns: repeat(3, 1fr); }
-    }
-    
-    /* === COMPONENTES === */
-    .card {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 20px;
-      transition: var(--transition);
-    }
-    
-    .card:hover {
-      box-shadow: 0 20px 40px rgba(2,8,23,.08);
-    }
-    
-    .sticky {
-      position: sticky;
-      top: 100px;
-    }
-    
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 10px 16px;
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      color: var(--dark);
-      text-decoration: none;
-      font-weight: 500;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    
-    .btn:hover {
-      background: #f8fafc;
-      border-color: var(--primary);
-    }
-    
-    .btn.cta {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
-    
-    .btn.cta:hover {
-      background: var(--primary-dark);
-    }
-    
-    .btn.danger {
-      background: var(--danger);
-      color: white;
-      border-color: var(--danger);
-    }
-    
-    input, select, textarea {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      font-family: inherit;
-      font-size: 15px;
-      transition: var(--transition);
-    }
-    
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(14, 165, 164, 0.1);
-    }
-    
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 500;
-      color: var(--dark);
-    }
-    
-    h1, h2, h3, h4 {
-      color: var(--dark);
-      margin-bottom: 16px;
-    }
-    
-    h2 {
-      font-size: 24px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 10px;
-    }
-    
-    h3 {
-      font-size: 20px;
-    }
-    
-    h4 {
-      font-size: 18px;
-      margin-top: 20px;
-    }
-    
-    /* === STEPS NAVIGATION === */
-    .steps {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-      position: relative;
-    }
-    
-    .step {
-      padding: 10px 16px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: #fff;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      transition: var(--transition);
-      white-space: nowrap;
-    }
-    
-    .step:hover {
-      background: #f1f5f9;
-    }
-    
-    .step.active {
-      background: linear-gradient(90deg, var(--primary), var(--primary-dark));
-      color: #fff;
-      border-color: transparent;
-    }
-    
-    /* === PILLS / CHIPS === */
-    .pill {
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      padding: 8px 12px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: var(--transition);
-    }
-    
-    .pill:hover {
-      background: #f1f5f9;
-    }
-    
-    .pill.active {
-      background: var(--primary);
-      color: #fff;
-      border-color: var(--primary);
-    }
-    
-    .pill .close {
-      font-size: 16px;
-      cursor: pointer;
-      opacity: 0.7;
-    }
-    
-    .pill .close:hover {
-      opacity: 1;
-    }
-    
-    /* === KPI CARDS === */
-    .kpi {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 16px;
-    }
-    
-    .kpi .k {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      text-align: center;
-      transition: var(--transition);
-    }
-    
-    .kpi .k:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 16px rgba(2,8,23,.08);
-    }
-    
-    .k .v {
-      font-size: 24px;
-      font-weight: 800;
-      color: var(--primary);
-    }
-    
-    /* === FILE UPLOAD === */
-    .drop {
-      border: 2px dashed var(--border);
-      border-radius: var(--radius);
-      background: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 8px;
-      padding: 20px;
-      cursor: pointer;
-      text-align: center;
-      transition: var(--transition);
-    }
-    
-    .drop:hover {
-      border-color: var(--primary);
-      background: #f8fafc;
-    }
-    
-    .drop img {
-      max-width: 100%;
-      max-height: 180px;
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      object-fit: contain;
-      background: #fff;
-    }
-    
-    /* === TOOLBAR === */
-    .toolbar {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 12px;
-      background: #fff;
-      position: sticky;
-      top: 80px;
-      z-index: 10;
-    }
-    
-    /* === TABLES === */
-    .table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-    
-    .table th, .table td {
-      border-bottom: 1px solid var(--border);
-      padding: 12px;
-      text-align: left;
-    }
-    
-    .table th {
-      background: #f8fafc;
-      font-weight: 600;
-      color: var(--dark);
-    }
-    
-    .table tr:hover {
-      background: #f8fafc;
-    }
-    
-    /* === UTILITIES === */
-    .hint {
-      font-size: 13px;
-      color: var(--secondary);
-    }
-    
-    .small {
-      font-size: 12px;
-    }
-    
-    .text-center {
-      text-align: center;
-    }
-    
-    .mb-1 { margin-bottom: 8px; }
-    .mb-2 { margin-bottom: 16px; }
-    .mb-3 { margin-bottom: 24px; }
-    .mt-1 { margin-top: 8px; }
-    .mt-2 { margin-top: 16px; }
-    .mt-3 { margin-top: 24px; }
-    
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 20px 0;
-    }
-    
-    /* === HEADER === */
-    .top {
-      background: white;
-      border-bottom: 1px solid var(--border);
-      padding: 16px 0;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 4px 12px rgba(2,8,23,.04);
-    }
-    
-    /* === SECTIONS === */
-    .sect {
-      display: none;
-    }
-    
-    .sect.active {
-      display: block;
-      animation: fadeIn 0.3s ease;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    /* === PRINT STYLES === */
-    @media print {
-      .top, .toolbar, .steps, .step { display: none; }
-    }
-  </style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Área Médica — Geriatria 360</title>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
 <header class="top">
-  <div class="container row">
-    <a class="btn" href="index.html">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M19 12H5M12 19l-7-7 7-7"/>
-      </svg>
-      Início
-    </a>
-    <strong>Área Médicos</strong>
+  <div class="container top__row">
+    <div class="brand">Área Médica</div>
+    <nav class="nav">
+      <a href="index.html">Início</a>
+      <a href="#" class="btn" id="btnPrint">Imprimir/Salvar PDF</a>
+    </nav>
   </div>
 </header>
 
-<section class="container section">
-  <div class="card">
-    <h2>Acesso Médico</h2>
-    <p class="hint mb-2">Senha em <code>data.json</code> (protótipo: <code>medico123</code>).</p>
-    <div class="toolbar" style="position:static">
-      <input id="med-pass" type="password" placeholder="••••••••" style="max-width:280px">
-      <button class="btn cta" onclick="loginMed()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
-        </svg>
-        Entrar
-      </button>
-    </div>
-  </div>
-
-  <div id="app" style="display:none;margin-top:24px" class="grid g2">
-    <!-- Coluna esquerda -->
-    <div class="card sticky">
-      <h3>Dados do Paciente</h3>
-      
-      <div class="grid g2">
-        <div>
-          <label>ID do Paciente</label>
-          <input id="pid" placeholder="AB-001">
-        </div>
-        <div>
-          <label>Idade</label>
-          <input id="age" type="number" placeholder="75">
-        </div>
+<section class="section">
+  <div class="container">
+    <!-- Login simples -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="seg">
+        <input id="med-pass" type="password" placeholder="Senha (protótipo: medico123)"/>
+        <button class="btn primary" onclick="loginMed()">Entrar</button>
       </div>
-      
-      <label>Escolaridade (anos)</label>
-      <input id="edu" type="number" min="0" max="30" placeholder="12">
-      
-      <label>Acompanhante</label>
-      <input id="companion" placeholder="—">
-      
-      <label>Queixa Principal</label>
-      <textarea id="contexto" rows="2" placeholder="Queixa de memória/atenção, início insidioso há ..."></textarea>
-      
-      <label>Medicações Potencialmente Problemáticas</label>
-      <textarea id="meds" rows="2" placeholder="ex.: difenidramina, amitriptilina, benzodiazepínicos..."></textarea>
-      
-      <p class="hint mt-1">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="12" y1="16" x2="12" y2="12"/>
-          <line x1="12" y1="8" x2="12.01" y2="8"/>
-        </svg>
-        Evite nome completo — use código.
-      </p>
-
-      <div class="kpi">
-        <div class="k">
-          <div class="hint">Pontuação</div>
-          <div id="score" class="v">0</div>
-        </div>
-        <div class="k">
-          <div class="hint">Classificação</div>
-          <div id="classif">—</div>
-        </div>
-        <div class="k">
-          <div class="hint">Bloco</div>
-          <div id="label">—</div>
-        </div>
-      </div>
-
-      <div class="toolbar" style="margin-top:16px;position:static">
-        <button class="btn" onclick="saveAssessment()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-            <polyline points="17 21 17 13 7 13 7 21"/>
-            <polyline points="7 3 7 8 15 8"/>
-          </svg>
-          Salvar
-        </button>
-        <button class="btn" onclick="printSummary()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="6 9 6 2 18 2 18 9"/>
-            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-            <rect x="6" y="14" width="12" height="8"/>
-          </svg>
-          Imprimir
-        </button>
-        <button class="btn cta" onclick="generateAIReport()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-            <polyline points="7.5 4.21 12 6.81 16.5 4.21"/>
-            <polyline points="7.5 19.79 7.5 14.6 3 12"/>
-            <polyline points="21 12 16.5 14.6 16.5 19.79"/>
-            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-            <line x1="12" y1="22.08" x2="12" y2="12"/>
-          </svg>
-          Gerar Laudo (IA)
-        </button>
-        <button class="btn danger" onclick="resetForms()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="3 6 5 6 21 6"/>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-          </svg>
-          Limpar
-        </button>
-      </div>
+      <small class="hint">Senha definida em <code>data.json</code>.</small>
     </div>
 
-    <!-- Coluna direita -->
-    <div>
-      <div class="card">
-        <h3>Fluxo de Avaliação</h3>
-        <div class="steps">
-          <div class="step active" data-tab="triagem" onclick="tab(this)">Triagem</div>
-          <div class="step" data-tab="cognicao" onclick="tab(this)">Cognição</div>
-          <div class="step" data-tab="mobilidade" onclick="tab(this)">Mobilidade/Quedas</div>
-          <div class="step" data-tab="nutricao" onclick="tab(this)">Nutrição</div>
-          <div class="step" data-tab="depressao" onclick="tab(this)">Depressão</div>
-          <div class="step" data-tab="funcional" onclick="tab(this)">Funcional</div>
-          <div class="step" data-tab="evolucao" onclick="tab(this)">Evolução</div>
-          <div class="step" data-tab="historico" onclick="tab(this)">Histórico</div>
-        </div>
-
-        <!-- Triagem -->
-        <div id="triagem" class="sect active">
-          <h4>Escala Clínica de Fragilidade (CFS 1–9)</h4>
-          <input id="cfs" type="range" min="1" max="9" step="1" value="4" oninput="calc()">
-          <div class="hint text-center">1–3 robusto · 4 vulnerável · 5–6 frágil leve/mod · 7–8 grave · 9 terminal</div>
-
-          <div class="grid g3 mt-2">
-            <div class="card">
-              <div class="hint">SARC-F</div>
-              <label>Força</label>
-              <select id="sf1" onchange="calc()">
-                <option value="0">0 — Sem dificuldade</option>
-                <option value="1">1 — Alguma dificuldade</option>
-                <option value="2">2 — Muita / não consegue</option>
-              </select>
-              <label>Caminhar</label>
-              <select id="sf2" onchange="calc()">
-                <option value="0">0 — Sem dificuldade</option>
-                <option value="1">1 — Alguma dificuldade</option>
-                <option value="2">2 — Muita / não consegue</option>
-              </select>
-              <label>Levantar</label>
-              <select id="sf3" onchange="calc()">
-                <option value="0">0 — Sem dificuldade</option>
-                <option value="1">1 — Alguma dificuldade</option>
-                <option value="2">2 — Muita / não consegue</option>
-              </select>
-              <label>Escadas</label>
-              <select id="sf4" onchange="calc()">
-                <option value="0">0 — Sem dificuldade</option>
-                <option value="1">1 — Alguma dificuldade</option>
-                <option value="2">2 — Muita / não consegue</option>
-              </select>
-              <label>Quedas</label>
-              <select id="sf5" onchange="calc()">
-                <option value="0">0 — Nenhuma</option>
-                <option value="1">1 — uma</option>
-                <option value="2">2 — ≥2 quedas</option>
-              </select>
-              <div class="hint mt-1">≥4 sugere sarcopenia provável.</div>
-            </div>
-
-            <div class="card" style="grid-column:span 2">
-              <details open>
-                <summary style="cursor:pointer">
-                  <div class="hint">IVCF-20 (0–40) — <b id="ivcfSum">0</b> pontos • <span class="small">≥15 positivo</span></div>
-                </summary>
-                <div id="ivcf" style="margin-top:10px"></div>
-              </details>
-            </div>
-          </div>
-        </div>
-
-        <!-- Cognição -->
-        <div id="cognicao" class="sect">
-          <h4>MEEM e MoCA</h4>
-          <div class="grid g3">
-            <div>
-              <label>MEEM (0–30)</label>
-              <input id="meem" type="number" min="0" max="30" value="0" oninput="calc()">
-            </div>
-            <div>
-              <label>MoCA (0–30)</label>
-              <input id="moca" type="number" min="0" max="30" value="0" oninput="calc()">
-            </div>
-            <div>
-              <label>+1 ponto MoCA se ≤12 anos estudo</label>
-              <select id="moca_adj" onchange="calc()">
-                <option value="0">não</option>
-                <option value="1">sim</option>
-              </select>
-            </div>
-          </div>
-
-          <h4 class="mt-2">Mini-Cog e TDR (CDT)</h4>
-          <div class="grid g3">
-            <div>
-              <label>Registro (0–3)</label>
-              <input id="register" type="number" min="0" max="3" value="0" oninput="calc()">
-            </div>
-            <div>
-              <label>Relógio (0/2)</label>
-              <select id="clock_ok" onchange="calc()">
-                <option value="0">0 = incorreto</option>
-                <option value="2">2 = correto</option>
-              </select>
-            </div>
-            <div>
-              <label>Recordação (0–3)</label>
-              <input id="recall" type="number" min="0" max="3" value="0" oninput="calc()">
-            </div>
-          </div>
-          <div class="toolbar" style="position:static;margin-top:10px">
-            <label>Pontuação CDT (Shulman 0–5)</label>
-            <select id="cdt_score" onchange="calc()">
-              <option value="5">5 = perfeito</option>
-              <option value="4">4 = pequenos erros</option>
-              <option value="3">3 = desorganizado</option>
-              <option value="2">2 = marcadores incorretos</option>
-              <option value="1">1 = severamente desorganizado</option>
-              <option value="0">0 = incapaz</option>
-            </select>
-          </div>
-
-          <h4 class="mt-2">Imagens do desenho (upload)</h4>
-          <div class="grid g3">
-            <label class="drop" id="upClock">
-              Relógio<br>
-              <img id="imgClock" alt="" style="display:none">
-              <input type="file" accept="image/*" style="display:none">
-            </label>
-            <label class="drop" id="upSquare">
-              Quadrado<br>
-              <img id="imgSquare" alt="" style="display:none">
-              <input type="file" accept="image/*" style="display:none">
-            </label>
-            <label class="drop" id="upCircle">
-              Círculo<br>
-              <img id="imgCircle" alt="" style="display:none">
-              <input type="file" accept="image/*" style="display:none">
-            </label>
-          </div>
-        </div>
-
-        <!-- Mobilidade -->
-        <div id="mobilidade" class="sect">
-          <h4>Timed Up and Go (TUG)</h4>
-          <div class="grid g3">
-            <div>
-              <label>Segundos</label>
-              <input id="tug" type="number" min="0" step="0.1" value="0" oninput="calc()">
-            </div>
-            <div class="hint" style="align-self:end">
-              &lt;10 normal · 10–19 ok · 20–29 variável · ≥30 comprometido
-            </div>
-          </div>
-          
-          <h4 class="mt-2">Escala Morse</h4>
-          <div class="grid g3">
-            <div>
-              <label>Histórico de quedas</label>
-              <select id="mh" onchange="calc()">
-                <option value="0">Não (0)</option>
-                <option value="25">Sim (25)</option>
-              </select>
-            </div>
-            <div>
-              <label>Dx secundário</label>
-              <select id="md" onchange="calc()">
-                <option value="0">Não (0)</option>
-                <option value="15">Sim (15)</option>
-              </select>
-            </div>
-            <div>
-              <label>Auxílio marcha</label>
-              <select id="ma" onchange="calc()">
-                <option value="0">Nenhum/cadeira (0)</option>
-                <option value="15">Muleta/bengala/andador (15)</option>
-                <option value="30">Apoio em móveis (30)</option>
-              </select>
-            </div>
-            <div>
-              <label>Terapia EV</label>
-              <select id="mt" onchange="calc()">
-                <option value="0">Não (0)</option>
-                <option value="20">Sim (20)</option>
-              </select>
-            </div>
-            <div>
-              <label>Marcha</label>
-              <select id="mm" onchange="calc()">
-                <option value="0">Normal (0)</option>
-                <option value="10">Fraca (10)</option>
-                <option value="20">Comprometida (20)</option>
-              </select>
-            </div>
-            <div>
-              <label>Estado mental</label>
-              <select id="mc" onchange="calc()">
-                <option value="0">Orientado (0)</option>
-                <option value="15">Superestima (15)</option>
-              </select>
-            </div>
-          </div>
-          <p class="hint mt-1">Baixo &lt;25 · moderado 25–44 · alto ≥45.</p>
-        </div>
-
-        <!-- Nutrição -->
-        <div id="nutricao" class="sect">
-          <h4>MNA-SF (0–14)</h4>
-          <div id="mna" class="grid g3"></div>
-          <p class="hint mt-1">12–14 normal · 8–11 risco · 0–7 desnutrição provável.</p>
-        </div>
-
-        <!-- Depressão -->
-        <div id="depressao" class="sect">
-          <h4>GDS-15 (0–15)</h4>
-          <div id="gds" class="grid g3"></div>
-          <p class="hint mt-1">≥5 sugere sintomas depressivos.</p>
-        </div>
-
-        <!-- Funcional -->
-        <div id="funcional" class="sect">
-          <h4>Pfeffer FAQ (0–30)</h4>
-          <div id="pfeffer" class="grid g3"></div>
-          <p class="hint mt-1">≥5 sugere disfunção em AIVDs.</p>
-
-          <h4 class="mt-2">Katz — ABVDs (0–6 independências)</h4>
-          <div id="katz" class="grid g3"></div>
-          
-          <h4 class="mt-2">Lawton — AIVDs (0–8 independências)</h4>
-          <div id="lawton" class="grid g3"></div>
-        </div>
-
-<!-- EVOLUÇÃO MÉDICA (limpo, sem relógio) -->
-<div id="evolucao" class="sect" style="display:none">
-  <h4 class="title-ev">Evolução Médica</h4>
-
-  <div class="card">
-    <label for="evoText" class="lbl">Texto da evolução</label>
-    <textarea id="evoText" rows="10" placeholder="Descreva aqui a evolução..."></textarea>
-
-    <div class="grid g2" style="margin-top:12px">
-      <div>
-        <label for="cidSearch" class="lbl">CID-10 (digite código ou termo)</label>
-        <div class="cid-box">
-          <input id="cidSearch" placeholder="Ex.: z000  •  ou  'diabetes'">
-          <div id="cidResults" class="cid-results" style="display:none"></div>
-        </div>
-        <div id="cidChips" style="margin-top:8px"></div>
+    <div id="app" style="display:none">
+      <!-- Tabs -->
+      <div class="steps hide-print">
+        <span class="step active" data-tab="t-evol" onclick="tab(this)">Evolução</span>
+        <span class="step" data-tab="t-exames" onclick="tab(this)">Solicitação de Exames</span>
+        <span class="step" data-tab="t-receita" onclick="tab(this)">Receita</span>
+        <span class="step" data-tab="t-docs" onclick="tab(this)">Documentos</span>
+        <span class="step" data-tab="t-hist" onclick="tab(this)">Histórico</span>
       </div>
 
-      <div class="actions-right">
-        <button class="btn" onclick="saveEvolution()">Salvar evolução</button>
-        <button class="btn" onclick="generateAIReport()">Laudo IA</button>
-        <button class="btn" onclick="printEvoFromCurrent()">Gerar PDF</button>
+      <!-- Identificação básica -->
+      <div class="grid g3 card" style="margin-bottom:16px">
+        <div><label>ID do Paciente</label><input id="pid" placeholder="AB-001"/></div>
+        <div><label>Idade</label><input id="age" type="number" min="0" value="75"/></div>
+        <div><label>Escolaridade (anos)</label><input id="edu" type="number" min="0" value="8"/></div>
       </div>
-    </div>
-  </div>
 
-  <h4 style="margin-top:18px">Evoluções salvas (local)</h4>
-  <table class="table" id="evoList">
-    <thead>
-      <tr><th>Data</th><th>Paciente</th><th>CIDs</th><th>Resumo</th><th>Ações</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
+      <!-- EVOLUÇÃO -->
+      <div id="t-evol" class="sect">
+        <div class="card">
+          <h3 class="h2">Evolução</h3>
+          <div class="seg" style="margin-bottom:10px">
+            <input id="cidSearch" placeholder="Digite código (ex.: z000) ou descrição do CID-10"/>
+            <div id="cidResults" class="dropdown"></div>
+            <button class="btn" onclick="pickFirstCid()">Adicionar</button>
+          </div>
+          <div id="cidChips" class="seg" style="margin-bottom:10px"></div>
+          <textarea id="evolText" class="editor" placeholder="Texto da evolução..."></textarea>
+          <div class="seg" style="margin-top:10px">
+            <button class="btn primary" onclick="saveEvolution()">Salvar evolução</button>
+            <button class="btn" onclick="generateAIReport()">Gerar Laudo (IA)</button>
+          </div>
+        </div>
+      </div>
 
+      <!-- EXAMES -->
+      <div id="t-exames" class="sect" style="display:none">
+        <div class="card">
+          <h3 class="h2">Solicitação de Exames</h3>
+          <div class="seg">
+            <input id="examInput" placeholder="Ex.: Hemograma, TSH, Vitamina B12..."/>
+            <button class="btn" onclick="addExam()">Adicionar</button>
+          </div>
+          <ul id="examList" class="list-simple"></ul>
+          <div class="seg" style="margin-top:10px">
+            <button class="btn primary" onclick="saveExams()">Salvar solicitação</button>
+          </div>
+        </div>
+      </div>
 
-          <h4 class="mt-2">Evoluções salvas (local)</h4>
-          <table class="table" id="evoList">
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Paciente</th>
-                <th>CIDs</th>
-                <th>Resumo</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+      <!-- RECEITA -->
+      <div id="t-receita" class="sect" style="display:none">
+        <div class="card">
+          <h3 class="h2">Receita</h3>
+          <div class="seg">
+            <input id="rxMed" placeholder="Fármaco / Apresentação"/>
+            <input id="rxDose" placeholder="Posologia"/>
+            <input id="rxDur"  placeholder="Duração (ex.: 30 dias)"/>
+            <button class="btn" onclick="addRx()">Adicionar</button>
+          </div>
+          <ul id="rxList" class="list-simple"></ul>
+          <div class="seg" style="margin-top:10px">
+            <button class="btn primary" onclick="saveRx()">Salvar receita</button>
+          </div>
+        </div>
+      </div>
 
-          <h4 class="mt-2">Documentos</h4>
-          <div class="grid g3">
-            <!-- Atestado -->
-            <div class="card">
-              <div class="hint">Atestado</div>
-              <label>Dias de afastamento</label>
-              <input id="attDias" type="number" min="1" value="3">
-              <label>Motivo/diagnóstico (opcional)</label>
-              <input id="attMotivo" placeholder="Conforme CIDs e avaliação clínica">
-              <label>Data início (opcional)</label>
-              <input id="attInicio" type="date">
-              <label>Restrição/atividade (opcional)</label>
-              <input id="attAtiv" placeholder="Evitar esforço físico / dirigir / etc.">
-              <button class="btn cta mt-1" onclick="generateAtestado()">Gerar Atestado</button>
-            </div>
-
-            <!-- Receita -->
-            <div class="card">
-              <div class="hint">Receita</div>
-              <label>Medicamentos (um por linha)</label>
-              <textarea id="rxText" rows="10" placeholder="Nome — dose — posologia — duração&#10;Ex.: Donepezila 5 mg — 1 cp à noite — por 30 dias"></textarea>
-              <button class="btn cta mt-1" onclick="generateReceita()">Gerar Receita</button>
-            </div>
-
-            <!-- Pedido de Exame -->
-            <div class="card">
-              <div class="hint">Pedido de Exame</div>
-              <label>Exames solicitados (um por linha)</label>
-              <textarea id="pxText" rows="8" placeholder="TSH, T4 livre&#10;Vitamina B12&#10;Hemograma, eletrólitos"></textarea>
-              <label>Justificativa clínica</label>
-              <textarea id="pxJust" rows="4" placeholder="Triagem de causas reversíveis de comprometimento cognitivo, conforme avaliação."></textarea>
-              <button class="btn cta mt-1" onclick="generatePedido()">Gerar Pedido</button>
+      <!-- DOCUMENTOS -->
+      <div id="t-docs" class="sect" style="display:none">
+        <div class="grid g3">
+          <div class="card">
+            <h3 class="h2">Atestado</h3>
+            <label>Dias de afastamento</label>
+            <input id="docDays" type="number" min="1" value="3"/>
+            <label>Motivo/diagnóstico</label>
+            <textarea id="docReason" rows="4" placeholder="CID + descrição"></textarea>
+            <button class="btn primary" onclick="saveDoc()">Gerar Atestado</button>
+          </div>
+          <div class="card">
+            <h3 class="h2">Imagens anexas</h3>
+            <label class="btn">Anexar imagem<input type="file" hidden id="docUpload" accept="image/*" onchange="attachDocImg(event)"/></label>
+            <div id="docImgs" class="seg" style="margin-top:10px"></div>
+          </div>
+          <div class="card">
+            <h3 class="h2">Ações</h3>
+            <div class="seg">
+              <button class="btn" onclick="printPage()">Imprimir</button>
+              <button class="btn" onclick="resetForms()">Limpar</button>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Histórico -->
-        <div id="historico" class="sect">
-          <h4>Avaliações salvas (local)</h4>
-          <table class="table" id="list">
-            <thead>
-              <tr>
-                <th>Paciente</th>
-                <th>Bloco</th>
-                <th>Data</th>
-                <th>Pontos</th>
-                <th>Thumb</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
+      <!-- HISTÓRICO -->
+      <div id="t-hist" class="sect" style="display:none">
+        <div class="card">
+          <h3 class="h2">Histórico local</h3>
+          <table class="table" id="histTbl">
+            <thead><tr><th>Paciente</th><th>Item</th><th>Data</th><th>Ações</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
       </div>
-    </div>
+
+    </div><!-- #app -->
   </div>
 </section>
 
-<script>
-  // Funções JavaScript para manter a funcionalidade
-  function loginMed() {
-    // Implementação da função
-    document.getElementById('app').style.display = 'block';
-  }
-  
-  function tab(element) {
-    // Implementação da função
-  }
-  
-  function calc() {
-    // Implementação da função
-  }
-  
-  function saveAssessment() {
-    // Implementação da função
-  }
-  
-  function printSummary() {
-    // Implementação da função
-  }
-  
-  function generateAIReport() {
-    // Implementação da função
-  }
-  
-  function resetForms() {
-    // Implementação da função
-  }
-  
-  function addCID() {
-    // Implementação da função
-  }
-  
-  function saveEvolution() {
-    // Implementação da função
-  }
-  
-  function clearEvolution() {
-    // Implementação da função
-  }
-  
-  function generateAtestado() {
-    // Implementação da função
-  }
-  
-  function generateReceita() {
-    // Implementação da função
-  }
-  
-  function generatePedido() {
-    // Implementação da função
-  }
-</script>
-<script src="testspro.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
