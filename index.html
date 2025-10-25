@@ -1,91 +1,810 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Geriatria 360</title>
-  <link rel="stylesheet" href="styles.css"/>
-  <meta name="description" content="Geriatria 360 — avaliação, prevenção de quedas e sarcopenia, acolhimento familiar."/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geriatria 360 - Cuidado Integral ao Idoso</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Reset e variáveis */
+    :root {
+      --primary: #2c5aa0;
+      --primary-light: #4a7bc8;
+      --secondary: #34a38a;
+      --accent: #ff7b54;
+      --light: #f8f9fa;
+      --dark: #343a40;
+      --gray: #6c757d;
+      --gray-light: #e9ecef;
+      --border-radius: 12px;
+      --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: var(--dark);
+      background-color: #fff;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    /* Header moderno */
+    header {
+      background: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+    
+    .logo i {
+      font-size: 1.8rem;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 25px;
+    }
+    
+    .nav-links a {
+      text-decoration: none;
+      color: var(--dark);
+      font-weight: 500;
+      transition: var(--transition);
+      position: relative;
+    }
+    
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+    
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--primary);
+      transition: var(--transition);
+    }
+    
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+    
+    .btn-whatsapp {
+      background: #25D366;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+      box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);
+    }
+    
+    .btn-whatsapp:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(37, 211, 102, 0.4);
+    }
+    
+    .mobile-menu {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--primary);
+      cursor: pointer;
+    }
+    
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: 80px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M1200 120L0 16.48 0 0 1200 0 1200 120z" fill="white"/></svg>');
+      background-size: 100% 100px;
+      background-position: bottom;
+      background-repeat: no-repeat;
+    }
+    
+    .hero-content {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .hero-text {
+      flex: 1;
+    }
+    
+    .hero-image {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+    }
+    
+    .hero-image img {
+      max-width: 100%;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+    }
+    
+    .hero h1 {
+      font-size: 2.8rem;
+      margin-bottom: 20px;
+      line-height: 1.2;
+    }
+    
+    .hero p {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+      opacity: 0.9;
+    }
+    
+    .btn-hero {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      padding: 14px 30px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: var(--transition);
+      box-shadow: 0 4px 15px rgba(255, 123, 84, 0.4);
+    }
+    
+    .btn-hero:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(255, 123, 84, 0.5);
+    }
+    
+    /* Seções gerais */
+    .section {
+      padding: 80px 0;
+    }
+    
+    .section-title {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    
+    .section-title h2 {
+      font-size: 2.2rem;
+      color: var(--primary);
+      margin-bottom: 15px;
+    }
+    
+    .section-title p {
+      color: var(--gray);
+      font-size: 1.1rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    
+    /* Cards de notícias */
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 30px;
+    }
+    
+    .news-card {
+      background: white;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: var(--box-shadow);
+      transition: var(--transition);
+    }
+    
+    .news-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-image {
+      height: 200px;
+      background: var(--gray-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray);
+    }
+    
+    .card-content {
+      padding: 25px;
+    }
+    
+    .card-content h3 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      color: var(--dark);
+    }
+    
+    .card-content p {
+      color: var(--gray);
+      margin-bottom: 15px;
+    }
+    
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      color: var(--gray);
+      font-size: 0.9rem;
+    }
+    
+    /* Seção de patologias */
+    .patologias {
+      background: var(--light);
+    }
+    
+    .patologias-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 25px;
+    }
+    
+    .patologia-card {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 30px;
+      text-align: center;
+      box-shadow: var(--box-shadow);
+      transition: var(--transition);
+    }
+    
+    .patologia-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .patologia-icon {
+      width: 70px;
+      height: 70px;
+      background: var(--primary-light);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      color: white;
+      font-size: 1.8rem;
+    }
+    
+    .patologia-card h3 {
+      font-size: 1.3rem;
+      margin-bottom: 15px;
+      color: var(--dark);
+    }
+    
+    .patologia-card p {
+      color: var(--gray);
+    }
+    
+    /* Seção de agendamento */
+    .agendamento-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 50px;
+      align-items: center;
+    }
+    
+    .agendamento-text h2 {
+      font-size: 2.2rem;
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+    
+    .agendamento-text p {
+      color: var(--gray);
+      margin-bottom: 30px;
+      font-size: 1.1rem;
+    }
+    
+    .agendamento-options {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .agendamento-btn {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 18px 25px;
+      background: white;
+      border: 2px solid var(--gray-light);
+      border-radius: var(--border-radius);
+      text-decoration: none;
+      color: var(--dark);
+      transition: var(--transition);
+    }
+    
+    .agendamento-btn:hover {
+      border-color: var(--primary);
+      transform: translateX(5px);
+    }
+    
+    .agendamento-btn i {
+      font-size: 1.5rem;
+      color: var(--primary);
+    }
+    
+    .agendamento-btn.whatsapp:hover {
+      border-color: #25D366;
+    }
+    
+    .agendamento-btn.whatsapp i {
+      color: #25D366;
+    }
+    
+    .agendamento-btn.email:hover {
+      border-color: var(--accent);
+    }
+    
+    .agendamento-btn.email i {
+      color: var(--accent);
+    }
+    
+    .agendamento-map {
+      height: 400px;
+      background: var(--gray-light);
+      border-radius: var(--border-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray);
+      overflow: hidden;
+    }
+    
+    /* Footer */
+    footer {
+      background: var(--dark);
+      color: white;
+      padding: 60px 0 30px;
+    }
+    
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    
+    .footer-column h3 {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      color: white;
+    }
+    
+    .footer-links {
+      list-style: none;
+    }
+    
+    .footer-links li {
+      margin-bottom: 10px;
+    }
+    
+    .footer-links a {
+      color: var(--gray-light);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    
+    .footer-links a:hover {
+      color: white;
+      padding-left: 5px;
+    }
+    
+    .footer-contact li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+      color: var(--gray-light);
+    }
+    
+    .footer-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--gray-light);
+      font-size: 0.9rem;
+    }
+    
+    .social-links {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .social-links a {
+      color: white;
+      font-size: 1.2rem;
+      transition: var(--transition);
+    }
+    
+    .social-links a:hover {
+      color: var(--primary-light);
+    }
+    
+    /* Responsividade */
+    @media (max-width: 992px) {
+      .hero-content {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .agendamento-content {
+        grid-template-columns: 1fr;
+      }
+      
+      .footer-content {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+      
+      .mobile-menu {
+        display: block;
+      }
+      
+      .hero h1 {
+        font-size: 2.2rem;
+      }
+      
+      .news-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .patologias-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .footer-content {
+        grid-template-columns: 1fr;
+      }
+      
+      .footer-bottom {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+      }
+    }
+  </style>
 </head>
 <body>
-  <!-- Topbar -->
-  <header class="top">
-    <div class="container row">
-      <a class="brand" href="index.html" aria-label="Página inicial">Geriatria 360</a>
-      <nav class="nav" aria-label="Navegação principal">
-        <a href="index.html">Início</a>
-        <a href="#agendar">Agendamento</a>
-        <a href="medicos.html">Área Médica</a>
-         <a href="admin.html">Editor</a> 
-        <a class="btn cta" href="https://wa.me/55XXXXXXXXXX" target="_blank" rel="noopener">WhatsApp</a>
-      </nav>
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <a href="index.html" class="logo">
+          <i class="fas fa-heartbeat"></i>
+          <span>Geriatria 360</span>
+        </a>
+        
+        <nav class="nav-links">
+          <a href="index.html">Início</a>
+          <a href="#agendar">Agendamento</a>
+          <a href="medicos.html">Área Médica</a>
+          <a href="admin.html">Editor</a>
+        </nav>
+        
+        <a href="https://wa.me/5511999999999" class="btn-whatsapp" target="_blank">
+          <i class="fab fa-whatsapp"></i>
+          WhatsApp
+        </a>
+        
+        <button class="mobile-menu">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
     </div>
   </header>
 
-  <!-- Banner de destaque (notícias urgentes) -->
-  <section class="section" aria-labelledby="tit-banner">
+  <!-- Hero Section -->
+  <section class="hero">
     <div class="container">
-      <h2 id="tit-banner" class="visually-hidden">Destaques</h2>
-      <div id="banner" class="banner">
-        <!-- preenchido pelo site.js -->
+      <div class="hero-content">
+        <div class="hero-text">
+          <h1>Cuidado integral para a melhor idade</h1>
+          <p>Prevenção, tratamento e acolhimento especializado em geriatria. Nossa missão é proporcionar qualidade de vida e bem-estar aos idosos.</p>
+          <a href="#agendar" class="btn-hero">Agendar Consulta</a>
+        </div>
+        <div class="hero-image">
+          <div style="width: 100%; height: 350px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white;">
+            <i class="fas fa-user-md" style="font-size: 5rem;"></i>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- Últimas notícias -->
-  <section class="section" aria-labelledby="tit-news">
+  <section class="section">
     <div class="container">
-      <h2 id="tit-news" class="h2">Últimas notícias</h2>
-      <p class="sub">Conteúdos de prevenção, vacinas, campanhas e orientações.</p>
-      <div id="newsGrid" class="grid g3"><!-- preenchido pelo site.js --></div>
+      <div class="section-title">
+        <h2>Últimas Notícias</h2>
+        <p>Conteúdos de prevenção, vacinas, campanhas e orientações para a saúde do idoso.</p>
+      </div>
+      
+      <div class="news-grid">
+        <div class="news-card">
+          <div class="card-image">
+            <i class="fas fa-syringe" style="font-size: 3rem;"></i>
+          </div>
+          <div class="card-content">
+            <h3>Campanha de Vacinação 2025</h3>
+            <p>Confira o calendário atualizado de vacinas para idosos e os locais de aplicação.</p>
+            <div class="card-meta">
+              <span><i class="far fa-calendar"></i> 15 Mar, 2025</span>
+              <span><i class="far fa-clock"></i> 3 min leitura</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="news-card">
+          <div class="card-image">
+            <i class="fas fa-ban" style="font-size: 3rem;"></i>
+          </div>
+          <div class="card-content">
+            <h3>Prevenção de Quedas em Idosos</h3>
+            <p>Dicas essenciais para adaptar o ambiente doméstico e prevenir acidentes.</p>
+            <div class="card-meta">
+              <span><i class="far fa-calendar"></i> 10 Mar, 2025</span>
+              <span><i class="far fa-clock"></i> 5 min leitura</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="news-card">
+          <div class="card-image">
+            <i class="fas fa-apple-alt" style="font-size: 3rem;"></i>
+          </div>
+          <div class="card-content">
+            <h3>Alimentação na Terceira Idade</h3>
+            <p>Guia completo sobre nutrição adequada para manter a saúde e vitalidade.</p>
+            <div class="card-meta">
+              <span><i class="far fa-calendar"></i> 5 Mar, 2025</span>
+              <span><i class="far fa-clock"></i> 4 min leitura</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- Patologias & Informações -->
-  <section class="section alt" aria-labelledby="tit-pat">
+  <section class="section patologias">
     <div class="container">
-      <h2 id="tit-pat" class="h2">Patologias & Informações</h2>
-      <p class="sub">Guias rápidos sobre temas frequentes na geriatria.</p>
-      <div id="patGrid" class="grid g3"><!-- preenchido pelo site.js --></div>
+      <div class="section-title">
+        <h2>Patologias & Informações</h2>
+        <p>Guias rápidos sobre temas frequentes na geriatria para pacientes e familiares.</p>
+      </div>
+      
+      <div class="patologias-grid">
+        <div class="patologia-card">
+          <div class="patologia-icon">
+            <i class="fas fa-brain"></i>
+          </div>
+          <h3>Demência</h3>
+          <p>Informações sobre diagnóstico, tratamento e cuidados com pacientes.</p>
+        </div>
+        
+        <div class="patologia-card">
+          <div class="patologia-icon">
+            <i class="fas fa-bone"></i>
+          </div>
+          <h3>Osteoporose</h3>
+          <p>Prevenção, diagnóstico e tratamento para manter a saúde óssea.</p>
+        </div>
+        
+        <div class="patologia-card">
+          <div class="patologia-icon">
+            <i class="fas fa-heart"></i>
+          </div>
+          <h3>Doenças Cardiovasculares</h3>
+          <p>Orientações sobre prevenção e controle de problemas cardíacos.</p>
+        </div>
+        
+        <div class="patologia-card">
+          <div class="patologia-icon">
+            <i class="fas fa-lungs"></i>
+          </div>
+          <h3>Doenças Respiratórias</h3>
+          <p>Cuidados com a saúde pulmonar e tratamento de condições crônicas.</p>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- Agendamento -->
-  <section id="agendar" class="section" aria-labelledby="tit-agendar">
+  <section id="agendar" class="section">
     <div class="container">
-      <div class="dash">
-        <div class="flex-between">
-          <div>
-            <h2 id="tit-agendar" class="h2">Agende sua consulta</h2>
-            <p class="sub">Atendimento humanizado. Escolha a melhor forma de falar conosco.</p>
-          </div>
-          <div class="seg" role="group" aria-label="Ações de agendamento">
-            <a class="btn cta" href="https://wa.me/55XXXXXXXXXX" target="_blank" rel="noopener">Agendar por WhatsApp</a>
-            <a class="btn" href="mailto:contato@geriatria360.com.br">Agendar por e-mail</a>
+      <div class="agendamento-content">
+        <div class="agendamento-text">
+          <h2>Agende sua consulta</h2>
+          <p>Atendimento humanizado e especializado. Escolha a melhor forma de entrar em contato conosco.</p>
+          
+          <div class="agendamento-options">
+            <a href="https://wa.me/5511999999999" class="agendamento-btn whatsapp" target="_blank">
+              <i class="fab fa-whatsapp"></i>
+              <div>
+                <h4>Agendar por WhatsApp</h4>
+                <p>Resposta rápida e prática</p>
+              </div>
+            </a>
+            
+            <a href="mailto:contato@geriatria360.com.br" class="agendamento-btn email">
+              <i class="far fa-envelope"></i>
+              <div>
+                <h4>Agendar por E-mail</h4>
+                <p>Envie suas dúvidas e solicitações</p>
+              </div>
+            </a>
+            
+            <a href="tel:+551133334444" class="agendamento-btn">
+              <i class="fas fa-phone-alt"></i>
+              <div>
+                <h4>Ligar para a clínica</h4>
+                <p>(11) 3333-4444</p>
+              </div>
+            </a>
           </div>
         </div>
-        <div class="mapph" style="margin-top:14px" aria-label="Mapa ou imagem da clínica">Mapa/Imagem da clínica</div>
+        
+        <div class="agendamento-map">
+          <div style="text-align: center;">
+            <i class="fas fa-map-marker-alt" style="font-size: 3rem; margin-bottom: 15px;"></i>
+            <p>Localização da Clínica</p>
+            <p style="margin-top: 10px; font-size: 0.9rem;">Av. Paulista, 1000 - São Paulo, SP</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <footer class="footer" role="contentinfo">
-    <div class="container flex-between">
-      <div class="muted">© 2025 Geriatria 360</div>
-      <div class="footer__nav">
-        <a href="#">Política de Privacidade</a> ·
-        <a href="#">Termos</a>
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-column">
+          <h3>Geriatria 360</h3>
+          <p style="color: #adb5bd; margin-bottom: 20px;">Cuidado integral e especializado para a melhor idade.</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        
+        <div class="footer-column">
+          <h3>Links Rápidos</h3>
+          <ul class="footer-links">
+            <li><a href="index.html">Início</a></li>
+            <li><a href="#agendar">Agendamento</a></li>
+            <li><a href="medicos.html">Área Médica</a></li>
+            <li><a href="admin.html">Editor</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-column">
+          <h3>Informações</h3>
+          <ul class="footer-links">
+            <li><a href="#">Sobre Nós</a></li>
+            <li><a href="#">Nossa Equipe</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Contato</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-column">
+          <h3>Contato</h3>
+          <ul class="footer-contact">
+            <li>
+              <i class="fas fa-map-marker-alt"></i>
+              <span>Av. Paulista, 1000 - São Paulo, SP</span>
+            </li>
+            <li>
+              <i class="fas fa-phone-alt"></i>
+              <span>(11) 3333-4444</span>
+            </li>
+            <li>
+              <i class="far fa-envelope"></i>
+              <span>contato@geriatria360.com.br</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <div>© 2025 Geriatria 360. Todos os direitos reservados.</div>
+        <div>
+          <a href="#" style="color: #adb5bd; text-decoration: none; margin-left: 15px;">Política de Privacidade</a>
+          <a href="#" style="color: #adb5bd; text-decoration: none; margin-left: 15px;">Termos de Uso</a>
+        </div>
       </div>
     </div>
   </footer>
 
-  <noscript>
-    <div class="container" style="margin:16px 0; color:#6b7280; font-size:14px">
-      Para visualizar destaques e notícias, habilite o JavaScript no seu navegador.
-    </div>
-  </noscript>
-
-  <!-- Use o arquivo que existe no seu projeto -->
-  <script src="site.js"></script>
+  <script>
+    // Menu mobile toggle
+    document.querySelector('.mobile-menu').addEventListener('click', function() {
+      document.querySelector('.nav-links').classList.toggle('active');
+    });
+    
+    // Smooth scroll para links internos
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        if(targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if(targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+  </script>
 </body>
 </html>
