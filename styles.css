@@ -1,76 +1,38 @@
-/* === POLISH PACK — visual mais clean tipo iClinic === */
-
-/* 1) largura, tipografia e ritmo */
-:root{
-  --container: 1120px;
-  --radius: 14px;
-  --radius-lg: 18px;
-  --shadow-1: 0 6px 18px rgba(15,23,42,.06);
-  --shadow-2: 0 10px 28px rgba(15,23,42,.08);
-  --ink: #0b1220;
-  --muted:#6b7280;
-  --border:#e6e8ef;
-  --surface:#fff;
-  --alt:#f7f8fb;
-  --brand:#0ea5a4;
-  --brand2:#0aa387;
-}
-body{color:var(--ink); font-size:16px; line-height:1.6;}
-.container{max-width:var(--container);}
-
-/* 2) cabeçalho fixo enxuto */
-.top{border-bottom:1px solid var(--border); background:rgba(255,255,255,.92); backdrop-filter: blur(10px);}
-.top__row{height:68px;}
-.nav a{color:var(--ink); padding:8px 10px; border-radius:10px;}
+/* base */
+*{box-sizing:border-box}html,body{margin:0}
+:root{--border:#e7e9f2;--muted:#6b7280;--ink:#0b1220;--alt:#f7f8fb;--brand:#0ea5a4;--brand2:#0aa387;--radius:14px;--shadow:0 10px 24px rgba(15,23,42,.08)}
+body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink)}
+.container{max-width:1120px;margin:0 auto;padding:0 20px}
+.flex-between{display:flex;align-items:center;justify-content:space-between}
+.muted{color:var(--muted)}
+.h2{margin:0 0 6px;font-size:26px}
+.sub{color:var(--muted);margin:0 0 12px}
+.section{padding:42px 0}.alt{background:var(--alt)}
+.grid{display:grid;gap:16px}.g3{grid-template-columns:repeat(3,1fr)}@media(max-width:980px){.g3{grid-template-columns:1fr}}
+.table{width:100%;border-collapse:collapse}.table th,.table td{border-bottom:1px solid var(--border);padding:10px;text-align:left}
+input,textarea{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px}
+textarea.editor{min-height:220px;background:#fff}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);padding:10px 14px;border-radius:12px;background:#fff;cursor:pointer}
+.btn:hover{background:#f4f7fb}.primary{background:linear-gradient(90deg,var(--brand),var(--brand2));color:#fff;border-color:transparent}
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.nav a{color:var(--ink);text-decoration:none;padding:8px 10px;border-radius:10px}
 .nav a:hover{background:#f2f5f9}
-
-/* 3) hero com respiro e grid equilibrado */
-.hero{padding:56px 0 24px; background:linear-gradient(180deg,#fff,#fbfbfe);}
-.hero__grid{gap:32px; align-items:center;}
-.hero__text h1{font-size:44px; line-height:1.1; margin:0 0 10px;}
-.lead{font-size:18px; color:var(--muted); max-width:600px}
-.cta-wrap{gap:12px}
-.btn{border:1px solid var(--border); border-radius:12px; padding:12px 16px; font-weight:700;}
-.btn:hover{background:#f7fafc}
-.btn.primary{background:linear-gradient(90deg,var(--brand),var(--brand2)); color:#fff; border-color:transparent}
-.btn.primary:hover{filter:brightness(.98)}
-
-/* 4) “dashboard card” com cara de produto */
-.dash{border-radius: var(--radius-lg); border:1px solid var(--border); box-shadow:var(--shadow-2); padding:18px}
-.dash__kpis{gap:12px}
-.kpi{border:1px solid var(--border); border-radius:12px; background:linear-gradient(180deg,#fff,#fbfcff); box-shadow:var(--shadow-1); padding:14px}
-.kpi__label{font-size:12px; color:var(--muted)}
-.kpi__value{font-size:26px; font-weight:800; letter-spacing:.2px}
-.kpi__trend{font-size:12px; color:#16a34a}
-.kpi__trend.flat{color:#64748b}
-
-/* 5) seções com mais ar */
-.section{padding:48px 0}
-.section.alt{background:var(--alt)}
-.h2{font-size:28px; margin:0 0 8px}
-.sub{color:var(--muted); margin:0 0 18px}
-
-/* 6) cards (serviços, features, posts) */
-.card{border:1px solid var(--border); border-radius:var(--radius); background:#fff; box-shadow:var(--shadow-1)}
-.card .title{font-weight:800; margin-bottom:6px}
-.grid{gap:18px}
-.g3{grid-template-columns:repeat(3,1fr)}
-@media (max-width:980px){ .g3{grid-template-columns:1fr} }
-
-/* 7) “listas dentro do hero” em formato de tabela leve */
-.hero .list{
-  display:grid; grid-template-columns: 1fr auto; gap:6px 14px;
-  border:1px solid var(--border); border-radius:12px; padding:12px; background:#fff; max-width:560px;
-}
-
-/* 8) contato/mapa */
-.mapph{height:220px; border:1px dashed var(--border); border-radius:12px; color:var(--muted); display:grid; place-items:center}
-
-/* 9) rodapé discreto */
-.footer{background:#fff; border-top:1px solid var(--border); padding:24px 0}
+.top{position:sticky;top:0;background:#fffbd;backdrop-filter:blur(8px);border-bottom:1px solid var(--border);z-index:40}
+.top__row{height:64px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-weight:800}
+.hero{padding:18px 0 12px;background:linear-gradient(180deg,#fff,#fbfbfe)}
+.banner{display:grid;gap:10px}
+.banner .b{border:1px solid var(--border);border-radius:12px;padding:12px;background:#fff}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.dash{border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:18px;background:#fff}
+.mapph{height:220px;border:1px dashed var(--border);border-radius:12px;color:var(--muted);display:grid;place-items:center}
+.steps{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.step{padding:8px 12px;border:1px solid var(--border);border-radius:999px;background:#fff;cursor:pointer}
+.step.active{background:linear-gradient(90deg,var(--brand),var(--brand2));color:#fff;border-color:transparent}
+.list-simple{list-style:none;margin:10px 0 0;padding:0}
+.list-simple li{border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;background:#fff;display:flex;justify-content:space-between;gap:8px}
+.dropdown{position:absolute;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);display:none;max-height:240px;overflow:auto;z-index:30}
+.dropdown .cid-item{padding:10px 12px;border-bottom:1px solid #f3f4f7;cursor:pointer}
+.dropdown .cid-item:hover{background:#f6f9ff}
+.footer{border-top:1px solid var(--border);padding:18px 0;margin-top:18px}
 .footer__nav a{color:var(--ink)}
-.footer__nav a:hover{text-decoration:underline}
-
-/* 10) WhatsApp bolha */
-.wa{width:56px;height:56px; border-radius:999px; right:16px; bottom:16px;
-  background:linear-gradient(90deg,#22c55e,#16a34a); color:#fff; box-shadow:0 12px 24px rgba(22,163,74,.25)}
