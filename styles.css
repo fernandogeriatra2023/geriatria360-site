@@ -36,3 +36,89 @@ textarea.editor{min-height:220px;background:#fff}
 .dropdown .cid-item:hover{background:#f6f9ff}
 .footer{border-top:1px solid var(--border);padding:18px 0;margin-top:18px}
 .footer__nav a{color:var(--ink)}
+/* ==== PRO THEME – Geriatria 360 =================================== */
+:root{
+  --brand:#0ea5a4;
+  --brand-ink:#0b3a39;
+  --ink:#0f172a;
+  --muted:#64748b;
+  --line:#e5e7eb;
+  --bg:#f8fafc;
+  --card:#ffffff;
+  --radius:16px;
+  --shadow:0 8px 28px rgba(2,6,23,.07);
+}
+
+/* Base */
+body{background:var(--bg); color:var(--ink);}
+.container{max-width:1120px;margin:0 auto;padding:0 20px}
+.section{padding:48px 0}
+.section + .section{padding-top:24px}
+
+/* Topbar */
+.topbar{
+  position:sticky; top:0; z-index:50;
+  background:rgba(255,255,255,.86); backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+}
+.topbar .row{display:flex;align-items:center;justify-content:space-between;padding:12px 0}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.2px}
+.brand-badge{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#0ea5a4,#14b8a6)}
+nav a{color:var(--ink);text-decoration:none;padding:8px 12px;border-radius:10px}
+nav a:hover{background:#eef2f7}
+
+/* Hero banner “importante” */
+.hero-pro{
+  background:linear-gradient(180deg,#ffffff, #f4faf9);
+  border-bottom:1px solid var(--line);
+}
+.hero-card{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:16px 18px; display:flex; align-items:center; gap:14px;
+}
+.hero-dot{width:10px;height:10px;border-radius:50%;background:var(--brand);box-shadow:0 0 0 3px rgba(14,165,164,.15)}
+.hero-title{font-weight:700}
+
+/* Títulos de seção */
+.eyebrow{color:var(--brand);font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:12px}
+.h2{font-size:28px; line-height:1.2; margin:6px 0 8px; font-weight:800}
+.lead{color:var(--muted); font-size:14px}
+
+/* Grades & cards */
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.grid-2{display:grid;grid-template-columns:1.2fr 1fr;gap:14px}
+@media(max-width:980px){.grid-3,.grid-2{grid-template-columns:1fr}}
+
+.card{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:16px; transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.card:hover{transform:translateY(-2px); box-shadow:0 12px 34px rgba(2,6,23,.08); border-color:#dbe0e6}
+.card-title{font-weight:700;margin-bottom:6px}
+.card-meta{color:var(--muted);font-size:12px}
+
+/* Chips / tags */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);padding:6px 10px;border-radius:999px;background:#fff;font-size:12px;color:var(--muted)}
+.chip.brand{border-color:rgba(14,165,164,.25);color:var(--brand-ink);background:#f0fbfa}
+
+/* CTA & botões */
+.btn{display:inline-flex;gap:8px;align-items:center;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--ink);text-decoration:none;cursor:pointer}
+.btn:hover{background:#f1f5f9}
+.btn-primary{background:linear-gradient(90deg,#0ea5a4,#14b8a6);color:#fff;border:none}
+.btn-primary:hover{filter:saturate(1.05)}
+
+/* Agendamento */
+.appoint{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:18px;
+}
+.appoint .row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.appoint .map{height:240px;border:1px dashed var(--line);border-radius:12px;background:#fbfcfd;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+
+/* Rodapé */
+.footer{padding:24px 0; color:#7b8794; font-size:12px; text-align:center}
+
+/* Pequenas animações para “carinha de app” */
+.card a:not(.btn){color:inherit;text-decoration:none}
+.card a:not(.btn):hover{color:var(--brand)}
