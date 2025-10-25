@@ -1,63 +1,213 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Editor – Geriatria 360</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Editor · Geriatria 360</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <style>
+    /* ====== Admin styles (só aqui) ====== */
+    .admin-top{position:sticky;top:0;background:rgba(255,255,255,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);z-index:10}
+    .admin-top .row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0}
+    .brand{font-weight:800}
+    .pill-badge{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:3px 8px;font-size:12px;color:var(--muted)}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 12px}
+    .tab{padding:8px 12px;border:1px solid var(--border);border-radius:999px;background:#fff;cursor:pointer}
+    .tab.active{background:linear-gradient(90deg,var(--brand),var(--brand2));color:#fff;border-color:transparent}
+    .adm-grid{display:grid;gap:20px;grid-template-columns:1fr}
+    @media(min-width:1000px){.adm-grid{grid-template-columns:1.1fr 1fr}}
+    .list{border:1px solid var(--border);border-radius:16px;background:#fff;overflow:hidden}
+    .list .head{display:flex;justify-content:space-between;align-items:center;padding:14px;border-bottom:1px solid var(--border)}
+    .list .row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:12px 14px;border-top:1px solid var(--border)}
+    .list .row:first-of-type{border-top:none}
+    .muted{color:var(--muted)}
+    .danger{color:#b91c1c}
+    .good{color:#047857}
+    .btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);padding:10px 14px;border-radius:12px;background:#fff;text-decoration:none;color:var(--ink);cursor:pointer}
+    .btn:hover{background:#f8fafc}
+    .primary{background:linear-gradient(90deg,var(--brand),var(--brand2));color:#fff;border:none}
+    .form{border:1px dashed var(--border);border-radius:16px;background:#fff;padding:16px}
+    .form .grid{display:grid;gap:12px}
+    .grid2{grid-template-columns:1fr}
+    @media(min-width:700px){.grid2{grid-template-columns:1fr 1fr}}
+    .footer-bar{display:flex;gap:10px;flex-wrap:wrap;padding:12px;border-top:1px solid var(--border);background:#fff;border-radius:0 0 16px 16px}
+    .empty{padding:20px;text-align:center;color:var(--muted)}
+    .login-card{max-width:420px;margin:12vh auto;border:1px solid var(--border);border-radius:16px;background:#fff;padding:22px}
+  </style>
 </head>
 <body>
-  <header class="top">
-    <div class="container top__row">
-      <div class="brand">Geriatria 360 – Editor</div>
-      <nav class="nav">
-        <a href="index.html">Voltar ao site</a>
-      </nav>
-    </div>
-  </header>
 
-  <main class="section">
-    <div class="container">
-      <!-- Login simples -->
-      <div id="cmsLogin" class="card" style="max-width:420px">
-        <div class="h3">Entrar</div>
-        <div class="small">Senha do editor (configurada no data.json)</div>
-        <div class="seg" style="margin-top:10px">
-          <input id="cms-pass" type="password" placeholder="••••••••">
-          <button class="btn primary" onclick="cmsLogin()">Entrar</button>
+<header class="admin-top">
+  <div class="container row">
+    <div class="brand">Geriatria 360 · <span class="muted">Editor</span></div>
+    <nav class="seg">
+      <a class="btn" href="index.html">Voltar ao site</a>
+      <a id="repoLink" class="btn" target="_blank">Abrir repositório</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container" style="padding:18px 0 28px">
+  <!-- LOGIN -->
+  <section id="login">
+    <div class="login-card">
+      <h2 style="margin:0 0 8px">Entrar</h2>
+      <p class="muted" style="margin:0 0 12px">Use a senha do editor (definida em <code>data.json → auth.cms_password</code>).</p>
+      <div class="grid grid2">
+        <div>
+          <label class="muted">Senha</label>
+          <input id="cms-pass" type="password" placeholder="••••••••"/>
+        </div>
+        <div style="align-self:end">
+          <button class="btn primary" id="btnLogin">Entrar</button>
         </div>
       </div>
+      <div id="loginMsg" class="muted" style="margin-top:10px"></div>
+    </div>
+  </section>
 
-      <!-- Área do CMS -->
-      <div id="cmsApp" style="display:none">
-        <div class="grid g2">
-          <div class="card">
-            <div class="h3">Nova matéria</div>
-            <div class="seg">
-              <input id="cms-titulo" placeholder="Título">
-              <select id="cms-tipo">
-                <option value="noticia">Notícia</option>
-                <option value="artigo">Artigo</option>
-              </select>
-              <input id="cms-data" type="date">
-              <textarea id="cms-resumo" rows="4" placeholder="Resumo curto"></textarea>
-              <input id="cms-link" placeholder="Link (post.html?id=... ou URL externa)">
-              <button class="btn primary" onclick="cmsSalvar()">Publicar</button>
+  <!-- APP -->
+  <section id="app" style="display:none">
+    <div class="tabs">
+      <div class="tab active" data-panel="panel-banner">Banner</div>
+      <div class="tab" data-panel="panel-news">Notícias</div>
+      <div class="tab" data-panel="panel-topics">Tópicos</div>
+      <div class="tab" data-panel="panel-publicar">Publicar</div>
+    </div>
+
+    <!-- BANNER -->
+    <div id="panel-banner">
+      <div class="adm-grid">
+        <div class="list">
+          <div class="head">
+            <div><b>Itens do banner</b> <span class="pill-badge" id="countBanner">0</span></div>
+            <button class="btn" id="addBanner">Novo</button>
+          </div>
+          <div id="bannerList"></div>
+          <div class="empty" id="bannerEmpty" style="display:none">Nenhum item.</div>
+        </div>
+
+        <div class="form">
+          <h3 style="margin:0 0 8px">Editor</h3>
+          <div class="grid grid2">
+            <div>
+              <label class="muted">Título</label>
+              <input id="b_title" placeholder="Ex.: Campanha de Vacinação"/>
+            </div>
+            <div>
+              <label class="muted">Data</label>
+              <input id="b_date" type="date"/>
+            </div>
+            <div>
+              <label class="muted">Tag</label>
+              <input id="b_tag" placeholder="Importante / Prevenção"/>
             </div>
           </div>
-
-          <div class="card">
-            <div class="h3">Matérias publicadas</div>
-            <table class="table" id="cmsLista">
-              <thead><tr><th>Título</th><th>Tipo</th><th>Data</th><th></th></tr></thead>
-              <tbody></tbody>
-            </table>
+          <div class="footer-bar">
+            <button class="btn primary" id="saveBanner">Salvar</button>
+            <button class="btn" id="resetBanner">Limpar</button>
           </div>
         </div>
       </div>
     </div>
-  </main>
 
-  <script src="cmspro.js"></script>
+    <!-- NEWS -->
+    <div id="panel-news" style="display:none">
+      <div class="adm-grid">
+        <div class="list">
+          <div class="head">
+            <div><b>Notícias</b> <span class="pill-badge" id="countNews">0</span></div>
+            <button class="btn" id="addNews">Nova</button>
+          </div>
+          <div id="newsList"></div>
+          <div class="empty" id="newsEmpty" style="display:none">Nenhuma notícia.</div>
+        </div>
+
+        <div class="form">
+          <h3 style="margin:0 0 8px">Editor</h3>
+          <div class="grid grid2">
+            <div>
+              <label class="muted">Título</label>
+              <input id="n_title" placeholder="Ex.: Sarcopenia: sinais de alerta"/>
+            </div>
+            <div>
+              <label class="muted">Tipo</label>
+              <select id="n_type">
+                <option>Notícia</option>
+                <option>Artigo</option>
+                <option>Comunicado</option>
+              </select>
+            </div>
+            <div>
+              <label class="muted">Data</label>
+              <input id="n_date" type="date"/>
+            </div>
+            <div>
+              <label class="muted">Link (href)</label>
+              <input id="n_href" placeholder="post.html?id=1"/>
+            </div>
+          </div>
+          <div class="footer-bar">
+            <button class="btn primary" id="saveNews">Salvar</button>
+            <button class="btn" id="resetNews">Limpar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPICS -->
+    <div id="panel-topics" style="display:none">
+      <div class="adm-grid">
+        <div class="list">
+          <div class="head">
+            <div><b>Tópicos</b> <span class="pill-badge" id="countTopics">0</span></div>
+            <button class="btn" id="addTopic">Novo</button>
+          </div>
+          <div id="topicsList"></div>
+          <div class="empty" id="topicsEmpty" style="display:none">Nenhum tópico.</div>
+        </div>
+
+        <div class="form">
+          <h3 style="margin:0 0 8px">Editor</h3>
+          <div class="grid grid2">
+            <div>
+              <label class="muted">Título</label>
+              <input id="t_title" placeholder="Ex.: Doença de Alzheimer"/>
+            </div>
+            <div>
+              <label class="muted">Subtítulo</label>
+              <input id="t_subtitle" placeholder="Sinais e condutas iniciais."/>
+            </div>
+            <div>
+              <label class="muted">Link (href)</label>
+              <input id="t_href" placeholder="post.html?id=alzheimer"/>
+            </div>
+          </div>
+          <div class="footer-bar">
+            <button class="btn primary" id="saveTopic">Salvar</button>
+            <button class="btn" id="resetTopic">Limpar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PUBLICAR -->
+    <div id="panel-publicar" style="display:none">
+      <div class="card">
+        <h3 style="margin-top:0">Publicar alterações</h3>
+        <p class="muted">Como é um site estático, exporte o <code>data.json</code> e substitua no repositório.</p>
+        <div class="seg" style="gap:10px;margin:10px 0 0">
+          <button class="btn primary" id="downloadJson">Baixar data.json</button>
+          <button class="btn" id="copyJson">Copiar JSON</button>
+          <button class="btn" id="openRepo">Abrir repositório</button>
+        </div>
+        <textarea id="jsonPreview" class="editor" style="margin-top:14px;min-height:200px" spellcheck="false"></textarea>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<script src="admin.js" defer></script>
 </body>
 </html>
