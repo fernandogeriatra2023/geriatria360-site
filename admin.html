@@ -1,14 +1,50 @@
-<!doctype html><html lang="pt-br"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1"><title>Geriatria 360 — Editor</title>
-<link rel="stylesheet" href="styles.css"></head><body>
-<header class="top"><div class="container row"><a class="btn" href="index.html">← Voltar</a><strong>Editor de Matérias</strong></div></header>
-<section class="container section"><div class="card"><h2>Entrar</h2><p class="small">Senha em <code>data.json</code> (protótipo).</p>
-<div class="toolbar" style="position:static"><input id="admin-pass" type="password" placeholder="••••••••" style="max-width:280px"><button class="btn cta" onclick="loginAdmin()">Entrar</button></div></div>
-<div id="cms" style="display:none;margin-top:16px" class="grid g2">
-<div class="card"><h3>Metadados</h3><label>Título</label><input id="t"><label>Slug</label><input id="slug"><label>Categoria</label><input id="c"><label>Tags</label><input id="tags"><label>Data</label><input id="d" type="date"><label>Autor</label><input id="author"><div><label>Capa</label><div class="cover" id="coverBox"><span class="small">Clique para enviar imagem</span></div><input id="coverInput" type="file" accept="image/*" style="display:none"></div></div>
-<div class="card"><div class="toolbar"><button class="btn" onclick="cmd('bold')"><b>N</b></button><button class="btn" onclick="cmd('italic')"><i>I</i></button><button class="btn" onclick="cmd('underline')"><u>U</u></button><button class="btn" onclick="cmdBlock('H2')">H2</button><button class="btn" onclick="cmdBlock('H3')">H3</button><button class="btn" onclick="cmd('insertUnorderedList')">• Lista</button><button class="btn" onclick="cmd('insertOrderedList')">1. Lista</button><button class="btn" onclick="insertLink()">Link</button><button class="btn" onclick="insertImage()">Imagem</button><button class="btn" onclick="insertQuote()">Citar</button><button class="btn" onclick="clearContent()">Limpar</button></div><div id="editor" class="editor" contenteditable="true" spellcheck="true"></div><div class="actions" style="margin-top:12px"><button class="btn cta" onclick="savePost()">Salvar / Atualizar</button><button class="btn" onclick="toggleStatus()"><span id="statusLabel">Publicar</span></button><button class="btn" onclick="previewPost()">Pré-visualizar</button></div></div>
-<div class="card" style="grid-column:1/-1"><h3>Lista</h3><div class="actions"><input id="search" placeholder="Buscar" oninput="renderTable()" style="max-width:360px"></div>
-<table class="table" id="tbl"><thead><tr><th>#</th><th>Título</th><th>Slug</th><th>Categoria</th><th>Status</th><th>Data</th><th>Ações</th></tr></thead><tbody></tbody></table>
-<div class="actions" style="margin-top:10px"><button class="btn" onclick="exportJSON()">Exportar .json</button>
-<label class="btn" style="cursor:pointer">Importar .json<input type="file" accept="application/json" onchange="importJSON(event)" style="display:none"></label><button class="btn" onclick="wipeAll()">Apagar tudo</button></div></div></div></section>
-<script src="cmspro.js"></script></body></html>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Gerenciador – Geriatria 360</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <style>
+    main{max-width:900px;margin:40px auto;padding:20px;background:#fff;
+         border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 10px 25px rgba(2,8,23,.06)}
+    h1{font-size:22px;margin-bottom:20px}
+    label{font-weight:600;margin-top:10px;display:block}
+    input,textarea,select{width:100%;margin-top:4px;margin-bottom:10px}
+    textarea{min-height:120px}
+    button{margin-top:10px}
+    .list{margin-top:30px}
+    .item{padding:10px;border-bottom:1px solid #eee}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Gerenciador de Conteúdo</h1>
+
+    <label>Tipo</label>
+    <select id="tipo">
+      <option value="news">Notícia</option>
+      <option value="topics">Patologia/Informação</option>
+      <option value="banner">Banner destaque</option>
+    </select>
+
+    <label>Título</label>
+    <input id="titulo" type="text" placeholder="Ex: Campanha de Vacinação"/>
+
+    <label>Subtítulo / Descrição curta</label>
+    <input id="sub" type="text"/>
+
+    <label>Data</label>
+    <input id="data" type="date"/>
+
+    <label>Link (opcional)</label>
+    <input id="href" type="url" placeholder="Ex: post.html?id=123"/>
+
+    <button id="salvar" class="btn cta">Salvar item</button>
+
+    <div class="list" id="lista"></div>
+  </main>
+
+  <script src="cmspro.js"></script>
+</body>
+</html>
