@@ -5,67 +5,70 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Geriatria 360</title>
   <link rel="stylesheet" href="styles.css"/>
+  <meta name="description" content="Geriatria 360 — avaliação, prevenção de quedas e sarcopenia, acolhimento familiar."/>
 </head>
 <body>
+  <!-- Topbar -->
   <header class="top">
-    <div class="container top__row">
-      <div class="brand">Geriatria 360</div>
-      <nav class="nav">
+    <div class="container row">
+      <a class="brand" href="index.html" aria-label="Página inicial">Geriatria 360</a>
+      <nav class="nav" aria-label="Navegação principal">
         <a href="index.html">Início</a>
-        <a href="#agendamento">Agendamento</a>
+        <a href="#agendar">Agendamento</a>
         <a href="medicos.html">Área Médica</a>
-        <a class="btn primary" href="https://wa.me/55XXXXXXXXXX" target="_blank">WhatsApp</a>
+        <a class="btn cta" href="https://wa.me/55XXXXXXXXXX" target="_blank" rel="noopener">WhatsApp</a>
       </nav>
     </div>
   </header>
 
-  <!-- Banner de destaque / notícias urgentes -->
-  <section class="hero">
+  <!-- Banner de destaque (notícias urgentes) -->
+  <section class="section" aria-labelledby="tit-banner">
     <div class="container">
+      <h2 id="tit-banner" class="visually-hidden">Destaques</h2>
       <div id="banner" class="banner">
-        <!-- preenchido pelo app.js (carrossel de notícias importantes) -->
+        <!-- preenchido pelo site.js -->
       </div>
     </div>
   </section>
 
   <!-- Últimas notícias -->
-  <section class="section">
+  <section class="section" aria-labelledby="tit-news">
     <div class="container">
-      <h2 class="h2">Últimas notícias</h2>
+      <h2 id="tit-news" class="h2">Últimas notícias</h2>
       <p class="sub">Conteúdos de prevenção, vacinas, campanhas e orientações.</p>
-      <div id="newsGrid" class="grid g3"></div>
+      <div id="newsGrid" class="grid g3"><!-- preenchido pelo site.js --></div>
     </div>
   </section>
 
   <!-- Patologias & Informações -->
-  <section class="section alt">
+  <section class="section alt" aria-labelledby="tit-pat">
     <div class="container">
-      <h2 class="h2">Patologias & Informações</h2>
+      <h2 id="tit-pat" class="h2">Patologias & Informações</h2>
       <p class="sub">Guias rápidos sobre temas frequentes na geriatria.</p>
-      <div id="topicsGrid" class="grid g3"></div>
+      <div id="patGrid" class="grid g3"><!-- preenchido pelo site.js --></div>
     </div>
   </section>
 
   <!-- Agendamento -->
-  <section id="agendamento" class="section">
+  <section id="agendar" class="section" aria-labelledby="tit-agendar">
     <div class="container">
       <div class="dash">
         <div class="flex-between">
           <div>
-            <h2 class="h2">Agende sua consulta</h2>
+            <h2 id="tit-agendar" class="h2">Agende sua consulta</h2>
             <p class="sub">Atendimento humanizado. Escolha a melhor forma de falar conosco.</p>
           </div>
-          <div class="seg">
-            <a class="btn primary" href="https://wa.me/55XXXXXXXXXX" target="_blank">Agendar por WhatsApp</a>
+          <div class="seg" role="group" aria-label="Ações de agendamento">
+            <a class="btn cta" href="https://wa.me/55XXXXXXXXXX" target="_blank" rel="noopener">Agendar por WhatsApp</a>
             <a class="btn" href="mailto:contato@geriatria360.com.br">Agendar por e-mail</a>
           </div>
         </div>
-        <div class="mapph" style="margin-top:14px">Mapa/Imagem da clínica</div>
+        <div class="mapph" style="margin-top:14px" aria-label="Mapa ou imagem da clínica">Mapa/Imagem da clínica</div>
       </div>
     </div>
   </section>
 
-  <footer class="footer">
+  <footer class="footer" role="contentinfo">
     <div class="container flex-between">
       <div class="muted">© 2025 Geriatria 360</div>
       <div class="footer__nav">
@@ -75,6 +78,13 @@
     </div>
   </footer>
 
-  <script src="app.js"></script>
+  <noscript>
+    <div class="container" style="margin:16px 0; color:#6b7280; font-size:14px">
+      Para visualizar destaques e notícias, habilite o JavaScript no seu navegador.
+    </div>
+  </noscript>
+
+  <!-- Use o arquivo que existe no seu projeto -->
+  <script src="site.js"></script>
 </body>
 </html>
