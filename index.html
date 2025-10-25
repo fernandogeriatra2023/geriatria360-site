@@ -1,15 +1,233 @@
-<!doctype html><html lang="pt-br"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Geriatria 360 — Home</title><link rel="stylesheet" href="styles.css"></head><body>
-<header class="top"><div class="container row"><strong>Geriatria 360</strong>
-  <nav><a href="index.html">Início</a><a href="admin.html">Editor</a><a href="medicos.html">Área Médicos</a>
-  <a class="btn cta" id="whatsTop" target="_blank">WhatsApp</a></nav></div></header>
-<section class="hero"><div class="inner"></div></section>
-<section class="container section contact-strip"><div class="contact-grid">
-  <div class="contact-card"><span class="tag">Contato da clínica</span><h2 id="clinicName">Geriatria 360</h2>
-    <p class="small" id="clinicAddress">Endereço aqui — edite em data.json</p>
-    <div class="cta-wrap"><a class="btn cta" id="btnMarcar" target="_blank">Marcar consulta</a><a class="btn" id="btnWhats" target="_blank">WhatsApp</a></div></div>
-  <div class="card" style="display:grid;place-items:center;min-height:140px"><div class="small">Espaço para imagem da clínica / mapa / selo</div></div>
-</div></section>
-<section class="container section"><h2>Últimas matérias</h2><div id="news" class="news" style="margin-top:12px"></div></section>
-<p class="footer">© 2025 Geriatria 360</p><script src="site.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Evolução Médica – Geriatria360</title>
+  <style>
+    :root{
+      --bg:#0f172a;        /* slate-900 */
+      --card:#111827;      /* gray-900 */
+      --muted:#64748b;     /* slate-500 */
+      --text:#e5e7eb;      /* gray-200 */
+      --accent:#22c55e;    /* green-500 */
+      --accent-2:#14b8a6;  /* teal-500 */
+      --danger:#ef4444;    /* red-500 */
+      --border:#1f2937;    /* gray-800 */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:linear-gradient(160deg,#0b1220,#0f172a);color:var(--text);
+         font:400 15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+    .container{max-width:1100px;margin:24px auto;padding:0 16px}
+    .grid{display:grid;gap:16px;grid-template-columns:380px 1fr}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    h1{font-weight:700;font-size:22px;margin:0 0 12px}
+    h2{font-size:15px;margin:14px 0 8px;color:#bfdbfe}
+    label{display:block;margin:10px 0 6px;color:var(--muted);font-size:13px}
+    input[type="text"], input[type="number"], textarea, select{width:100%;background:#0b1020;border:1px solid var(--border);color:var(--text);
+      border-radius:10px;padding:10px 12px;outline:none}
+    textarea{min-height:84px;resize:vertical}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .muted{color:var(--muted)}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{background:#0b1020;border:1px solid var(--border);padding:6px 10px;border-radius:999px;font-size:12px;cursor:pointer}
+    .chip.active{background:var(--accent-2);border-color:transparent;color:#062a27}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px}
+    .btn{border:1px solid var(--border);background:#0b1020;color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer}
+    .btn.primary{background:var(--accent);border-color:transparent;color:#052e15;font-weight:700}
+    .btn.warn{background:var(--danger);border-color:transparent;color:#300}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+    .out{white-space:pre-wrap;background:#0b1020;border:1px dashed var(--border);min-height:200px;border-radius:12px;padding:14px}
+    .row-min{display:grid;grid-template-columns:1.2fr .8fr auto;gap:8px}
+    .tag{padding:2px 8px;border-radius:999px;background:#052e15;color:#a7f3d0;border:1px solid #16a34a;font-size:11px}
+    .divider{height:1px;background:var(--border);margin:10px 0}
+    .foot{margin-top:8px;color:var(--muted);font-size:12px}
+    @media (max-width:980px){.grid{grid-template-columns:1fr}}
+    @media print{body{background:#fff;color:#000}.card{box-shadow:none;border:0}
+      .no-print{display:none!important}.out{border:0;background:#fff}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Evolução Médica – Geriatria360</h1>
+    <div class="grid">
+      <!-- CONFIGURAÇÃO / ENTRADA -->
+      <section class="card">
+        <h2>Modelo da evolução</h2>
+        <select id="template">
+          <option value="ambulatorial">Evolução ambulatorial (genérica)</option>
+          <option value="retorno">Retorno de exames (em linha)</option>
+          <option value="domiciliar">Visita domiciliar (modelo fixo)</option>
+        </select>
+
+        <div class="divider"></div>
+        <h2>Campos principais</h2>
+        <label>Queixa / Motivo</label>
+        <textarea id="queixa" placeholder="Ex.: Astenia e sonolência diárias."></textarea>
+
+        <div id="bloco-exames" style="display:none">
+          <div class="row">
+            <div>
+              <label>Data dos exames</label>
+              <input id="dataEx" type="text" placeholder="Ex.: 12/08/2025" />
+            </div>
+            <div>
+              <label>Resumo adicional (mamografia, preventivo etc.)</label>
+              <input id="outrosEx" type="text" placeholder="Ex.: Mamografia 26/09/2025 – BI‑RADS 2" />
+            </div>
+          </div>
+
+          <label>Adicionar exames (Nome e valor — ficam em linha com “Nome: valor;”)</label>
+          <div id="linhaEx" class="row-min">
+            <input id="exNome" type="text" placeholder="Ex.: Vitamina D" />
+            <input id="exVal" type="text" placeholder="Ex.: 27,7" />
+            <button class="btn" id="addEx" type="button">Adicionar</button>
+          </div>
+          <div id="exList" class="chips" aria-live="polite"></div>
+          <p class="foot">Preferência aplicada: <span class="tag">exames em linha</span> com <span class="tag">Nome: valor</span> e <span class="tag">sem barras</span>.</p>
+        </div>
+
+        <div class="divider"></div>
+        <h2>Exame físico (auto‑texto padrão)</h2>
+        <div id="chipsFx" class="chips">
+          <button type="button" class="chip active" data-k="ar">AR normal</button>
+          <button type="button" class="chip active" data-k="ac">AC normal</button>
+          <button type="button" class="chip active" data-k="abd">Abdome indolor</button>
+        </div>
+
+        <div class="divider"></div>
+        <h2>Conduta</h2>
+        <label>Solicitação de exames (opcional)</label>
+        <textarea id="solic" placeholder="Ex.: Hemograma; TSH; T4L; Ecografia de abdome."></textarea>
+        <label>Tratamento / Plano</label>
+        <textarea id="tt" placeholder="Ex.: Ajuste medicamentoso e orientações."></textarea>
+
+        <div class="divider"></div>
+        <label class="muted"><input id="assinOn" type="checkbox" checked> Incluir identificação/assinatura ao final</label>
+        <textarea id="assin" placeholder="Dr. Fernando João Rocha – CRM‑SC 28480 | Médico Clínico Geral e Geriatra\nUBS Universitário Marcos Aurélio – Tijucas/SC" style="min-height:68px"></textarea>
+
+        <div class="divider"></div>
+        <div class="toolbar no-print">
+          <button class="btn" id="gerar">Gerar evolução</button>
+          <button class="btn" id="copiar" disabled>Copiar</button>
+          <button class="btn" id="imprimir" disabled>Imprimir/PDF</button>
+          <button class="btn warn" id="limpar">Limpar</button>
+        </div>
+      </section>
+
+      <!-- SAÍDA / PRÉVIA -->
+      <section class="card">
+        <h2>Prévia da evolução</h2>
+        <div id="saida" class="out"></div>
+        <p class="foot">Use “Gerar evolução” para montar o texto final conforme o modelo escolhido.</p>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const $ = (q)=>document.querySelector(q);
+    const exList = [];
+
+    function renderExams(){
+      const wrap = document.getElementById('exList');
+      wrap.innerHTML = '';
+      exList.forEach((e,i)=>{
+        const b = document.createElement('button');
+        b.className = 'chip active';
+        b.textContent = `${e.n}: ${e.v}`;
+        b.title = 'Clique para remover';
+        b.onclick = ()=>{ exList.splice(i,1); renderExams(); };
+        wrap.appendChild(b);
+      });
+    }
+
+    function chipToggle(ev){ ev.currentTarget.classList.toggle('active'); }
+
+    function montar(){
+      const tpl = document.getElementById('template').value;
+      const queixa = document.getElementById('queixa').value.trim();
+      const dataEx = document.getElementById('dataEx').value.trim();
+      const outrosEx = document.getElementById('outrosEx').value.trim();
+      const fx = {
+        ar: document.querySelector('.chip[data-k="ar"]').classList.contains('active') ? 'AR: Murmúrio vesicular presente bilateralmente, sem ruídos adventícios.' : '',
+        ac: document.querySelector('.chip[data-k="ac"]').classList.contains('active') ? 'AC: Bulhas normofonéticas em dois tempos, sem sopros.' : '',
+        abd: document.querySelector('.chip[data-k="abd"]').classList.contains('active') ? 'Abdome: Sem dor à palpação superficial e profunda.' : ''
+      };
+      const fxTxt = Object.values(fx).filter(Boolean).join(' ');
+      const solicit = document.getElementById('solic').value.trim();
+      const tto = document.getElementById('tt').value.trim();
+      const assOn = document.getElementById('assinOn').checked;
+      const ass = document.getElementById('assin').value.trim();
+
+      let out = '';
+
+      if(tpl==='domiciliar'){
+        out += 'Visita Domiciliar\n';
+        out += 'Visita realizada pela equipe de enfermagem e médico.\n\n';
+        if(queixa) out += `Queixa do paciente: ${queixa}.\n`;
+        out += 'Nega alergia medicamentosa.\n\n';
+        if(fxTxt) out += `Exame físico: ${fxTxt}\n\n`;
+        if(solicit) out += `Conduta – Solicitação de exames: ${solicit}.\n`;
+        if(tto) out += `Conduta – Tratamento: ${tto}.\n`;
+        out += '\nOrientações pertinentes ao caso foram realizadas.';
+      }
+      else if(tpl==='retorno'){
+        out += 'Paciente vem a consulta médica para mostrar exames: Nega queixa no momento da consulta.\n\n';
+        const examesInline = exList.map(e=>`${e.n}: ${e.v}`).join('; ');
+        if(dataEx || examesInline){
+          out += 'Exames laboratoriais';
+          if(dataEx) out += ` ${dataEx}`;
+          out += ' – ' + (examesInline || '—') + '.\n';
+        }
+        if(outrosEx) out += outrosEx + '.\n';
+        if(fxTxt) out += `\nExame físico: ${fxTxt}\n`;
+        if(solicit) out += `\nConduta – Solicitação de exames: ${solicit}.`;
+        if(tto) out += `\nConduta – Tratamento: ${tto}.`;
+      }
+      else { // ambulatorial
+        if(queixa) out += `Queixa principal: ${queixa}.\n\n`;
+        if(fxTxt) out += `Exame físico: ${fxTxt}\n\n`;
+        if(solicit) out += `Solicitação de exames: ${solicit}.\n`;
+        if(tto) out += `Tratamento/Plano: ${tto}.`;
+      }
+
+      if(assOn && ass){ out += `\n\n${ass}`; }
+
+      document.getElementById('saida').textContent = out.trim();
+      document.getElementById('copiar').disabled = !out.trim();
+      document.getElementById('imprimir').disabled = !out.trim();
+    }
+
+    // Eventos
+    document.getElementById('addEx').onclick = ()=>{
+      const n = document.getElementById('exNome').value.trim();
+      const v = document.getElementById('exVal').value.trim();
+      if(!n||!v) return;
+      exList.push({n,v});
+      document.getElementById('exNome').value='';
+      document.getElementById('exVal').value='';
+      renderExams();
+    };
+
+    document.getElementById('template').addEventListener('change', (e)=>{
+      const isRet = e.target.value==='retorno';
+      document.getElementById('bloco-exames').style.display = isRet? 'block':'none';
+    });
+
+    document.getElementById('gerar').onclick = montar;
+    document.getElementById('copiar').onclick = async ()=>{
+      const t = document.getElementById('saida').textContent;
+      try{ await navigator.clipboard.writeText(t); alert('Evolução copiada para a área de transferência.'); }catch(e){ alert('Não foi possível copiar. Selecione o texto e use Ctrl+C.'); }
+    };
+    document.getElementById('imprimir').onclick = ()=>window.print();
+    document.getElementById('limpar').onclick = ()=>{ location.reload(); };
+
+    document.querySelectorAll('#chipsFx .chip').forEach(c=> c.addEventListener('click', chipToggle));
+
+    // Estado inicial
+    document.getElementById('template').dispatchEvent(new Event('change'));
+    document.getElementById('assin').value = 'Dr. Fernando João Rocha – CRM‑SC 28480 | Médico Clínico Geral e Geriatra\nUBS Universitário Marcos Aurélio – Tijucas/SC';
+  </script>
+</body>
+</html>
