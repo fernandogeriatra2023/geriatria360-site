@@ -1,271 +1,80 @@
 <!doctype html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Geriatria 360 — Cuidado integral da pessoa idosa</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Geriatria 360</title>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-
-  <!-- Topbar -->
   <header class="top">
     <div class="container top__row">
-      <a class="brand" href="#">
-        <span class="brand__logo">G</span>
-        <span class="brand__name">Geriatria 360</span>
-      </a>
+      <div class="brand">Geriatria 360</div>
       <nav class="nav">
-        <a href="#painel">Painel Saúde</a>
-        <a href="#servicos">Serviços</a>
-        <a href="#como">Como funciona</a>
-        <a href="#conteudos">Conteúdos</a>
-        <a href="#contato">Contato</a>
+        <a href="index.html">Início</a>
+        <a href="#agendamento">Agendamento</a>
+        <a href="medicos.html">Área Médica</a>
+        <a class="btn primary" href="https://wa.me/55XXXXXXXXXX" target="_blank">WhatsApp</a>
       </nav>
-      <div class="top__actions">
-        <a class="btn ghost" href="medicos.html">Área Médicos</a>
-        <a class="btn" href="#contato">Marcar consulta</a>
-      </div>
     </div>
   </header>
 
-  <!-- Hero -->
+  <!-- Banner de destaque / notícias urgentes -->
   <section class="hero">
-    <div class="container hero__grid">
-      <div class="hero__text">
-        <h1>Cuidado integral da pessoa idosa</h1>
-        <p class="lead">Avaliação, prevenção de quedas e sarcopenia, acolhimento familiar — atenção centrada na funcionalidade e autonomia.</p>
-        <div class="cta-wrap">
-          <a class="btn" href="#contato">Quero agendar</a>
-          <a class="btn ghost" href="#painel">Ver como funciona</a>
-        </div>
-        <div class="trust">
-          <span class="chip">Atendimento humanizado</span>
-          <span class="chip">Equipe multidisciplinar</span>
-          <span class="chip">Protocolos atualizados</span>
-        </div>
-      </div>
-
-      <!-- “Dashboard” ilustrativo -->
-      <aside class="dash">
-        <div class="dash__header">
-          <span>Seu painel de saúde</span>
-          <span class="dot"></span>
-        </div>
-        <div class="dash__kpis">
-          <div class="kpi">
-            <div class="kpi__label">Consultas marcadas</div>
-            <div class="kpi__value" id="k_consultas">02</div>
-            <div class="kpi__trend up">+1 esta semana</div>
-          </div>
-          <div class="kpi">
-            <div class="kpi__label">Exames pendentes</div>
-            <div class="kpi__value" id="k_exames">01</div>
-            <div class="kpi__trend flat">0 hoje</div>
-          </div>
-          <div class="kpi">
-            <div class="kpi__label">Encaminhamentos</div>
-            <div class="kpi__value" id="k_enc">03</div>
-            <div class="kpi__trend up">+2 no mês</div>
-          </div>
-          <div class="kpi">
-            <div class="kpi__label">Tempo médio</div>
-            <div class="kpi__value" id="k_tempo">23m</div>
-            <div class="kpi__trend good">atendimento</div>
-          </div>
-        </div>
-        <div class="dash__cards">
-          <div class="card mini">
-            <div class="mini__title">Próxima consulta</div>
-            <div class="mini__desc">Qui, 14:30 — Dr(a). Silva</div>
-            <button class="mini__btn ghost">Ver detalhes</button>
-          </div>
-          <div class="card mini">
-            <div class="mini__title">Check de quedas</div>
-            <div class="mini__desc">Risco baixo • TUG 11s</div>
-            <button class="mini__btn ghost">Entenda o resultado</button>
-          </div>
-        </div>
-      </aside>
-    </div>
-  </section>
-
-  <!-- Painel/benefícios -->
-  <section id="painel" class="section">
     <div class="container">
-      <h2 class="h2">Acompanhe sua saúde como num painel</h2>
-      <p class="sub">Transparência e simplicidade: você e sua família entendem cada passo do cuidado.</p>
-      <div class="grid g3">
-        <div class="card feat">
-          <div class="feat__icon">📊</div>
-          <div class="feat__title">Resultados claros</div>
-          <p>Explicamos testes como TUG, SARC-F, Katz, Lawton e GDS em linguagem simples.</p>
-        </div>
-        <div class="card feat">
-          <div class="feat__icon">🤝</div>
-          <div class="feat__title">Plano personalizado</div>
-          <p>Intervenções não farmacológicas, metas e reavaliações em prazos definidos.</p>
-        </div>
-        <div class="card feat">
-          <div class="feat__icon">🔔</div>
-          <div class="feat__title">Lembretes</div>
-          <p>Alertas de consultas, exames e exercícios prescritos para manter a rotina.</p>
-        </div>
+      <div id="banner" class="banner">
+        <!-- preenchido pelo app.js (carrossel de notícias importantes) -->
       </div>
     </div>
   </section>
 
-  <!-- Serviços -->
-  <section id="servicos" class="section alt">
+  <!-- Últimas notícias -->
+  <section class="section">
     <div class="container">
-      <h2 class="h2">Serviços e especialidades</h2>
-      <div class="grid g3">
-        <div class="card svc">
-          <div class="svc__title">Avaliação Geriátrica Ampla</div>
-          <p>Triagem de fragilidade, cognição, humor, nutrição e funcionalidade.</p>
-        </div>
-        <div class="card svc">
-          <div class="svc__title">Prevenção de quedas</div>
-          <p>Teste TUG, treinamento de marcha, revisão de medicações e ambiente.</p>
-        </div>
-        <div class="card svc">
-          <div class="svc__title">Acolhimento familiar</div>
-          <p>Orientações ao cuidador, plano de rotina e materiais educativos.</p>
-        </div>
-        <div class="card svc">
-          <div class="svc__title">Cognição e humor</div>
-          <p>MEEM, MoCA, Mini-Cog, GDS-15 e acompanhamento estruturado.</p>
-        </div>
-        <div class="card svc">
-          <div class="svc__title">Sarcopenia</div>
-          <p>Força, marcha, IMC/CC e treino muscular supervisionado.</p>
-        </div>
-        <div class="card svc">
-          <div class="svc__title">Interconsultas</div>
-          <p>Rede de apoio com outras especialidades e reabilitação.</p>
-        </div>
-      </div>
+      <h2 class="h2">Últimas notícias</h2>
+      <p class="sub">Conteúdos de prevenção, vacinas, campanhas e orientações.</p>
+      <div id="newsGrid" class="grid g3"></div>
     </div>
   </section>
 
-  <!-- Como funciona -->
-  <section id="como" class="section">
-    <div class="container">
-      <h2 class="h2">Como funciona</h2>
-      <div class="steps">
-        <div class="step">
-          <div class="step__num">1</div>
-          <div class="step__title">Agende</div>
-          <p>Escolha um horário e informe brevemente a principal queixa.</p>
-        </div>
-        <div class="step">
-          <div class="step__num">2</div>
-          <div class="step__title">Avalie</div>
-          <p>Realizamos testes objetivos e explicamos cada resultado.</p>
-        </div>
-        <div class="step">
-          <div class="step__num">3</div>
-          <div class="step__title">Acompanhe</div>
-          <p>Receba o plano, lembretes e reavaliações periódicas.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Depoimentos -->
+  <!-- Patologias & Informações -->
   <section class="section alt">
     <div class="container">
-      <h2 class="h2">Quem confia recomenda</h2>
-      <div class="grid g3">
-        <blockquote class="card depo">
-          <p>“Atendimento acolhedor, conseguimos entender a situação e organizar a rotina da minha mãe.”</p>
-          <cite>— Ana P.</cite>
-        </blockquote>
-        <blockquote class="card depo">
-          <p>“Os testes mostraram pontos claros de atenção e agora temos metas para a família acompanhar.”</p>
-          <cite>— Carlos M.</cite>
-        </blockquote>
-        <blockquote class="card depo">
-          <p>“Equipe paciente e didática. O painel com lembretes fez muita diferença.”</p>
-          <cite>— Joana R.</cite>
-        </blockquote>
-      </div>
+      <h2 class="h2">Patologias & Informações</h2>
+      <p class="sub">Guias rápidos sobre temas frequentes na geriatria.</p>
+      <div id="topicsGrid" class="grid g3"></div>
     </div>
   </section>
 
-  <!-- Conteúdos -->
-  <section id="conteudos" class="section">
+  <!-- Agendamento -->
+  <section id="agendamento" class="section">
     <div class="container">
-      <h2 class="h2">Conteúdos recentes</h2>
-      <div class="grid g3">
-        <a class="card post" href="post.html">
-          <div class="post__cover"></div>
-          <div class="post__title">Vacina herpes-zoster: o que saber</div>
-          <p class="post__meta">20/10/2025 • 4 min</p>
-        </a>
-        <a class="card post" href="post.html">
-          <div class="post__cover"></div>
-          <div class="post__title">Quedas: 7 ajustes simples em casa</div>
-          <p class="post__meta">12/10/2025 • 3 min</p>
-        </a>
-        <a class="card post" href="post.html">
-          <div class="post__cover"></div>
-          <div class="post__title">Sarcopenia: força é o novo vital</div>
-          <p class="post__meta">05/10/2025 • 5 min</p>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA contato -->
-  <section id="contato" class="section contact">
-    <div class="container contact__grid">
-      <div class="card contact__card">
-        <h3>Marque sua consulta</h3>
-        <p>Retornamos ainda hoje para confirmar.</p>
-        <form id="leadForm" class="grid g2 tight">
-          <input required name="nome" placeholder="Seu nome" />
-          <input required name="telefone" placeholder="Telefone/WhatsApp" />
-          <input name="email" placeholder="E-mail (opcional)" />
-          <input name="assunto" placeholder="Assunto (opcional)" />
-          <textarea name="mensagem" rows="4" placeholder="Conte brevemente sua necessidade"></textarea>
-          <button class="btn" type="submit">Enviar pedido</button>
-        </form>
-        <p class="hint">Endereço: Rua Exemplo, 123 — Centro — Cidade/UF</p>
-      </div>
-      <div class="card contact__side">
-        <div class="mapph">Espaço para imagem/mapa da clínica</div>
-        <div class="whats">
-          <a class="btn whats__btn" href="https://wa.me/5500000000000" target="_blank" rel="noopener">Falar no WhatsApp</a>
-          <span class="hint">Atendimento seg–sex, 8h–18h</span>
+      <div class="dash">
+        <div class="flex-between">
+          <div>
+            <h2 class="h2">Agende sua consulta</h2>
+            <p class="sub">Atendimento humanizado. Escolha a melhor forma de falar conosco.</p>
+          </div>
+          <div class="seg">
+            <a class="btn primary" href="https://wa.me/55XXXXXXXXXX" target="_blank">Agendar por WhatsApp</a>
+            <a class="btn" href="mailto:contato@geriatria360.com.br">Agendar por e-mail</a>
+          </div>
         </div>
+        <div class="mapph" style="margin-top:14px">Mapa/Imagem da clínica</div>
       </div>
     </div>
   </section>
 
   <footer class="footer">
-    <div class="container footer__grid">
-      <div>
-        <div class="brand brand--small"><span class="brand__logo">G</span><span class="brand__name">Geriatria 360</span></div>
-        <p class="muted">© 2025 Geriatria 360 • Cuidado integral da pessoa idosa</p>
+    <div class="container flex-between">
+      <div class="muted">© 2025 Geriatria 360</div>
+      <div class="footer__nav">
+        <a href="#">Política de Privacidade</a> ·
+        <a href="#">Termos</a>
       </div>
-      <nav class="footer__nav">
-        <a href="#servicos">Serviços</a>
-        <a href="#como">Como funciona</a>
-        <a href="#conteudos">Conteúdos</a>
-        <a href="medicos.html">Área Médicos</a>
-      </nav>
     </div>
   </footer>
 
-  <!-- bolha WhatsApp -->
-  <a class="wa" href="https://wa.me/5500000000000" target="_blank" rel="noopener" aria-label="WhatsApp">
-    <span>🟢</span>
-  </a>
-
-  <script src="site.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
