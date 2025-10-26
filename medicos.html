@@ -6,368 +6,6 @@
   <title>Área Médica — Geriatria 360</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    // Modelos de atestado
-const certModels = {
-  modelo1: `ATESTADO MÉDICO
-
-Atesto, para os devidos fins, que o(a) paciente {{nome}} foi atendido(a) nesta data, apresentando condição clínica que justifica afastamento das atividades habituais por {{dias}} dias, a contar de hoje.
-
-{{cid}}
-Recomendado repouso e acompanhamento clínico.
-Retorno conforme evolução.`,
-
-  modelo2: `ATESTADO DE APTIDÃO FÍSICA
-
-Atesto, para os devidos fins, que o(a) paciente {{nome}} foi avaliado(a) em consulta médica, não apresentando contraindicações aparentes à prática de atividades físicas de forma orientada.
-
-Recomenda-se acompanhamento periódico e observar sinais e sintomas durante o exercício.`,
-
-  modelo3: `ATESTADO DE COMPARECIMENTO
-
-Atesto que o(a) paciente {{nome}} esteve em atendimento médico nesta unidade no dia {{data}} das {{horaInicio}} às {{horaFim}}.
-
-Recomenda-se abono de falta conforme legislação vigente.`,
-
-  modelo4: `ATESTADO PARA ACOMPANHANTE
-
-Atesto, para os devidos fins, que {{acompanhante}} acompanhou o(a) paciente {{nome}} em atendimento médico nesta data, sendo necessária sua presença durante o período.
-
-Sugiro o abono da ausência conforme normas institucionais.`
-};
-
-// CID-10 para atestado
-let selectedCidsAtestado = [];
-
-function changeCertModel(model) {
-  const certReason = document.getElementById('certReason');
-  const certFields = document.getElementById('certFields');
-  
-  certFields.innerHTML = '';
-  selectedCidsAtestado = [];
-  updateCIDChipsAtestado();
-  
-  if (model && certModels[model]) {
-    certReason.value = certModels[model];
-    
-    switch(model) {
-      case 'modelo1':
-        certFields.innerHTML = `
-          <div class="cert-field-group">
-            <div class="form-group">
-              <label for="certNome">Nome do Paciente</label>
-              <input type="text" id="certNome" class="form-control" placeholder="Nome completo ou iniciais">
-            </div>
-            <div class="form-group">
-              <label for="certDias">Dias de Afastamento</label>
-              <input type="number" id="certDias" class="form-control" min="1" value="3">
-            </div>
-          </div>
-        `;
-        break;
-        
-      case 'modelo2':
-        certFields.innerHTML = `
-          <div class="form-group">
-            <label for="certNome">Nome do Paciente</label>
-            <input type="text" id="certNome" class="form-control" placeholder="Nome completo ou iniciais">
-          </div>
-        `;
-        break;
-        
-      case 'modelo3':
-        const today = new Date().toISOString().split('T')[0];
-        certFields.innerHTML = `
-          <div class="cert-field-group">
-            <div class="form-group">
-              <label for="certNome">Nome do Paciente</label>
-              <input type="text" id="certNome" class="form-control" placeholder="Nome completo ou iniciais">
-            </div>
-            <div class="form-group">
-              <label for="certData">Data do Atendimento</label>
-              <input type="date" id="certData" class="form-control" value="${today}">
-            </div>
-          </div>
-          <div class="cert-field-group">
-            <div class="form-group">
-              <label for="certHoraInicio">Hora Início</label>
-              <input type="time" id="certHoraInicio" class="form-control" value="09:00">
-            </div>
-            <div class="form-group">
-              <label for="certHoraFim">Hora Fim</label>
-              <input type="time" id="certHoraFim" class="form-control" value="10:00">
-            </div>
-          </div>
-        `;
-        break;
-        
-      case 'modelo4':
-        certFields.innerHTML = `
-          <div class="cert-field-group">
-            <div class="form-group">
-              <label for="certNome">Nome do Paciente</label>
-              <input type="text" id="certNome" class="form-control" placeholder="Nome do paciente">
-            </div>
-            <div class="form-group">
-              <label for="certAcompanhante">Nome do Acompanhante</label>
-              <input type="text" id="certAcompanhante" class="form-control" placeholder="Nome do acompanhante">
-            </div>
-          </div>
-        `;
-        break;
-    }
-    
-    initCIDSearchAtestado();
-  }
-}
-
-function initCIDSearchAtestado() {
-  const cidSearch = document.getElementById('cidSearchAtestado');
-  const cidResults = document.getElementById('cidResultsAtestado');
-  
-  if (!cidSearch) return;
-  
-  cidSearch.addEventListener('input', function() {
-    const query = this.value.toLowerCase();
-    
-    if (query.length < 2) {
-      cidResults.style.display = 'none';
-      return;
-    }
-    
-    const filtered = cidData.filter(item => 
-      item.code.toLowerCase().includes(query) || 
-      item.description.toLowerCase().includes(query)
-    );
-    
-    displayCIDResultsAtestado(filtered);
-  });
-  
-  document.addEventListener('click', function(e) {
-    if (!cidSearch.contains(e.target) && !cidResults.contains(e.target)) {
-      cidResults.style.display = 'none';
-    }
-  });
-}
-
-function displayCIDResultsAtestado(results) {
-  const cidResults = document.getElementById('cidResultsAtestado');
-  cidResults.innerHTML = '';
-  
-  if (results.length === 0) {
-    cidResults.innerHTML = '<div class="cid-result">Nenhum CID encontrado</div>';
-  } else {
-    results.slice(0, 10).forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'cid-result';
-      div.innerHTML = `<strong>${item.code}</strong> - ${item.description}`;
-      div.addEventListener('click', () => selectCIDAtestado(item));
-      cidResults.appendChild(div);
-    });
-  }
-  
-  cidResults.style.display = 'block';
-}
-
-function selectCIDAtestado(cid) {
-  if (!selectedCidsAtestado.find(item => item.code === cid.code)) {
-    selectedCidsAtestado.push(cid);
-    updateCIDChipsAtestado();
-    updateCertTextWithCID();
-  }
-  
-  document.getElementById('cidSearchAtestado').value = '';
-  document.getElementById('cidResultsAtestado').style.display = 'none';
-}
-
-function updateCIDChipsAtestado() {
-  const container = document.getElementById('cidChipsAtestado');
-  container.innerHTML = '';
-  
-  selectedCidsAtestado.forEach(cid => {
-    const chip = document.createElement('div');
-    chip.className = 'cid-chip';
-    chip.innerHTML = `
-      ${cid.code} - ${cid.description}
-      <button onclick="removeCIDAtestado('${cid.code}')"><i class="fas fa-times"></i></button>
-    `;
-    container.appendChild(chip);
-  });
-}
-
-function removeCIDAtestado(code) {
-  selectedCidsAtestado = selectedCidsAtestado.filter(item => item.code !== code);
-  updateCIDChipsAtestado();
-  updateCertTextWithCID();
-}
-
-function updateCertTextWithCID() {
-  const certReason = document.getElementById('certReason');
-  let text = certReason.value;
-  
-  text = text.replace(/\nCID: .+$/, '');
-  
-  if (selectedCidsAtestado.length > 0) {
-    const cids = selectedCidsAtestado.map(cid => `${cid.code} - ${cid.description}`).join(', ');
-    text += `\nCID: ${cids}`;
-  }
-  
-  certReason.value = text;
-}
-
-function generateCertText() {
-  const model = document.getElementById('certModel').value;
-  let text = document.getElementById('certReason').value;
-  
-  if (!model) {
-    alert('Selecione um modelo de atestado primeiro.');
-    return null;
-  }
-  
-  const nome = document.getElementById('certNome') ? document.getElementById('certNome').value : '';
-  text = text.replace(/{{nome}}/g, nome);
-  
-  switch(model) {
-    case 'modelo1':
-      const dias = document.getElementById('certDias') ? document.getElementById('certDias').value : '';
-      text = text.replace(/{{dias}}/g, dias);
-      break;
-      
-    case 'modelo3':
-      const data = document.getElementById('certData') ? document.getElementById('certData').value : '';
-      const horaInicio = document.getElementById('certHoraInicio') ? document.getElementById('certHoraInicio').value : '';
-      const horaFim = document.getElementById('certHoraFim') ? document.getElementById('certHoraFim').value : '';
-      
-      const dataFormatada = data ? new Date(data).toLocaleDateString('pt-BR') : '';
-      
-      text = text.replace(/{{data}}/g, dataFormatada);
-      text = text.replace(/{{horaInicio}}/g, horaInicio);
-      text = text.replace(/{{horaFim}}/g, horaFim);
-      break;
-      
-    case 'modelo4':
-      const acompanhante = document.getElementById('certAcompanhante') ? document.getElementById('certAcompanhante').value : '';
-      text = text.replace(/{{acompanhante}}/g, acompanhante);
-      break;
-  }
-  
-  return text;
-}
-
-function saveCertificate() {
-  const certText = generateCertText();
-  if (certText) {
-    localStorage.setItem('lastCertificate', certText);
-    alert('Atestado salvo com sucesso!');
-  }
-}
-
-function printCertificate() {
-  const certText = generateCertText();
-  if (!certText) return;
-  
-  const printContent = `
-    <div style="padding: 30px; font-family: Arial; line-height: 1.6;">
-      <div style="white-space: pre-wrap; font-size: 14px;">${certText}</div>
-      <br><br><br>
-      <div style="margin-top: 50px; text-align: center;">
-        <p>_________________________________________</p>
-        <p><strong>Dr. Silva</strong></p>
-        <p>CRM: 123456</p>
-        <p>Geriatria 360</p>
-      </div>
-    </div>
-  `;
-  
-  const printWindow = window.open('', '_blank');
-  printWindow.document.write(printContent);
-  printWindow.document.close();
-  printWindow.print();
-}
-
-// Base de dados de CID-10 (adicione esta variável se não existir)
-const cidData = [
-  { code: "A00", description: "Cólera" },
-  { code: "A01", description: "Febres tifóide e paratifóide" },
-  { code: "I10", description: "Hipertensão essencial (primária)" },
-  { code: "I11", description: "Doença cardíaca hipertensiva" },
-  { code: "E10", description: "Diabetes mellitus insulinodependente" },
-  { code: "E11", description: "Diabetes mellitus não-insulinodependente" },
-  { code: "F00", description: "Demência na doença de Alzheimer" },
-  { code: "F03", description: "Demência não especificada" },
-  { code: "G20", description: "Doença de Parkinson" },
-  { code: "J45", description: "Asma" },
-  { code: "M19", description: "Outras artroses" },
-  { code: "N18", description: "Doença renal crônica" },
-  { code: "R05", description: "Tosse" },
-  { code: "R53", description: "Mal-estar e fadiga" },
-  { code: "Z00", description: "Exame geral de rotina" }
-];
-   /* Estilos para atestados */
-.cert-field-group {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-bottom: 15px;
-}
-
-.cert-field-full {
-  grid-column: 1 / -1;
-}
-
-.cid-search-container {
-  position: relative;
-}
-
-.cid-results {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: white;
-  border: 1px solid var(--gray-light);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 10;
-  display: none;
-}
-
-.cid-result {
-  padding: 10px 15px;
-  cursor: pointer;
-  border-bottom: 1px solid var(--gray-light);
-}
-
-.cid-result:hover {
-  background: var(--gray-light);
-}
-
-.cid-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.cid-chip {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--primary-light);
-  color: white;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-}
-
-.cid-chip button {
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  font-size: 0.8rem;
-} 
     :root {
       --primary: #2c5aa0;
       --primary-light: #4a7bc8;
@@ -565,6 +203,26 @@ const cidData = [
       border: 3px solid var(--primary-light);
     }
     
+    .patient-details {
+      margin-bottom: 25px;
+    }
+    
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--gray-light);
+    }
+    
+    .detail-label {
+      font-weight: 500;
+    }
+    
+    .detail-value {
+      color: var(--gray);
+    }
+    
     .medical-tabs {
       display: flex;
       flex-direction: column;
@@ -581,6 +239,10 @@ const cidData = [
       transition: var(--transition);
       text-decoration: none;
       color: var(--dark);
+    }
+    
+    .medical-tab:hover {
+      background: var(--gray-light);
     }
     
     .medical-tab.active {
@@ -632,6 +294,16 @@ const cidData = [
       display: none;
     }
     
+    .cid-result {
+      padding: 10px 15px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--gray-light);
+    }
+    
+    .cid-result:hover {
+      background: var(--gray-light);
+    }
+    
     .cid-chips {
       display: flex;
       flex-wrap: wrap;
@@ -648,6 +320,14 @@ const cidData = [
       padding: 5px 12px;
       border-radius: 20px;
       font-size: 0.9rem;
+    }
+    
+    .cid-chip button {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 0.8rem;
     }
     
     .editor-toolbar {
@@ -696,7 +376,19 @@ const cidData = [
       border-bottom: none;
     }
     
-    /* CORREÇÃO DO CALENDÁRIO */
+    .medication-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .medication-actions button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--gray);
+      transition: var(--transition);
+    }
+    
     .calendar-container {
       background: white;
       border-radius: var(--border-radius);
@@ -758,6 +450,23 @@ const cidData = [
       margin-bottom: 15px;
     }
     
+    .appointment-status {
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .status-scheduled {
+      background: #e8f4fd;
+      color: var(--primary);
+    }
+    
+    .status-confirmed {
+      background: #e6f4ea;
+      color: var(--success);
+    }
+    
     .documents-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -789,41 +498,6 @@ const cidData = [
       margin-bottom: 15px;
     }
     
-    .exam-options {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-    
-    .exam-category {
-      background: var(--light);
-      padding: 15px;
-      border-radius: var(--border-radius);
-    }
-    
-    .exam-category h4 {
-      margin-bottom: 10px;
-      color: var(--primary);
-    }
-    
-    .exam-list {
-      max-height: 200px;
-      overflow-y: auto;
-    }
-    
-    .exam-item {
-      padding: 8px 0;
-      border-bottom: 1px solid var(--gray-light);
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    
-    .exam-item:hover {
-      background: white;
-      padding-left: 5px;
-    }
-    
     .alert {
       padding: 15px;
       border-radius: var(--border-radius);
@@ -836,13 +510,33 @@ const cidData = [
       border: 1px solid #f5b4ab;
     }
     
+    /* Estilos para atestados */
+    .cert-field-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .cert-field-full {
+      grid-column: 1 / -1;
+    }
+    
     @media (max-width: 1200px) {
       .medical-dashboard {
         grid-template-columns: 1fr;
       }
+      
+      .medical-sidebar {
+        position: static;
+      }
     }
     
     @media (max-width: 768px) {
+      .medical-nav {
+        display: none;
+      }
+      
       .medication-form {
         grid-template-columns: 1fr;
       }
@@ -856,7 +550,7 @@ const cidData = [
         grid-template-columns: 1fr;
       }
       
-      .exam-options {
+      .cert-field-group {
         grid-template-columns: 1fr;
       }
     }
@@ -874,11 +568,16 @@ const cidData = [
         <nav class="medical-nav">
           <a href="index.html"><i class="fas fa-home"></i> Início</a>
           <a href="#"><i class="fas fa-calendar-alt"></i> Agenda</a>
+          <a href="#"><i class="fas fa-users"></i> Pacientes</a>
+          <a href="#"><i class="fas fa-chart-bar"></i> Relatórios</a>
         </nav>
         
         <div class="medical-user">
           <img src="https://ui-avatars.com/api/?name=Dr+Silva&background=2c5aa0&color=fff" alt="Dr. Silva">
-          <div>Dr. Silva</div>
+          <div>
+            <div>Dr. Silva</div>
+            <small>Geriatra</small>
+          </div>
         </div>
       </div>
     </div>
@@ -917,6 +616,25 @@ const cidData = [
             <img src="https://ui-avatars.com/api/?name=Maria+Silva&background=34a38a&color=fff" alt="Maria Silva" class="patient-avatar">
             <h3>Maria Silva</h3>
             <p>ID: <strong>MS-75-001</strong></p>
+          </div>
+          
+          <div class="patient-details">
+            <div class="detail-item">
+              <span class="detail-label">Idade</span>
+              <span class="detail-value">75 anos</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Escolaridade</span>
+              <span class="detail-value">8 anos</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Alergias</span>
+              <span class="detail-value">Penicilina</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Comorbidades</span>
+              <span class="detail-value">Hipertensão, Diabetes</span>
+            </div>
           </div>
           
           <div class="medical-tabs">
@@ -970,9 +688,13 @@ const cidData = [
                 <button type="button" title="Negrito" onclick="formatText('bold')"><i class="fas fa-bold"></i></button>
                 <button type="button" title="Itálico" onclick="formatText('italic')"><i class="fas fa-italic"></i></button>
                 <button type="button" title="Sublinhado" onclick="formatText('underline')"><i class="fas fa-underline"></i></button>
+                <button type="button" title="Lista" onclick="formatText('insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
+                <button type="button" title="Lista Numerada" onclick="formatText('insertOrderedList')"><i class="fas fa-list-ol"></i></button>
               </div>
               <div id="evolText" class="medical-editor" contenteditable="true">
                 <p><strong>Queixa Principal:</strong> Paciente relata dor articular difusa há aproximadamente 3 meses, com piora progressiva.</p>
+                <p><strong>História da Doença Atual:</strong> Refere rigidez matinal com duração de aproximadamente 1 hora. Relata dificuldade para realizar atividades de vida diária, como vestir-se e preparar refeições.</p>
+                <p><strong>Exame Físico:</strong> Ao exame físico, observa-se edema em articulações interfalânganas proximais bilateralmente. Amplitude de movimento preservada, porém dolorosa.</p>
               </div>
             </div>
           </div>
@@ -995,6 +717,10 @@ const cidData = [
                   <option value="AAS 100mg">
                   <option value="Sinvastatina 20mg">
                   <option value="Metformina 850mg">
+                  <option value="Omeprazol 20mg">
+                  <option value="Clopidogrel 75mg">
+                  <option value="Atenolol 50mg">
+                  <option value="Hidroclorotiazida 25mg">
                 </datalist>
                 <input type="text" id="medDosage" class="form-control" placeholder="Posologia (ex: 1x ao dia)">
                 <input type="text" id="medDuration" class="form-control" placeholder="Duração (ex: 30 dias)">
@@ -1007,49 +733,43 @@ const cidData = [
             </div>
           </div>
           
-<!-- Atestados -->
-<div id="atestados" class="tab-content">
-  <div class="tab-header">
-    <h2>Emitir Atestados</h2>
-    <div class="tab-actions">
-      <button class="btn" onclick="saveCertificate()"><i class="fas fa-save"></i> Salvar</button>
-      <button class="btn" onclick="printCertificate()"><i class="fas fa-print"></i> Imprimir</button>
-    </div>
-  </div>
-  
-  <div class="form-group">
-    <label for="certModel">Modelo de Atestado</label>
-    <select id="certModel" class="form-control" onchange="changeCertModel(this.value)">
-      <option value="">Selecione um modelo</option>
-      <option value="modelo1">Modelo 1 - Afastamento</option>
-      <option value="modelo2">Modelo 2 - Aptidão Física</option>
-      <option value="modelo3">Modelo 3 - Comparecimento</option>
-      <option value="modelo4">Modelo 4 - Acompanhante</option>
-    </select>
-  </div>
+          <!-- Atestados -->
+          <div id="atestados" class="tab-content">
+            <div class="tab-header">
+              <h2>Emitir Atestados</h2>
+              <div class="tab-actions">
+                <button class="btn" onclick="saveCertificate()"><i class="fas fa-save"></i> Salvar</button>
+                <button class="btn" onclick="printCertificate()"><i class="fas fa-print"></i> Imprimir</button>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="certModel">Modelo de Atestado</label>
+              <select id="certModel" class="form-control" onchange="changeCertModel(this.value)">
+                <option value="">Selecione um modelo</option>
+                <option value="modelo1">Modelo 1 - Afastamento</option>
+                <option value="modelo2">Modelo 2 - Aptidão Física</option>
+                <option value="modelo3">Modelo 3 - Comparecimento</option>
+                <option value="modelo4">Modelo 4 - Acompanhante</option>
+              </select>
+            </div>
 
-  <div id="certFields">
-    <!-- Campos dinâmicos aparecem aqui -->
-  </div>
-
-  <div class="form-group">
-    <label for="cidSearchAtestado">CID-10 (opcional)</label>
-    <div class="cid-search-container">
-      <input type="text" id="cidSearchAtestado" class="form-control" placeholder="Digite código CID-10 ou descrição...">
-      <div id="cidResultsAtestado" class="cid-results"></div>
-    </div>
-    <div id="cidChipsAtestado" class="cid-chips"></div>
-  </div>
-
-  <div class="form-group">
-    <label for="certReason">Texto do Atestado</label>
-    <textarea id="certReason" class="form-control" rows="8" placeholder="O texto do atestado será preenchido automaticamente..."></textarea>
-  </div>
-</div>
+            <div id="certFields">
+              <!-- Campos dinâmicos aparecem aqui -->
+            </div>
 
             <div class="form-group">
-              <label for="certRestrictions">Restrições / Recomendações</label>
-              <textarea id="certRestrictions" class="form-control" rows="3" placeholder="Descreva restrições ou recomendações..."></textarea>
+              <label for="cidSearchAtestado">CID-10 (opcional)</label>
+              <div class="cid-search-container">
+                <input type="text" id="cidSearchAtestado" class="form-control" placeholder="Digite código CID-10 ou descrição...">
+                <div id="cidResultsAtestado" class="cid-results"></div>
+              </div>
+              <div id="cidChipsAtestado" class="cid-chips"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="certReason">Texto do Atestado</label>
+              <textarea id="certReason" class="form-control" rows="8" placeholder="O texto do atestado será preenchido automaticamente..."></textarea>
             </div>
           </div>
           
@@ -1138,8 +858,31 @@ const cidData = [
             
             <div class="appointment-list">
               <h3 style="margin-bottom: 20px;">Consultas Agendadas</h3>
-              <div id="appointmentsContainer">
-                <!-- Consultas aparecerão aqui -->
+              
+              <div class="appointment-item">
+                <div class="appointment-info">
+                  <h4>Maria Silva</h4>
+                  <p>Consulta de rotina - Geriatria</p>
+                </div>
+                <div class="appointment-time">
+                  10:00 - 10:40
+                </div>
+                <div class="appointment-status status-confirmed">
+                  Confirmada
+                </div>
+              </div>
+              
+              <div class="appointment-item">
+                <div class="appointment-info">
+                  <h4>João Santos</h4>
+                  <p>Avaliação de memória</p>
+                </div>
+                <div class="appointment-time">
+                  14:30 - 15:15
+                </div>
+                <div class="appointment-status status-scheduled">
+                  Agendada
+                </div>
               </div>
             </div>
           </div>
@@ -1154,26 +897,21 @@ const cidData = [
               </div>
             </div>
             
-            <div class="exam-options">
-              <div class="exam-category">
-                <h4>Exames Laboratoriais</h4>
-                <div class="exam-list" id="labExams">
-                  <!-- Exames laboratoriais serão inseridos aqui -->
-                </div>
-              </div>
-              <div class="exam-category">
-                <h4>Exames de Imagem</h4>
-                <div class="exam-list" id="imageExams">
-                  <!-- Exames de imagem serão inseridos aqui -->
-                </div>
-              </div>
-            </div>
-
             <div class="form-group">
-              <label for="examInput">Outros Exames (digite)</label>
+              <label for="examType">Tipo de Exame</label>
+              <select id="examType" class="form-control">
+                <option value="laboratorial">Laboratorial</option>
+                <option value="imagem">Imagem</option>
+                <option value="funcional">Funcional</option>
+                <option value="outros">Outros</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="examInput">Exames Solicitados</label>
               <div style="display: flex; gap: 10px;">
                 <input type="text" id="examInput" class="form-control" placeholder="Ex: Hemograma completo, Glicemia...">
-                <button type="button" class="btn" onclick="addCustomExam()"><i class="fas fa-plus"></i> Adicionar</button>
+                <button type="button" class="btn" onclick="addExam()"><i class="fas fa-plus"></i> Adicionar</button>
               </div>
             </div>
             
@@ -1182,6 +920,11 @@ const cidData = [
               <ul id="examList" style="background: var(--light); padding: 15px; border-radius: var(--border-radius);">
                 <!-- Exames aparecerão aqui -->
               </ul>
+            </div>
+            
+            <div class="form-group">
+              <label for="examInstructions">Instruções Especiais</label>
+              <textarea id="examInstructions" class="form-control" rows="3" placeholder="Instruções para preparo ou realização dos exames..."></textarea>
             </div>
           </div>
         </main>
@@ -1195,38 +938,69 @@ const cidData = [
     let exams = [];
     let appointments = [];
     let selectedCids = [];
-
-    // Listas de exames pré-definidos
-    const labExams = [
-      "Hemograma completo",
-      "Glicemia em jejum",
-      "Colesterol total e frações",
-      "Triglicerídeos",
-      "TGO/TGP",
-      "Creatinina",
-      "Ureia",
-      "TSH e T4 livre",
-      "Vitamina B12",
-      "Vitamina D",
-      "Ácido fólico",
-      "PCR",
-      "VHS",
-      "Urina tipo I",
-      "Urocultura"
+    let selectedCidsAtestado = [];
+    
+    // Base de dados de CID-10
+    const cidData = [
+      { code: "A00", description: "Cólera" },
+      { code: "A01", description: "Febres tifóide e paratifóide" },
+      { code: "A02", description: "Outras infecções por Salmonella" },
+      { code: "I10", description: "Hipertensão essencial (primária)" },
+      { code: "I11", description: "Doença cardíaca hipertensiva" },
+      { code: "I20", description: "Angina pectoris" },
+      { code: "I21", description: "Infarto agudo do miocárdio" },
+      { code: "I25", description: "Doença isquêmica crônica do coração" },
+      { code: "E10", description: "Diabetes mellitus insulinodependente" },
+      { code: "E11", description: "Diabetes mellitus não-insulinodependente" },
+      { code: "E66", description: "Obesidade" },
+      { code: "F00", description: "Demência na doença de Alzheimer" },
+      { code: "F01", description: "Demência vascular" },
+      { code: "F03", description: "Demência não especificada" },
+      { code: "F10", description: "Transtornos mentais devido ao uso de álcool" },
+      { code: "G20", description: "Doença de Parkinson" },
+      { code: "G30", description: "Doença de Alzheimer" },
+      { code: "J45", description: "Asma" },
+      { code: "J44", description: "Outras doenças pulmonares obstrutivas crônicas" },
+      { code: "M15", description: "Poliartrose" },
+      { code: "M16", description: "Coxartrose (artrose do quadril)" },
+      { code: "M17", description: "Gonartrose (artrose do joelho)" },
+      { code: "M19", description: "Outras artroses" },
+      { code: "N18", description: "Doença renal crônica" },
+      { code: "N39", description: "Outros transtornos do sistema urinário" },
+      { code: "R05", description: "Tosse" },
+      { code: "R06", description: "Anormalidades da respiração" },
+      { code: "R53", description: "Mal-estar e fadiga" },
+      { code: "Z00", description: "Exame geral de rotina" }
     ];
+    
+    // Modelos de atestado
+    const certModels = {
+      modelo1: `ATESTADO MÉDICO
 
-    const imageExams = [
-      "Raio-X de tórax",
-      "Raio-X de coluna lombar",
-      "Ultrassonografia abdominal",
-      "Ultrassonografia de próstata",
-      "Densitometria óssea",
-      "Tomografia de crânio",
-      "Ressonância de coluna",
-      "Ecocardiograma",
-      "Doppler de carótidas",
-      "Mamografia"
-    ];
+Atesto, para os devidos fins, que o(a) paciente {{nome}} foi atendido(a) nesta data, apresentando condição clínica que justifica afastamento das atividades habituais por {{dias}} dias, a contar de hoje.
+
+{{cid}}
+Recomendado repouso e acompanhamento clínico.
+Retorno conforme evolução.`,
+
+      modelo2: `ATESTADO DE APTIDÃO FÍSICA
+
+Atesto, para os devidos fins, que o(a) paciente {{nome}} foi avaliado(a) em consulta médica, não apresentando contraindicações aparentes à prática de atividades físicas de forma orientada.
+
+Recomenda-se acompanhamento periódico e observar sinais e sintomas durante o exercício.`,
+
+      modelo3: `ATESTADO DE COMPARECIMENTO
+
+Atesto que o(a) paciente {{nome}} esteve em atendimento médico nesta unidade no dia {{data}} das {{horaInicio}} às {{horaFim}}.
+
+Recomenda-se abono de falta conforme legislação vigente.`,
+
+      modelo4: `ATESTADO PARA ACOMPANHANTE
+
+Atesto, para os devidos fins, que {{acompanhante}} acompanhou o(a) paciente {{nome}} em atendimento médico nesta data, sendo necessária sua presença durante o período.
+
+Sugiro o abono da ausência conforme normas institucionais.`
+    };
     
     // Login
     function loginMed() {
@@ -1236,9 +1010,9 @@ const cidData = [
       if (user === '123456' && pass === 'medico123') {
         document.getElementById('loginArea').style.display = 'none';
         document.getElementById('medicalArea').style.display = 'block';
+        initCIDSearch();
         initCalendar();
         setupTabNavigation();
-        initExams();
       } else {
         document.getElementById('loginError').style.display = 'block';
       }
@@ -1247,46 +1021,107 @@ const cidData = [
     // Navegação por abas
     function setupTabNavigation() {
       const tabs = document.querySelectorAll('.medical-tab');
+      
       tabs.forEach(tab => {
         tab.addEventListener('click', function(e) {
           e.preventDefault();
+          
+          // Remover classe active de todas as abas
           tabs.forEach(t => t.classList.remove('active'));
           document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
           
+          // Adicionar classe active à aba clicada
           this.classList.add('active');
+          
+          // Mostrar conteúdo correspondente
           const tabId = this.getAttribute('data-tab');
           document.getElementById(tabId).classList.add('active');
         });
       });
     }
-
-    // Inicializar exames pré-definidos
-    function initExams() {
-      const labExamsContainer = document.getElementById('labExams');
-      const imageExamsContainer = document.getElementById('imageExams');
-
-      labExams.forEach(exam => {
-        const examItem = document.createElement('div');
-        examItem.className = 'exam-item';
-        examItem.textContent = exam;
-        examItem.addEventListener('click', () => addPredefinedExam(exam));
-        labExamsContainer.appendChild(examItem);
+    
+    // Busca de CID para evolução
+    function initCIDSearch() {
+      const cidSearch = document.getElementById('cidSearch');
+      const cidResults = document.getElementById('cidResults');
+      
+      cidSearch.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        
+        if (query.length < 2) {
+          cidResults.style.display = 'none';
+          return;
+        }
+        
+        const filtered = cidData.filter(item => 
+          item.code.toLowerCase().includes(query) || 
+          item.description.toLowerCase().includes(query)
+        );
+        
+        displayCIDResults(filtered);
       });
-
-      imageExams.forEach(exam => {
-        const examItem = document.createElement('div');
-        examItem.className = 'exam-item';
-        examItem.textContent = exam;
-        examItem.addEventListener('click', () => addPredefinedExam(exam));
-        imageExamsContainer.appendChild(examItem);
+      
+      // Fechar resultados ao clicar fora
+      document.addEventListener('click', function(e) {
+        if (!cidSearch.contains(e.target) && !cidResults.contains(e.target)) {
+          cidResults.style.display = 'none';
+        }
       });
     }
-
-    function addPredefinedExam(exam) {
-      if (!exams.includes(exam)) {
-        exams.push(exam);
-        renderExams();
+    
+    function displayCIDResults(results) {
+      const cidResults = document.getElementById('cidResults');
+      cidResults.innerHTML = '';
+      
+      if (results.length === 0) {
+        cidResults.innerHTML = '<div class="cid-result">Nenhum resultado encontrado</div>';
+      } else {
+        results.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'cid-result';
+          div.innerHTML = `<strong>${item.code}</strong> - ${item.description}`;
+          div.addEventListener('click', () => selectCID(item));
+          cidResults.appendChild(div);
+        });
       }
+      
+      cidResults.style.display = 'block';
+    }
+    
+    function selectCID(cid) {
+      if (!selectedCids.find(item => item.code === cid.code)) {
+        selectedCids.push(cid);
+        updateCIDChips();
+      }
+      
+      document.getElementById('cidSearch').value = '';
+      document.getElementById('cidResults').style.display = 'none';
+    }
+    
+    function updateCIDChips() {
+      const container = document.getElementById('cidChips');
+      container.innerHTML = '';
+      
+      selectedCids.forEach(cid => {
+        const chip = document.createElement('div');
+        chip.className = 'cid-chip';
+        chip.innerHTML = `
+          ${cid.code} - ${cid.description}
+          <button onclick="removeCID('${cid.code}')"><i class="fas fa-times"></i></button>
+        `;
+        container.appendChild(chip);
+      });
+    }
+    
+    function removeCID(code) {
+      selectedCids = selectedCids.filter(item => item.code !== code);
+      updateCIDChips();
+    }
+    
+    // Formatação de texto no editor
+    function formatText(command) {
+      document.execCommand(command, false, null);
+      document.getElementById('evolText').focus();
     }
     
     // Sistema de medicamentos
@@ -1339,7 +1174,8 @@ const cidData = [
       const prescription = {
         patient: "Maria Silva",
         medications: medications,
-        date: new Date().toISOString()
+        date: new Date().toISOString(),
+        doctor: "Dr. Silva"
       };
       
       localStorage.setItem('lastPrescription', JSON.stringify(prescription));
@@ -1375,77 +1211,15 @@ const cidData = [
       printWindow.document.close();
       printWindow.print();
     }
-
-    // Sistema de atestados
-    function saveCertificate() {
-      const type = document.getElementById('certType').value;
-      const days = document.getElementById('certDays').value;
-      const reason = document.getElementById('certReason').value;
-      const restrictions = document.getElementById('certRestrictions').value;
-
-      if (!reason) {
-        alert('Por favor, preencha o motivo do atestado.');
-        return;
-      }
-
-      const certificate = {
-        type,
-        days,
-        reason,
-        restrictions,
-        date: new Date().toISOString(),
-        patient: "Maria Silva"
-      };
-
-      localStorage.setItem('lastCertificate', JSON.stringify(certificate));
-      alert('Atestado salvo com sucesso!');
-    }
-
-    function printCertificate() {
-      const type = document.getElementById('certType').value;
-      const days = document.getElementById('certDays').value;
-      const reason = document.getElementById('certReason').value;
-      const restrictions = document.getElementById('certRestrictions').value;
-
-      if (!reason) {
-        alert('Por favor, preencha o motivo do atestado.');
-        return;
-      }
-
-      const typeText = type === 'sick_leave' ? 'Afastamento' : 'Atestado Médico';
-      const daysText = days ? ` por ${days} dias` : '';
-
-      const printContent = `
-        <div style="padding: 20px; font-family: Arial;">
-          <h2>${typeText} - Geriatria 360</h2>
-          <p><strong>Paciente:</strong> Maria Silva</p>
-          <p><strong>Data:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
-          <hr>
-          <p>Atesto que o(a) paciente <strong>Maria Silva</strong>${daysText} necessita de ${typeText.toLowerCase()} devido a:</p>
-          <p>${reason}</p>
-          ${restrictions ? `<p><strong>Recomendações/Restrições:</strong> ${restrictions}</p>` : ''}
-          <br><br>
-          <p>________________________________</p>
-          <p><strong>Dr. Silva</strong><br>CRM: 123456</p>
-        </div>
-      `;
-      
-      const printWindow = window.open('', '_blank');
-      printWindow.document.write(printContent);
-      printWindow.document.close();
-      printWindow.print();
-    }
     
     // Sistema de exames
-    function addCustomExam() {
+    function addExam() {
       const examInput = document.getElementById('examInput');
       const examValue = examInput.value.trim();
       
       if (examValue) {
-        if (!exams.includes(examValue)) {
-          exams.push(examValue);
-          renderExams();
-        }
+        exams.push(examValue);
+        renderExams();
         examInput.value = '';
       } else {
         alert('Digite um exame para adicionar.');
@@ -1483,7 +1257,8 @@ const cidData = [
       const examData = {
         patient: "Maria Silva",
         exams: exams,
-        date: new Date().toISOString()
+        date: new Date().toISOString(),
+        instructions: document.getElementById('examInstructions').value
       };
       
       localStorage.setItem('lastExams', JSON.stringify(examData));
@@ -1496,6 +1271,8 @@ const cidData = [
         return;
       }
       
+      const instructions = document.getElementById('examInstructions').value;
+      
       const printContent = `
         <div style="padding: 20px; font-family: Arial;">
           <h2>Solicitação de Exames - Geriatria 360</h2>
@@ -1506,9 +1283,266 @@ const cidData = [
           <ul>
             ${exams.map(exam => `<li>${exam}</li>`).join('')}
           </ul>
+          ${instructions ? `<h3>Instruções:</h3><p>${instructions}</p>` : ''}
           <br><br>
           <p>________________________________</p>
           <p><strong>Dr. Silva</strong><br>CRM: 123456</p>
+        </div>
+      `;
+      
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.print();
+    }
+    
+    // Sistema de atestados
+    function changeCertModel(model) {
+      const certReason = document.getElementById('certReason');
+      const certFields = document.getElementById('certFields');
+      
+      // Limpar campos anteriores
+      certFields.innerHTML = '';
+      selectedCidsAtestado = [];
+      updateCIDChipsAtestado();
+      
+      if (model && certModels[model]) {
+        // Preencher texto base do modelo
+        certReason.value = certModels[model];
+        
+        // Adicionar campos específicos do modelo
+        switch(model) {
+          case 'modelo1':
+            certFields.innerHTML = `
+              <div class="cert-field-group">
+                <div class="form-group">
+                  <label for="certNome">Nome do Paciente</label>
+                  <input type="text" id="certNome" class="form-control" placeholder="Nome completo ou iniciais">
+                </div>
+                <div class="form-group">
+                  <label for="certDias">Dias de Afastamento</label>
+                  <input type="number" id="certDias" class="form-control" min="1" value="3">
+                </div>
+              </div>
+            `;
+            break;
+            
+          case 'modelo2':
+            certFields.innerHTML = `
+              <div class="form-group">
+                <label for="certNome">Nome do Paciente</label>
+                <input type="text" id="certNome" class="form-control" placeholder="Nome completo ou iniciais">
+              </div>
+            `;
+            break;
+            
+          case 'modelo3':
+            const today = new Date().toISOString().split('T')[0];
+            certFields.innerHTML = `
+              <div class="cert-field-group">
+                <div class="form-group">
+                  <label for="certNome">Nome do Paciente</label>
+                  <input type="text" id="certNome" class="form-control" placeholder="Nome completo ou iniciais">
+                </div>
+                <div class="form-group">
+                  <label for="certData">Data do Atendimento</label>
+                  <input type="date" id="certData" class="form-control" value="${today}">
+                </div>
+              </div>
+              <div class="cert-field-group">
+                <div class="form-group">
+                  <label for="certHoraInicio">Hora Início</label>
+                  <input type="time" id="certHoraInicio" class="form-control" value="09:00">
+                </div>
+                <div class="form-group">
+                  <label for="certHoraFim">Hora Fim</label>
+                  <input type="time" id="certHoraFim" class="form-control" value="10:00">
+                </div>
+              </div>
+            `;
+            break;
+            
+          case 'modelo4':
+            certFields.innerHTML = `
+              <div class="cert-field-group">
+                <div class="form-group">
+                  <label for="certNome">Nome do Paciente</label>
+                  <input type="text" id="certNome" class="form-control" placeholder="Nome do paciente">
+                </div>
+                <div class="form-group">
+                  <label for="certAcompanhante">Nome do Acompanhante</label>
+                  <input type="text" id="certAcompanhante" class="form-control" placeholder="Nome do acompanhante">
+                </div>
+              </div>
+            `;
+            break;
+        }
+        
+        // Inicializar busca de CID para este modelo
+        initCIDSearchAtestado();
+      }
+    }
+    
+    // Sistema de CID-10 para atestado
+    function initCIDSearchAtestado() {
+      const cidSearch = document.getElementById('cidSearchAtestado');
+      const cidResults = document.getElementById('cidResultsAtestado');
+      
+      if (!cidSearch) return;
+      
+      cidSearch.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        
+        if (query.length < 2) {
+          cidResults.style.display = 'none';
+          return;
+        }
+        
+        const filtered = cidData.filter(item => 
+          item.code.toLowerCase().includes(query) || 
+          item.description.toLowerCase().includes(query)
+        );
+        
+        displayCIDResultsAtestado(filtered);
+      });
+      
+      document.addEventListener('click', function(e) {
+        if (!cidSearch.contains(e.target) && !cidResults.contains(e.target)) {
+          cidResults.style.display = 'none';
+        }
+      });
+    }
+    
+    function displayCIDResultsAtestado(results) {
+      const cidResults = document.getElementById('cidResultsAtestado');
+      cidResults.innerHTML = '';
+      
+      if (results.length === 0) {
+        cidResults.innerHTML = '<div class="cid-result">Nenhum CID encontrado</div>';
+      } else {
+        results.slice(0, 10).forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'cid-result';
+          div.innerHTML = `<strong>${item.code}</strong> - ${item.description}`;
+          div.addEventListener('click', () => selectCIDAtestado(item));
+          cidResults.appendChild(div);
+        });
+      }
+      
+      cidResults.style.display = 'block';
+    }
+    
+    function selectCIDAtestado(cid) {
+      if (!selectedCidsAtestado.find(item => item.code === cid.code)) {
+        selectedCidsAtestado.push(cid);
+        updateCIDChipsAtestado();
+        updateCertTextWithCID();
+      }
+      
+      document.getElementById('cidSearchAtestado').value = '';
+      document.getElementById('cidResultsAtestado').style.display = 'none';
+    }
+    
+    function updateCIDChipsAtestado() {
+      const container = document.getElementById('cidChipsAtestado');
+      container.innerHTML = '';
+      
+      selectedCidsAtestado.forEach(cid => {
+        const chip = document.createElement('div');
+        chip.className = 'cid-chip';
+        chip.innerHTML = `
+          ${cid.code} - ${cid.description}
+          <button onclick="removeCIDAtestado('${cid.code}')"><i class="fas fa-times"></i></button>
+        `;
+        container.appendChild(chip);
+      });
+    }
+    
+    function removeCIDAtestado(code) {
+      selectedCidsAtestado = selectedCidsAtestado.filter(item => item.code !== code);
+      updateCIDChipsAtestado();
+      updateCertTextWithCID();
+    }
+    
+    function updateCertTextWithCID() {
+      const certReason = document.getElementById('certReason');
+      let text = certReason.value;
+      
+      // Remover CID anterior se existir
+      text = text.replace(/\nCID: .+$/, '');
+      
+      // Adicionar novos CIDs se houver
+      if (selectedCidsAtestado.length > 0) {
+        const cids = selectedCidsAtestado.map(cid => `${cid.code} - ${cid.description}`).join(', ');
+        text += `\nCID: ${cids}`;
+      }
+      
+      certReason.value = text;
+    }
+    
+    function generateCertText() {
+      const model = document.getElementById('certModel').value;
+      let text = document.getElementById('certReason').value;
+      
+      if (!model) {
+        alert('Selecione um modelo de atestado primeiro.');
+        return null;
+      }
+      
+      // Substituir variáveis pelos valores dos campos
+      const nome = document.getElementById('certNome') ? document.getElementById('certNome').value : '';
+      text = text.replace(/{{nome}}/g, nome);
+      
+      switch(model) {
+        case 'modelo1':
+          const dias = document.getElementById('certDias') ? document.getElementById('certDias').value : '';
+          text = text.replace(/{{dias}}/g, dias);
+          break;
+          
+        case 'modelo3':
+          const data = document.getElementById('certData') ? document.getElementById('certData').value : '';
+          const horaInicio = document.getElementById('certHoraInicio') ? document.getElementById('certHoraInicio').value : '';
+          const horaFim = document.getElementById('certHoraFim') ? document.getElementById('certHoraFim').value : '';
+          
+          // Formatar data para o padrão brasileiro
+          const dataFormatada = data ? new Date(data).toLocaleDateString('pt-BR') : '';
+          
+          text = text.replace(/{{data}}/g, dataFormatada);
+          text = text.replace(/{{horaInicio}}/g, horaInicio);
+          text = text.replace(/{{horaFim}}/g, horaFim);
+          break;
+          
+        case 'modelo4':
+          const acompanhante = document.getElementById('certAcompanhante') ? document.getElementById('certAcompanhante').value : '';
+          text = text.replace(/{{acompanhante}}/g, acompanhante);
+          break;
+      }
+      
+      return text;
+    }
+    
+    function saveCertificate() {
+      const certText = generateCertText();
+      if (certText) {
+        localStorage.setItem('lastCertificate', certText);
+        alert('Atestado salvo com sucesso!');
+      }
+    }
+    
+    function printCertificate() {
+      const certText = generateCertText();
+      if (!certText) return;
+      
+      const printContent = `
+        <div style="padding: 30px; font-family: Arial; line-height: 1.6;">
+          <div style="white-space: pre-wrap; font-size: 14px;">${certText}</div>
+          <br><br><br>
+          <div style="margin-top: 50px; text-align: center;">
+            <p>_________________________________________</p>
+            <p><strong>Dr. Silva</strong></p>
+            <p>CRM: 123456</p>
+            <p>Geriatria 360</p>
+          </div>
         </div>
       `;
       
@@ -1570,6 +1604,16 @@ const cidData = [
     }
     
     function selectDate(day) {
+      // Remover seleção anterior
+      document.querySelectorAll('.calendar-date.selected').forEach(el => {
+        el.classList.remove('selected');
+      });
+      
+      // Adicionar seleção atual
+      const dates = document.querySelectorAll('.calendar-date');
+      const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
+      dates[firstDay + day - 1].classList.add('selected');
+      
       alert(`Data selecionada: ${day}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`);
     }
     
@@ -1582,28 +1626,29 @@ const cidData = [
       alert('Laudo gerado pela IA com base nas informações fornecidas!');
     }
     
-    function newAppointment() {
-      alert('Abrindo formulário para novo agendamento...');
-    }
-    
-    function formatText(command) {
-      document.execCommand(command, false, null);
-    }
-
     function newDocument() {
       alert('Criando novo documento médico...');
     }
-
+    
     function openDocument(type) {
       alert(`Abrindo documento: ${type}`);
     }
     
-    // Inicialização
+    function newAppointment() {
+      alert('Abrindo formulário para novo agendamento...');
+    }
+    
+    // Inicialização quando a página carrega
     document.addEventListener('DOMContentLoaded', function() {
+      // Configurar datalist para sugestões de medicamentos
       const medSuggestions = document.getElementById('medSuggestions');
+      
+      // Adicionar alguns medicamentos comuns em geriatria
       const commonMeds = [
         "Losartana 50mg", "AAS 100mg", "Sinvastatina 20mg", "Metformina 850mg",
-        "Omeprazol 20mg", "Clopidogrel 75mg", "Atenolol 50mg", "Hidroclorotiazida 25mg"
+        "Omeprazol 20mg", "Clopidogrel 75mg", "Atenolol 50mg", "Hidroclorotiazida 25mg",
+        "Insulina NPH", "Donepezila 10mg", "Memantina 10mg", "Rivastigmina 4.5mg",
+        "Sertralina 50mg", "Diazepam 5mg", "Alprazolam 0.5mg", "Lorazepam 1mg"
       ];
       
       commonMeds.forEach(med => {
