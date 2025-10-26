@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -382,7 +381,7 @@
       }
       
       const agendamento = {
-        id: Date.now(),
+        id: 'agd-' + Date.now(),
         pacienteId: pacienteId,
         pacienteNome: paciente.nome,
         pacienteCPF: paciente.cpf,
@@ -431,10 +430,10 @@
           <td>${new Date(agendamento.data).toLocaleDateString('pt-BR')} às ${agendamento.hora}</td>
           <td>${statusBadge}</td>
           <td>
-            <button onclick="encaminharTriagem(${agendamento.id})" class="btn" style="padding: 5px 10px; font-size: 0.9rem;">
+            <button onclick="encaminharTriagem('${agendamento.id}')" class="btn" style="padding: 5px 10px; font-size: 0.9rem;">
               <i class="fas fa-stethoscope"></i> Triagem
             </button>
-            <button onclick="cancelarAgendamento(${agendamento.id})" class="btn" style="padding: 5px 10px; font-size: 0.9rem; background: #e74c3c;">
+            <button onclick="cancelarAgendamento('${agendamento.id}')" class="btn" style="padding: 5px 10px; font-size: 0.9rem; background: #e74c3c;">
               <i class="fas fa-times"></i> Cancelar
             </button>
           </td>
