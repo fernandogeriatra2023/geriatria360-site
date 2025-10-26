@@ -1,1 +1,479 @@
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recepção - Geriatria 360</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #2c5aa0;
+      --primary-light: #4a7bc8;
+      --secondary: #34a38a;
+      --accent: #ff7b54;
+      --light: #f8f9fa;
+      --dark: #343a40;
+      --gray: #6c757d;
+      --border-radius: 10px;
+      --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      color: var(--dark);
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    .header {
+      background: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 15px 0;
+    }
+    
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 1.5rem;
+      text-decoration: none;
+    }
+    
+    .main {
+      padding: 30px 0;
+    }
+    
+    .card {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+    
+    .card h2 {
+      color: var(--primary);
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--light);
+      padding-bottom: 10px;
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+    }
+    
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .btn:hover {
+      background: var(--primary-light);
+    }
+    
+    .btn-success {
+      background: var(--secondary);
+    }
+    
+    .btn-success:hover {
+      background: #2d927a;
+    }
+    
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    
+    .table th,
+    .table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .table th {
+      background: var(--light);
+      font-weight: 600;
+    }
+    
+    .status-badge {
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .status-agendado {
+      background: #e8f4fd;
+      color: var(--primary);
+    }
+    
+    .status-triagem {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    .status-pronto {
+      background: #e6f4ea;
+      color: var(--secondary);
+    }
+    
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .tab {
+      padding: 10px 20px;
+      background: var(--light);
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .tab.active {
+      background: var(--primary);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <a href="index.html" class="logo">
+          <i class="fas fa-heartbeat"></i>
+          Geriatria 360 - Recepção
+        </a>
+        <nav>
+          <a href="index.html" class="btn">Voltar ao Início</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <div class="tabs">
+        <div class="tab active" onclick="showTab('cadastro')">Cadastrar Paciente</div>
+        <div class="tab" onclick="showTab('agendar')">Agendar Consulta</div>
+        <div class="tab" onclick="showTab('lista')">Lista de Agendamentos</div>
+      </div>
+
+      <!-- Cadastro de Paciente -->
+      <div id="cadastro" class="card tab-content active">
+        <h2><i class="fas fa-user-plus"></i> Cadastrar Novo Paciente</h2>
+        <form id="pacienteForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="nome">Nome Completo *</label>
+              <input type="text" id="nome" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="cpf">CPF *</label>
+              <input type="text" id="cpf" class="form-control" placeholder="000.000.000-00" required>
+            </div>
+            <div class="form-group">
+              <label for="dataNascimento">Data de Nascimento *</label>
+              <input type="date" id="dataNascimento" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="telefone">Telefone *</label>
+              <input type="tel" id="telefone" class="form-control" placeholder="(11) 99999-9999" required>
+            </div>
+            <div class="form-group">
+              <label for="email">E-mail</label>
+              <input type="email" id="email" class="form-control">
+            </div>
+            <div class="form-group">
+              <label for="endereco">Endereço</label>
+              <input type="text" id="endereco" class="form-control">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="alergias">Alergias Conhecidas</label>
+            <textarea id="alergias" class="form-control" rows="3" placeholder="Liste as alergias do paciente..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="comorbidades">Comorbidades</label>
+            <textarea id="comorbidades" class="form-control" rows="3" placeholder="Hipertensão, Diabetes, etc..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-save"></i> Cadastrar Paciente
+          </button>
+        </form>
+      </div>
+
+      <!-- Agendamento -->
+      <div id="agendar" class="card tab-content">
+        <h2><i class="fas fa-calendar-plus"></i> Agendar Consulta</h2>
+        <form id="agendamentoForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="pacienteSelect">Paciente *</label>
+              <select id="pacienteSelect" class="form-control" required>
+                <option value="">Selecione um paciente</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="medicoSelect">Médico *</label>
+              <select id="medicoSelect" class="form-control" required>
+                <option value="">Selecione o médico</option>
+                <option value="Dr. Silva">Dr. Silva - Geriatra</option>
+                <option value="Dra. Costa">Dra. Costa - Geriatra</option>
+                <option value="Dr. Santos">Dr. Santos - Cardiologista</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="dataConsulta">Data da Consulta *</label>
+              <input type="date" id="dataConsulta" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="horaConsulta">Horário *</label>
+              <input type="time" id="horaConsulta" class="form-control" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="observacoes">Observações</label>
+            <textarea id="observacoes" class="form-control" rows="3" placeholder="Observações para a consulta..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-calendar-check"></i> Agendar Consulta
+          </button>
+        </form>
+      </div>
+
+      <!-- Lista de Agendamentos -->
+      <div id="lista" class="card tab-content">
+        <h2><i class="fas fa-list"></i> Agendamentos do Dia</h2>
+        <div class="form-group">
+          <label for="dataFiltro">Filtrar por Data:</label>
+          <input type="date" id="dataFiltro" class="form-control" style="width: auto; display: inline-block; margin-left: 10px;">
+        </div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Paciente</th>
+              <th>Médico</th>
+              <th>Data/Hora</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="listaAgendamentos">
+            <!-- Agendamentos serão listados aqui -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // "Banco de dados" simulado no LocalStorage
+    let pacientes = JSON.parse(localStorage.getItem('geriatria_pacientes')) || [];
+    let agendamentos = JSON.parse(localStorage.getItem('geriatria_agendamentos')) || [];
+
+    // Mostrar/ocultar abas
+    function showTab(tabName) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      document.querySelector(`[onclick="showTab('${tabName}')"]`).classList.add('active');
+      document.getElementById(tabName).classList.add('active');
+    }
+
+    // Cadastrar paciente
+    document.getElementById('pacienteForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const paciente = {
+        id: Date.now(),
+        nome: document.getElementById('nome').value,
+        cpf: document.getElementById('cpf').value,
+        dataNascimento: document.getElementById('dataNascimento').value,
+        telefone: document.getElementById('telefone').value,
+        email: document.getElementById('email').value,
+        endereco: document.getElementById('endereco').value,
+        alergias: document.getElementById('alergias').value,
+        comorbidades: document.getElementById('comorbidades').value,
+        dataCadastro: new Date().toISOString()
+      };
+      
+      pacientes.push(paciente);
+      localStorage.setItem('geriatria_pacientes', JSON.stringify(pacientes));
+      
+      alert('Paciente cadastrado com sucesso!');
+      this.reset();
+      carregarPacientesSelect();
+    });
+
+    // Carregar pacientes no select
+    function carregarPacientesSelect() {
+      const select = document.getElementById('pacienteSelect');
+      select.innerHTML = '<option value="">Selecione um paciente</option>';
+      
+      pacientes.forEach(paciente => {
+        const option = document.createElement('option');
+        option.value = paciente.id;
+        option.textContent = `${paciente.nome} (${paciente.cpf})`;
+        select.appendChild(option);
+      });
+    }
+
+    // Agendar consulta
+    document.getElementById('agendamentoForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const pacienteId = document.getElementById('pacienteSelect').value;
+      const paciente = pacientes.find(p => p.id == pacienteId);
+      
+      if (!paciente) {
+        alert('Selecione um paciente válido!');
+        return;
+      }
+      
+      const agendamento = {
+        id: Date.now(),
+        pacienteId: pacienteId,
+        pacienteNome: paciente.nome,
+        pacienteCPF: paciente.cpf,
+        medico: document.getElementById('medicoSelect').value,
+        data: document.getElementById('dataConsulta').value,
+        hora: document.getElementById('horaConsulta').value,
+        observacoes: document.getElementById('observacoes').value,
+        status: 'agendado', // agendado → triagem → atendimento
+        dataAgendamento: new Date().toISOString()
+      };
+      
+      agendamentos.push(agendamento);
+      localStorage.setItem('geriatria_agendamentos', JSON.stringify(agendamentos));
+      
+      alert('Consulta agendada com sucesso!');
+      this.reset();
+      carregarAgendamentos();
+    });
+
+    // Carregar lista de agendamentos
+    function carregarAgendamentos() {
+      const tbody = document.getElementById('listaAgendamentos');
+      const dataFiltro = document.getElementById('dataFiltro').value;
+      
+      let agendamentosFiltrados = agendamentos;
+      
+      if (dataFiltro) {
+        agendamentosFiltrados = agendamentos.filter(a => a.data === dataFiltro);
+      }
+      
+      tbody.innerHTML = '';
+      
+      agendamentosFiltrados.forEach(agendamento => {
+        const tr = document.createElement('tr');
+        
+        let statusBadge = '<span class="status-badge status-agendado">Agendado</span>';
+        if (agendamento.status === 'triagem') {
+          statusBadge = '<span class="status-badge status-triagem">Em Triagem</span>';
+        } else if (agendamento.status === 'pronto') {
+          statusBadge = '<span class="status-badge status-pronto">Pronto</span>';
+        }
+        
+        tr.innerHTML = `
+          <td>${agendamento.pacienteNome}</td>
+          <td>${agendamento.medico}</td>
+          <td>${new Date(agendamento.data).toLocaleDateString('pt-BR')} às ${agendamento.hora}</td>
+          <td>${statusBadge}</td>
+          <td>
+            <button onclick="encaminharTriagem(${agendamento.id})" class="btn" style="padding: 5px 10px; font-size: 0.9rem;">
+              <i class="fas fa-stethoscope"></i> Triagem
+            </button>
+            <button onclick="cancelarAgendamento(${agendamento.id})" class="btn" style="padding: 5px 10px; font-size: 0.9rem; background: #e74c3c;">
+              <i class="fas fa-times"></i> Cancelar
+            </button>
+          </td>
+        `;
+        
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Encaminhar para triagem
+    function encaminharTriagem(agendamentoId) {
+      const agendamento = agendamentos.find(a => a.id === agendamentoId);
+      if (agendamento) {
+        // Salvar agendamento selecionado para a triagem
+        localStorage.setItem('triagem_agendamento', JSON.stringify(agendamento));
+        window.location.href = 'triagem.html';
+      }
+    }
+
+    // Cancelar agendamento
+    function cancelarAgendamento(agendamentoId) {
+      if (confirm('Tem certeza que deseja cancelar este agendamento?')) {
+        agendamentos = agendamentos.filter(a => a.id !== agendamentoId);
+        localStorage.setItem('geriatria_agendamentos', JSON.stringify(agendamentos));
+        carregarAgendamentos();
+        alert('Agendamento cancelado!');
+      }
+    }
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', function() {
+      carregarPacientesSelect();
+      carregarAgendamentos();
+      
+      // Data atual como padrão para filtro
+      const hoje = new Date().toISOString().split('T')[0];
+      document.getElementById('dataFiltro').value = hoje;
+      document.getElementById('dataConsulta').value = hoje;
+    });
+  </script>
+</body>
+</html>
