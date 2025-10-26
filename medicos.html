@@ -645,33 +645,45 @@
             </div>
           </div>
           
-          <!-- Atestados -->
-          <div id="atestados" class="tab-content">
-            <div class="tab-header">
-              <h2>Emitir Atestados</h2>
-              <div class="tab-actions">
-                <button class="btn" onclick="saveCertificate()"><i class="fas fa-save"></i> Salvar</button>
-                <button class="btn" onclick="printCertificate()"><i class="fas fa-print"></i> Imprimir</button>
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label for="certType">Tipo de Atestado</label>
-              <select id="certType" class="form-control">
-                <option value="medical">Atestado Médico</option>
-                <option value="sick_leave">Afastamento</option>
-              </select>
-            </div>
-            
-            <div class="form-group">
-              <label for="certDays">Dias de Afastamento</label>
-              <input type="number" id="certDays" class="form-control" min="1" value="3">
-            </div>
-            
-            <div class="form-group">
-              <label for="certReason">Motivo / Diagnóstico</label>
-              <textarea id="certReason" class="form-control" rows="4" placeholder="Descreva o motivo do atestado..."></textarea>
-            </div>
+<!-- Atestados -->
+<div id="atestados" class="tab-content">
+  <div class="tab-header">
+    <h2>Emitir Atestados</h2>
+    <div class="tab-actions">
+      <button class="btn" onclick="saveCertificate()"><i class="fas fa-save"></i> Salvar</button>
+      <button class="btn" onclick="printCertificate()"><i class="fas fa-print"></i> Imprimir</button>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label for="certModel">Modelo de Atestado</label>
+    <select id="certModel" class="form-control" onchange="changeCertModel(this.value)">
+      <option value="">Selecione um modelo</option>
+      <option value="modelo1">Modelo 1 - Afastamento</option>
+      <option value="modelo2">Modelo 2 - Aptidão Física</option>
+      <option value="modelo3">Modelo 3 - Comparecimento</option>
+      <option value="modelo4">Modelo 4 - Acompanhante</option>
+    </select>
+  </div>
+
+  <div id="certFields">
+    <!-- Campos dinâmicos aparecem aqui -->
+  </div>
+
+  <div class="form-group">
+    <label for="cidSearchAtestado">CID-10 (opcional)</label>
+    <div class="cid-search-container">
+      <input type="text" id="cidSearchAtestado" class="form-control" placeholder="Digite código CID-10 ou descrição...">
+      <div id="cidResultsAtestado" class="cid-results"></div>
+    </div>
+    <div id="cidChipsAtestado" class="cid-chips"></div>
+  </div>
+
+  <div class="form-group">
+    <label for="certReason">Texto do Atestado</label>
+    <textarea id="certReason" class="form-control" rows="8" placeholder="O texto do atestado será preenchido automaticamente..."></textarea>
+  </div>
+</div>
 
             <div class="form-group">
               <label for="certRestrictions">Restrições / Recomendações</label>
