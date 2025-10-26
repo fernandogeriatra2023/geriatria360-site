@@ -624,6 +624,10 @@
               <span class="detail-value">75 anos</span>
             </div>
             <div class="detail-item">
+              <span class="detail-label">CPF</span>
+              <span class="detail-value" id="patientCPF">123.456.789-00</span>
+            </div>
+            <div class="detail-item">
               <span class="detail-label">Escolaridade</span>
               <span class="detail-value">8 anos</span>
             </div>
@@ -940,6 +944,17 @@
     let selectedCids = [];
     let selectedCidsAtestado = [];
     
+    // Dados do paciente atual (simulando dados do banco)
+    const currentPatient = {
+      id: "MS-75-001",
+      name: "Maria Silva",
+      cpf: "123.456.789-00",
+      age: 75,
+      education: 8,
+      allergies: "Penicilina",
+      comorbidities: "Hipertensão, Diabetes"
+    };
+    
     // Base de dados de CID-10
     const cidData = [
       { code: "A00", description: "Cólera" },
@@ -973,30 +988,31 @@
       { code: "Z00", description: "Exame geral de rotina" }
     ];
     
-    // Modelos de atestado
+    // Modelos de atestado ATUALIZADOS com CPF
     const certModels = {
       modelo1: `ATESTADO MÉDICO
 
-Atesto, para os devidos fins, que o(a) paciente {{nome}} foi atendido(a) nesta data, apresentando condição clínica que justifica afastamento das atividades habituais por {{dias}} dias, a contar de hoje.
+Atesto, para os devidos fins, que o(a) paciente {{nome}}, portador(a) do CPF {{cpf}}, foi atendido(a) nesta data, apresentando condição clínica que justifica afastamento das atividades habituais por {{dias}} dias, a contar de hoje.
 
-Recomendado repouso e retorno se necessário.
+{{cid}}
+Recomendado repouso e acompanhamento clínico.
 Retorno conforme evolução.`,
 
       modelo2: `ATESTADO DE APTIDÃO FÍSICA
 
-Atesto, para os devidos fins, que o(a) paciente {{nome}} foi avaliado(a) em consulta médica, não apresentando contraindicações aparentes à prática de atividades físicas de forma orientada.
+Atesto, para os devidos fins, que o(a) paciente {{nome}}, portador(a) do CPF {{cpf}}, foi avaliado(a) em consulta médica, não apresentando contraindicações aparentes à prática de atividades físicas de forma orientada.
 
 Recomenda-se acompanhamento periódico e observar sinais e sintomas durante o exercício.`,
 
       modelo3: `ATESTADO DE COMPARECIMENTO
 
-Atesto que o(a) paciente {{nome}} esteve em atendimento médico nesta unidade no dia {{data}} das {{horaInicio}} às {{horaFim}}.
+Atesto que o(a) paciente {{nome}}, portador(a) do CPF {{cpf}}, esteve em atendimento médico nesta unidade no dia {{data}} das {{horaInicio}} às {{horaFim}}.
 
 Recomenda-se abono de falta conforme legislação vigente.`,
 
       modelo4: `ATESTADO PARA ACOMPANHANTE
 
-Atesto, para os devidos fins, que {{acompanhante}} acompanhou o(a) paciente {{nome}} em atendimento médico nesta data, sendo necessária sua presença durante o período.
+Atesto, para os devidos fins, que {{acompanhante}} acompanhou o(a) paciente {{nome}}, portador(a) do CPF {{cpf}}, em atendimento médico nesta data, sendo necessária sua presença durante o período.
 
 Sugiro o abono da ausência conforme normas institucionais.`
     };
@@ -1012,9 +1028,16 @@ Sugiro o abono da ausência conforme normas institucionais.`
         initCIDSearch();
         initCalendar();
         setupTabNavigation();
+        loadPatientData(); // Carrega dados do paciente
       } else {
         document.getElementById('loginError').style.display = 'block';
       }
+    }
+    
+    // Carregar dados do paciente
+    function loadPatientData() {
+      // Em um sistema real, isso viria do banco de dados
+      document.getElementById('patientCPF').textContent = currentPatient.cpf;
     }
     
     // Navegação por abas
@@ -1171,7 +1194,8 @@ Sugiro o abono da ausência conforme normas institucionais.`
       }
       
       const prescription = {
-        patient: "Maria Silva",
+        patient: currentPatient.name,
+        patientCPF: currentPatient.cpf,
         medications: medications,
         date: new Date().toISOString(),
         doctor: "Dr. Silva"
@@ -1190,7 +1214,8 @@ Sugiro o abono da ausência conforme normas institucionais.`
       const printContent = `
         <div style="padding: 20px; font-family: Arial;">
           <h2>Receita Médica - Geriatria 360</h2>
-          <p><strong>Paciente:</strong> Maria Silva</p>
+          <p><strong>Paciente:</strong> ${currentPatient.name}</p>
+          <p><strong>CPF:</strong> ${currentPatient.cpf}</p>
           <p><strong>Data:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
           <hr>
           <h3>Medicações Prescritas:</h3>
@@ -1254,7 +1279,8 @@ Sugiro o abono da ausência conforme normas institucionais.`
       }
       
       const examData = {
-        patient: "Maria Silva",
+        patient: currentPatient.name,
+        patientCPF: currentPatient.cpf,
         exams: exams,
         date: new Date().toISOString(),
         instructions: document.getElementById('examInstructions').value
@@ -1275,7 +1301,8 @@ Sugiro o abono da ausência conforme normas institucionais.`
       const printContent = `
         <div style="padding: 20px; font-family: Arial;">
           <h2>Solicitação de Exames - Geriatria 360</h2>
-          <p><strong>Paciente:</strong> Maria Silva</p>
+          <p><strong>Paciente:</strong> ${currentPatient.name}</p>
+          <p><strong>CPF:</strong> ${currentPatient.cpf}</p>
           <p><strong>Data:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
           <hr>
           <h3>Exames Solicitados:</h3>
@@ -1295,7 +1322,7 @@ Sugiro o abono da ausência conforme normas institucionais.`
       printWindow.print();
     }
     
-    // Sistema de atestados
+    // Sistema de atestados ATUALIZADO com preenchimento automático
     function changeCertModel(model) {
       const certReason = document.getElementById('certReason');
       const certFields = document.getElementById('certFields');
@@ -1306,8 +1333,11 @@ Sugiro o abono da ausência conforme normas institucionais.`
       updateCIDChipsAtestado();
       
       if (model && certModels[model]) {
-        // Preencher texto base do modelo
-        certReason.value = certModels[model];
+        // Preencher texto base do modelo com dados automáticos
+        let text = certModels[model];
+        text = text.replace(/{{nome}}/g, currentPatient.name);
+        text = text.replace(/{{cpf}}/g, currentPatient.cpf);
+        certReason.value = text;
         
         // Adicionar campos específicos do modelo
         switch(model) {
@@ -1315,13 +1345,17 @@ Sugiro o abono da ausência conforme normas institucionais.`
             certFields.innerHTML = `
               <div class="cert-field-group">
                 <div class="form-group">
-                  <label for="certNome">Nome do Paciente</label>
-                  <input type="text" id="certNome" class="form-control" placeholder="Nome completo ou iniciais">
+                  <label>Nome do Paciente</label>
+                  <input type="text" class="form-control" value="${currentPatient.name}" readonly style="background-color: #f8f9fa;">
                 </div>
                 <div class="form-group">
-                  <label for="certDias">Dias de Afastamento</label>
-                  <input type="number" id="certDias" class="form-control" min="1" value="3">
+                  <label>CPF</label>
+                  <input type="text" class="form-control" value="${currentPatient.cpf}" readonly style="background-color: #f8f9fa;">
                 </div>
+              </div>
+              <div class="form-group">
+                <label for="certDias">Dias de Afastamento</label>
+                <input type="number" id="certDias" class="form-control" min="1" value="3">
               </div>
             `;
             break;
@@ -1329,8 +1363,12 @@ Sugiro o abono da ausência conforme normas institucionais.`
           case 'modelo2':
             certFields.innerHTML = `
               <div class="form-group">
-                <label for="certNome">Nome do Paciente</label>
-                <input type="text" id="certNome" class="form-control" placeholder="Nome completo ou iniciais">
+                <label>Nome do Paciente</label>
+                <input type="text" class="form-control" value="${currentPatient.name}" readonly style="background-color: #f8f9fa;">
+              </div>
+              <div class="form-group">
+                <label>CPF</label>
+                <input type="text" class="form-control" value="${currentPatient.cpf}" readonly style="background-color: #f8f9fa;">
               </div>
             `;
             break;
@@ -1340,15 +1378,19 @@ Sugiro o abono da ausência conforme normas institucionais.`
             certFields.innerHTML = `
               <div class="cert-field-group">
                 <div class="form-group">
-                  <label for="certNome">Nome do Paciente</label>
-                  <input type="text" id="certNome" class="form-control" placeholder="Nome completo ou iniciais">
+                  <label>Nome do Paciente</label>
+                  <input type="text" class="form-control" value="${currentPatient.name}" readonly style="background-color: #f8f9fa;">
                 </div>
+                <div class="form-group">
+                  <label>CPF</label>
+                  <input type="text" class="form-control" value="${currentPatient.cpf}" readonly style="background-color: #f8f9fa;">
+                </div>
+              </div>
+              <div class="cert-field-group">
                 <div class="form-group">
                   <label for="certData">Data do Atendimento</label>
                   <input type="date" id="certData" class="form-control" value="${today}">
                 </div>
-              </div>
-              <div class="cert-field-group">
                 <div class="form-group">
                   <label for="certHoraInicio">Hora Início</label>
                   <input type="time" id="certHoraInicio" class="form-control" value="09:00">
@@ -1365,13 +1407,17 @@ Sugiro o abono da ausência conforme normas institucionais.`
             certFields.innerHTML = `
               <div class="cert-field-group">
                 <div class="form-group">
-                  <label for="certNome">Nome do Paciente</label>
-                  <input type="text" id="certNome" class="form-control" placeholder="Nome do paciente">
+                  <label>Nome do Paciente</label>
+                  <input type="text" class="form-control" value="${currentPatient.name}" readonly style="background-color: #f8f9fa;">
                 </div>
                 <div class="form-group">
-                  <label for="certAcompanhante">Nome do Acompanhante</label>
-                  <input type="text" id="certAcompanhante" class="form-control" placeholder="Nome do acompanhante">
+                  <label>CPF</label>
+                  <input type="text" class="form-control" value="${currentPatient.cpf}" readonly style="background-color: #f8f9fa;">
                 </div>
+              </div>
+              <div class="form-group">
+                <label for="certAcompanhante">Nome do Acompanhante</label>
+                <input type="text" id="certAcompanhante" class="form-control" placeholder="Nome do acompanhante">
               </div>
             `;
             break;
@@ -1488,10 +1534,8 @@ Sugiro o abono da ausência conforme normas institucionais.`
         return null;
       }
       
-      // Substituir variáveis pelos valores dos campos
-      const nome = document.getElementById('certNome') ? document.getElementById('certNome').value : '';
-      text = text.replace(/{{nome}}/g, nome);
-      
+      // Já temos nome e CPF preenchidos automaticamente
+      // Apenas substituir campos específicos do modelo
       switch(model) {
         case 'modelo1':
           const dias = document.getElementById('certDias') ? document.getElementById('certDias').value : '';
@@ -1524,7 +1568,7 @@ Sugiro o abono da ausência conforme normas institucionais.`
       const certText = generateCertText();
       if (certText) {
         localStorage.setItem('lastCertificate', certText);
-        alert('Atestado salvo com sucesso!');
+        alert('Atestado salva com sucesso!');
       }
     }
     
