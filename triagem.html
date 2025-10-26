@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Triagem - Geriatria 360</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #2c5aa0;
+      --primary-light: #4a7bc8;
+      --secondary: #34a38a;
+      --accent: #ff7b54;
+      --light: #f8f9fa;
+      --dark: #343a40;
+      --gray: #6c757d;
+      --border-radius: 10px;
+      --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      color: var(--dark);
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    .header {
+      background: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 15px 0;
+    }
+    
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 1.5rem;
+      text-decoration: none;
+    }
+    
+    .main {
+      padding: 30px 0;
+    }
+    
+    .card {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+    
+    .card h2 {
+      color: var(--primary);
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--light);
+      padding-bottom: 10px;
+    }
+    
+    .paciente-info {
+      background: #e8f4fd;
+      padding: 20px;
+      border-radius: var(--border-radius);
+      margin-bottom: 20px;
+    }
+    
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    
+    .info-item strong {
+      display: block;
+      color: var(--primary);
+      font-size: 0.9rem;
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+    }
+    
+    .vital-signs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .vital-item {
+      text-align: center;
+      padding: 15px;
+      background: var(--light);
+      border-radius: var(--border-radius);
+    }
+    
+    .vital-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary);
+    }
+    
+    .vital-label {
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+    
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .btn:hover {
+      background: var(--primary-light);
+    }
+    
+    .btn-success {
+      background: var(--secondary);
+    }
+    
+    .btn-success:hover {
+      background: #2d927a;
+    }
+    
+    .btn-warning {
+      background: #ffc107;
+      color: var(--dark);
+    }
+    
+    .btn-warning:hover {
+      background: #e0a800;
+    }
+    
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    
+    .table th,
+    .table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .table th {
+      background: var(--light);
+      font-weight: 600;
+    }
+    
+    .status-badge {
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .status-agendado {
+      background: #e8f4fd;
+      color: var(--primary);
+    }
+    
+    .status-triagem {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    .status-pronto {
+      background: #e6f4ea;
+      color: var(--secondary);
+    }
+    
+    .alert {
+      padding: 15px;
+      border-radius: var(--border-radius);
+      margin-bottom: 20px;
+    }
+    
+    .alert-warning {
+      background: #fff3cd;
+      border: 1px solid #ffeaa7;
+      color: #856404;
+    }
+    
+    .alert-success {
+      background: #e6f4ea;
+      border: 1px solid #c8e6c9;
+      color: var(--secondary);
+    }
+    
+    .priority-high {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+    
+    .priority-medium {
+      color: #f39c12;
+      font-weight: bold;
+    }
+    
+    .priority-low {
+      color: var(--secondary);
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <a href="index.html" class="logo">
+          <i class="fas fa-stethoscope"></i>
+          Geriatria 360 - Triagem
+        </a>
+        <nav>
+          <a href="recepcao.html" class="btn">Recepção</a>
+          <a href="medicos.html" class="btn">Médicos</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <!-- Informações do Paciente em Triagem -->
+      <div id="pacienteTriagem" class="card">
+        <h2><i class="fas fa-user-injured"></i> Paciente em Triagem</h2>
+        <div id="infoPaciente" class="paciente-info">
+          <p>Selecione um paciente da lista abaixo para iniciar a triagem</p>
+        </div>
+        
+        <form id="triagemForm">
+          <div class="vital-signs">
+            <div class="vital-item">
+              <div class="vital-value" id="pressaoValue">--/--</div>
+              <div class="vital-label">Pressão Arterial</div>
+            </div>
+            <div class="vital-item">
+              <div class="vital-value" id="batimentosValue">--</div>
+              <div class="vital-label">Batimentos (bpm)</div>
+            </div>
+            <div class="vital-item">
+              <div class="vital-value" id="temperaturaValue">--</div>
+              <div class="vital-label">Temperatura (°C)</div>
+            </div>
+            <div class="vital-item">
+              <div class="vital-value" id="saturacaoValue">--%</div>
+              <div class="vital-label">Sat. O₂</div>
+            </div>
+            <div class="vital-item">
+              <div class="vital-value" id="pesoValue">--</div>
+              <div class="vital-label">Peso (kg)</div>
+            </div>
+            <div class="vital-item">
+              <div class="vital-value" id="alturaValue">--</div>
+              <div class="vital-label">Altura (m)</div>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="pressaoSistolica">Pressão Sistólica *</label>
+              <input type="number" id="pressaoSistolica" class="form-control" placeholder="120" min="50" max="250" required>
+            </div>
+            <div class="form-group">
+              <label for="pressaoDiastolica">Pressão Diastólica *</label>
+              <input type="number" id="pressaoDiastolica" class="form-control" placeholder="80" min="30" max="150" required>
+            </div>
+            <div class="form-group">
+              <label for="batimentosCardiacos">Batimentos Cardíacos (bpm) *</label>
+              <input type="number" id="batimentosCardiacos" class="form-control" placeholder="72" min="30" max="200" required>
+            </div>
+            <div class="form-group">
+              <label for="temperatura">Temperatura (°C) *</label>
+              <input type="number" step="0.1" id="temperatura" class="form-control" placeholder="36.5" min="35" max="42" required>
+            </div>
+            <div class="form-group">
+              <label for="saturacaoOxigenio">Saturação de Oxigênio (%) *</label>
+              <input type="number" id="saturacaoOxigenio" class="form-control" placeholder="98" min="70" max="100" required>
+            </div>
+            <div class="form-group">
+              <label for="glicemia">Glicemia (mg/dL)</label>
+              <input type="number" id="glicemia" class="form-control" placeholder="90">
+            </div>
+            <div class="form-group">
+              <label for="peso">Peso (kg) *</label>
+              <input type="number" step="0.1" id="peso" class="form-control" placeholder="65.5" required>
+            </div>
+            <div class="form-group">
+              <label for="altura">Altura (m) *</label>
+              <input type="number" step="0.01" id="altura" class="form-control" placeholder="1.65" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="queixaPrincipal">Queixa Principal *</label>
+            <textarea id="queixaPrincipal" class="form-control" rows="3" placeholder="Descreva a queixa principal do paciente..." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="observacoesTriagem">Observações da Triagem</label>
+            <textarea id="observacoesTriagem" class="form-control" rows="3" placeholder="Observações adicionais..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="prioridade">Prioridade *</label>
+            <select id="prioridade" class="form-control" required>
+              <option value="">Selecione a prioridade</option>
+              <option value="alta">Alta (Atendimento Imediato)</option>
+              <option value="media">Média (Atendimento em até 1h)</option>
+              <option value="baixa">Baixa (Atendimento em até 2h)</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-check-circle"></i> Finalizar Triagem
+          </button>
+        </form>
+      </div>
+
+      <!-- Lista de Pacientes para Triagem -->
+      <div class="card">
+        <h2><i class="fas fa-list"></i> Pacientes Aguardando Triagem</h2>
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle"></i> 
+          Pacientes com prioridade ALTA devem ser atendidos imediatamente.
+        </div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Paciente</th>
+              <th>Médico</th>
+              <th>Data/Hora</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="listaTriagem">
+            <!-- Pacientes aguardando triagem serão listados aqui -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // "Banco de dados" simulado no LocalStorage
+    let pacientes = JSON.parse(localStorage.getItem('geriatria_pacientes')) || [];
+    let agendamentos = JSON.parse(localStorage.getItem('geriatria_agendamentos')) || [];
+    let triagens = JSON.parse(localStorage.getItem('geriatria_triagens')) || [];
+
+    // Paciente atualmente em triagem
+    let pacienteAtual = null;
+
+    // Atualizar valores em tempo real nos cards de sinais vitais
+    function atualizarValoresVitals() {
+      document.getElementById('pressaoSistolica').addEventListener('input', function() {
+        const diastolica = document.getElementById('pressaoDiastolica').value || '--';
+        document.getElementById('pressaoValue').textContent = `${this.value || '--'}/${diastolica}`;
+      });
+
+      document.getElementById('pressaoDiastolica').addEventListener('input', function() {
+        const sistolica = document.getElementById('pressaoSistolica').value || '--';
+        document.getElementById('pressaoValue').textContent = `${sistolica}/${this.value || '--'}`;
+      });
+
+      document.getElementById('batimentosCardiacos').addEventListener('input', function() {
+        document.getElementById('batimentosValue').textContent = this.value || '--';
+      });
+
+      document.getElementById('temperatura').addEventListener('input', function() {
+        document.getElementById('temperaturaValue').textContent = this.value || '--';
+      });
+
+      document.getElementById('saturacaoOxigenio').addEventListener('input', function() {
+        document.getElementById('saturacaoValue').textContent = this.value ? `${this.value}%` : '--%';
+      });
+
+      document.getElementById('peso').addEventListener('input', function() {
+        document.getElementById('pesoValue').textContent = this.value || '--';
+      });
+
+      document.getElementById('altura').addEventListener('input', function() {
+        document.getElementById('alturaValue').textContent = this.value || '--';
+      });
+    }
+
+    // Carregar lista de pacientes para triagem
+    function carregarPacientesTriagem() {
+      const tbody = document.getElementById('listaTriagem');
+      tbody.innerHTML = '';
+      
+      // Filtrar agendamentos com status 'agendado' (aguardando triagem)
+      const agendamentosTriagem = agendamentos.filter(a => a.status === 'agendado');
+      
+      if (agendamentosTriagem.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="5" style="text-align: center; padding: 20px;">Nenhum paciente aguardando triagem</td>`;
+        tbody.appendChild(tr);
+        return;
+      }
+      
+      agendamentosTriagem.forEach(agendamento => {
+        const tr = document.createElement('tr');
+        
+        tr.innerHTML = `
+          <td>${agendamento.pacienteNome}</td>
+          <td>${agendamento.medico}</td>
+          <td>${new Date(agendamento.data).toLocaleDateString('pt-BR')} às ${agendamento.hora}</td>
+          <td><span class="status-badge status-agendado">Aguardando Triagem</span></td>
+          <td>
+            <button onclick="iniciarTriagem(${agendamento.id})" class="btn">
+              <i class="fas fa-play"></i> Iniciar Triagem
+            </button>
+          </td>
+        `;
+        
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Iniciar triagem de um paciente
+    function iniciarTriagem(agendamentoId) {
+      const agendamento = agendamentos.find(a => a.id === agendamentoId);
+      if (!agendamento) return;
+      
+      const paciente = pacientes.find(p => p.id == agendamento.pacienteId);
+      if (!paciente) return;
+      
+      pacienteAtual = {
+        agendamentoId: agendamentoId,
+        pacienteId: paciente.id,
+        ...paciente,
+        ...agendamento
+      };
+      
+      // Atualizar interface com informações do paciente
+      document.getElementById('infoPaciente').innerHTML = `
+        <div class="info-grid">
+          <div class="info-item">
+            <strong>Paciente</strong>
+            ${paciente.nome}
+          </div>
+          <div class="info-item">
+            <strong>Idade</strong>
+            ${calcularIdade(paciente.dataNascimento)} anos
+          </div>
+          <div class="info-item">
+            <strong>CPF</strong>
+            ${paciente.cpf}
+          </div>
+          <div class="info-item">
+            <strong>Médico</strong>
+            ${agendamento.medico}
+          </div>
+          <div class="info-item">
+            <strong>Alergias</strong>
+            ${paciente.alergias || 'Nenhuma registrada'}
+          </div>
+          <div class="info-item">
+            <strong>Comorbidades</strong>
+            ${paciente.comorbidades || 'Nenhuma registrada'}
+          </div>
+        </div>
+      `;
+      
+      // Rolar para o topo do formulário de triagem
+      document.getElementById('pacienteTriagem').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Calcular idade a partir da data de nascimento
+    function calcularIdade(dataNascimento) {
+      const nascimento = new Date(dataNascimento);
+      const hoje = new Date();
+      let idade = hoje.getFullYear() - nascimento.getFullYear();
+      const mes = hoje.getMonth() - nascimento.getMonth();
+      
+      if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+        idade--;
+      }
+      
+      return idade;
+    }
+
+    // Finalizar triagem
+    document.getElementById('triagemForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      if (!pacienteAtual) {
+        alert('Selecione um paciente para realizar a triagem!');
+        return;
+      }
+      
+      // Calcular IMC
+      const peso = parseFloat(document.getElementById('peso').value);
+      const altura = parseFloat(document.getElementById('altura').value);
+      const imc = peso / (altura * altura);
+      
+      // Criar registro de triagem
+      const triagem = {
+        id: Date.now(),
+        agendamentoId: pacienteAtual.agendamentoId,
+        pacienteId: pacienteAtual.pacienteId,
+        dataTriagem: new Date().toISOString(),
+        pressaoSistolica: document.getElementById('pressaoSistolica').value,
+        pressaoDiastolica: document.getElementById('pressaoDiastolica').value,
+        batimentosCardiacos: document.getElementById('batimentosCardiacos').value,
+        temperatura: document.getElementById('temperatura').value,
+        saturacaoOxigenio: document.getElementById('saturacaoOxigenio').value,
+        glicemia: document.getElementById('glicemia').value || null,
+        peso: peso,
+        altura: altura,
+        imc: imc.toFixed(2),
+        queixaPrincipal: document.getElementById('queixaPrincipal').value,
+        observacoes: document.getElementById('observacoesTriagem').value,
+        prioridade: document.getElementById('prioridade').value
+      };
+      
+      // Adicionar à lista de triagens
+      triagens.push(triagem);
+      localStorage.setItem('geriatria_triagens', JSON.stringify(triagens));
+      
+      // Atualizar status do agendamento para "pronto"
+      const agendamentoIndex = agendamentos.findIndex(a => a.id === pacienteAtual.agendamentoId);
+      if (agendamentoIndex !== -1) {
+        agendamentos[agendamentoIndex].status = 'pronto';
+        localStorage.setItem('geriatria_agendamentos', JSON.stringify(agendamentos));
+      }
+      
+      alert('Triagem finalizada com sucesso! Paciente encaminhado para o médico.');
+      
+      // Limpar formulário
+      this.reset();
+      document.getElementById('infoPaciente').innerHTML = '<p>Selecione um paciente da lista abaixo para iniciar a triagem</p>';
+      
+      // Atualizar valores dos cards
+      document.getElementById('pressaoValue').textContent = '--/--';
+      document.getElementById('batimentosValue').textContent = '--';
+      document.getElementById('temperaturaValue').textContent = '--';
+      document.getElementById('saturacaoValue').textContent = '--%';
+      document.getElementById('pesoValue').textContent = '--';
+      document.getElementById('alturaValue').textContent = '--';
+      
+      pacienteAtual = null;
+      
+      // Recarregar lista
+      carregarPacientesTriagem();
+    });
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', function() {
+      carregarPacientesTriagem();
+      atualizarValoresVitals();
+      
+      // Verificar se há um paciente encaminhado da recepção
+      const agendamentoTriagem = localStorage.getItem('triagem_agendamento');
+      if (agendamentoTriagem) {
+        const agendamento = JSON.parse(agendamentoTriagem);
+        iniciarTriagem(agendamento.id);
+        localStorage.removeItem('triagem_agendamento');
+      }
+    });
+  </script>
+</body>
+</html>
