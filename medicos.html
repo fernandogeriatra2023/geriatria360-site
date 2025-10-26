@@ -536,6 +536,16 @@
       padding: 20px;
       border-radius: var(--border-radius);
     }
+
+    .debug-panel {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: var(--border-radius);
+      padding: 15px;
+      margin-top: 20px;
+      font-family: monospace;
+      font-size: 0.8rem;
+    }
     
     @media (max-width: 1200px) {
       .medical-dashboard {
@@ -634,14 +644,14 @@
         <aside class="medical-sidebar">
           <div class="patient-info">
             <img src="https://ui-avatars.com/api/?name=Maria+Silva&background=34a38a&color=fff" alt="Maria Silva" class="patient-avatar">
-            <h3>Maria Silva</h3>
-            <p>ID: <strong>MS-75-001</strong></p>
+            <h3 id="patientName">Maria Silva</h3>
+            <p>ID: <strong id="patientId">MS-75-001</strong></p>
           </div>
           
           <div class="patient-details">
             <div class="detail-item">
               <span class="detail-label">Idade</span>
-              <span class="detail-value">75 anos</span>
+              <span class="detail-value" id="patientAge">75 anos</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">CPF</span>
@@ -649,15 +659,15 @@
             </div>
             <div class="detail-item">
               <span class="detail-label">Escolaridade</span>
-              <span class="detail-value">8 anos</span>
+              <span class="detail-value" id="patientEducation">8 anos</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">Alergias</span>
-              <span class="detail-value">Penicilina</span>
+              <span class="detail-value" id="patientAllergies">Penicilina</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">Comorbidades</span>
-              <span class="detail-value">Hipertensão, Diabetes</span>
+              <span class="detail-value" id="patientComorbidities">Hipertensão, Diabetes</span>
             </div>
           </div>
           
@@ -959,14 +969,26 @@
                 <h3 style="color: var(--success); margin-bottom: 5px;">
                   <i class="fas fa-check-circle"></i> Finalizar Atendimento
                 </h3>
-                <p style="color: var(--gray); margin: 0;">
-                  Ao finalizar, o paciente será marcado como atendido no sistema
+                <p style="color: var(--gray); margin: 0;" id="statusPaciente">
+                  Nenhum paciente em atendimento - Carregue um paciente da triagem
                 </p>
               </div>
               <button class="btn btn-success" onclick="finalizarAtendimento()" style="font-size: 1.1rem;">
                 <i class="fas fa-flag-checkered"></i> Finalizar Atendimento
               </button>
             </div>
+            <div id="debugInfo" style="margin-top: 10px; font-size: 0.8rem; color: var(--gray); display: none;">
+              <!-- Informações de debug -->
+            </div>
+          </div>
+
+          <!-- Painel de Debug -->
+          <div class="debug-panel">
+            <h4>🔧 Debug do Sistema</h4>
+            <button class="btn" onclick="debugSistema()" style="padding: 5px 10px; font-size: 0.8rem; margin-bottom: 10px;">
+              <i class="fas fa-bug"></i> Verificar Dados
+            </button>
+            <div id="debugOutput"></div>
           </div>
         </main>
       </div>
@@ -996,42 +1018,86 @@
     // ===== INTEGRAÇÃO COM RECEPÇÃO/TRIAGEM =====
     let currentAppointment = null;
 
-    // Função para carregar paciente da triagem
+    // Função para carregar paciente da triagem - CORRIGIDA
     function loadPatientFromTriagem() {
         const triagemData = localStorage.getItem('triagem_agendamento');
-        if (triagemData) {
-            const agendamento = JSON.parse(triagemData);
-            
-            // Buscar dados completos do paciente
-            const pacientes = JSON.parse(localStorage.getItem('geriatria_pacientes')) || [];
-            const paciente = pacientes.find(p => p.id == agendamento.pacienteId);
-            
-            if (paciente) {
-                currentAppointment = {
-                    ...agendamento,
-                    paciente: paciente
-                };
+        console.log('📋 Dados da triagem no localStorage:', triagemData);
+        
+        if (triagemData && triagemData !== 'null' && triagemData !== 'undefined') {
+            try {
+                const agendamento = JSON.parse(triagemData);
+                console.log('🔍 Agendamento parseado:', agendamento);
                 
-                // Atualizar interface com dados do paciente real
-                updatePatientInterface(paciente, agendamento);
+                // Buscar dados completos do paciente
+                const pacientes = JSON.parse(localStorage.getItem('geriatria_pacientes')) || [];
+                console.log('👥 Pacientes no sistema:', pacientes);
                 
-                // Carregar dados da triagem se existirem
-                loadTriagemData(agendamento.id);
+                const paciente = pacientes.find(p => p.id == agendamento.pacienteId);
+                console.log('✅ Paciente encontrado:', paciente);
                 
-                // Limpar dados da triagem do localStorage
-                localStorage.removeItem('triagem_agendamento');
-                
-                // Mostrar alerta de sucesso
-                showAlert(`Paciente <strong>${paciente.nome}</strong> carregado da triagem com sucesso!`, 'success');
+                if (paciente && agendamento) {
+                    currentAppointment = {
+                        id: agendamento.id,
+                        pacienteId: agendamento.pacienteId,
+                        pacienteNome: agendamento.pacienteNome,
+                        pacienteCPF: agendamento.pacienteCPF,
+                        medico: agendamento.medico,
+                        data: agendamento.data,
+                        hora: agendamento.hora,
+                        status: agendamento.status,
+                        paciente: paciente
+                    };
+                    
+                    console.log('🎯 Current Appointment definido:', currentAppointment);
+                    
+                    // Atualizar interface com dados do paciente real
+                    updatePatientInterface(paciente, agendamento);
+                    
+                    // Carregar dados da triagem se existirem
+                    loadTriagemData(agendamento.id);
+                    
+                    // Limpar dados da triagem do localStorage
+                    localStorage.removeItem('triagem_agendamento');
+                    
+                    showAlert(`Paciente <strong>${paciente.nome}</strong> carregado da triagem com sucesso!`, 'success');
+                } else {
+                    console.error('❌ Paciente não encontrado para o ID:', agendamento.pacienteId);
+                    showAlert('Paciente não encontrado no sistema. Verifique o cadastro.', 'error');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar dados da triagem:', error);
+                showAlert('Erro ao carregar dados do paciente da triagem.', 'error');
             }
+        } else {
+            console.log('ℹ️ Nenhum paciente aguardando da triagem');
+            // Usar paciente de demonstração
+            setupPacienteDemonstracao();
         }
+    }
+
+    // Configurar paciente de demonstração
+    function setupPacienteDemonstracao() {
+        currentAppointment = {
+            id: 'demo-' + Date.now(),
+            pacienteId: currentPatient.id,
+            pacienteNome: currentPatient.name,
+            pacienteCPF: currentPatient.cpf,
+            medico: 'Dr. Silva',
+            data: new Date().toISOString().split('T')[0],
+            hora: '10:00',
+            status: 'triagem',
+            paciente: currentPatient
+        };
+        console.log('🎯 Current Appointment (demo):', currentAppointment);
+        updateStatusVisual();
     }
 
     // Atualizar interface com dados reais do paciente
     function updatePatientInterface(paciente, agendamento) {
         // Atualizar informações do paciente na sidebar
-        document.querySelector('.patient-info h3').textContent = paciente.nome;
+        document.getElementById('patientName').textContent = paciente.nome;
         document.getElementById('patientCPF').textContent = formatCPF(paciente.cpf);
+        document.getElementById('patientId').textContent = `P-${paciente.id}`;
         
         // Atualizar avatar
         const avatar = document.querySelector('.patient-avatar');
@@ -1040,13 +1106,13 @@
         
         // Atualizar detalhes do paciente
         const idade = calcularIdade(paciente.dataNascimento);
-        const detailItems = document.querySelectorAll('.detail-item');
-        if (detailItems[0]) detailItems[0].querySelector('.detail-value').textContent = `${idade} anos`;
-        if (detailItems[3]) detailItems[3].querySelector('.detail-value').textContent = paciente.alergias || 'Nenhuma registrada';
-        if (detailItems[4]) detailItems[4].querySelector('.detail-value').textContent = paciente.comorbidades || 'Nenhuma registrada';
-        
-        // Atualizar ID do paciente
-        document.querySelector('.patient-info p strong').textContent = `P-${paciente.id}`;
+        document.getElementById('patientAge').textContent = `${idade} anos`;
+        document.getElementById('patientEducation').textContent = paciente.escolaridade || 'Não informado';
+        document.getElementById('patientAllergies').textContent = paciente.alergias || 'Nenhuma registrada';
+        document.getElementById('patientComorbidities').textContent = paciente.comorbidades || 'Nenhuma registrada';
+
+        // Atualizar status visual
+        updateStatusVisual();
     }
 
     // Carregar dados da triagem no prontuário
@@ -1086,6 +1152,7 @@
 
     // Calcular idade a partir da data de nascimento
     function calcularIdade(dataNascimento) {
+        if (!dataNascimento) return 'Não informada';
         const nascimento = new Date(dataNascimento);
         const hoje = new Date();
         let idade = hoje.getFullYear() - nascimento.getFullYear();
@@ -1100,8 +1167,9 @@
 
     // Formatar CPF
     function formatCPF(cpf) {
-        if (!cpf) return '';
+        if (!cpf) return 'Não informado';
         cpf = cpf.replace(/\D/g, '');
+        if (cpf.length !== 11) return cpf;
         return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
     }
 
@@ -1123,28 +1191,103 @@
         }, 5000);
     }
 
-    // Função para finalizar atendimento e atualizar status
+    // Função para finalizar atendimento e atualizar status - CORRIGIDA
     function finalizarAtendimento() {
-        if (currentAppointment) {
+        console.log('🔍 Tentando finalizar atendimento. CurrentAppointment:', currentAppointment);
+        
+        if (currentAppointment && currentAppointment.id) {
             const agendamentos = JSON.parse(localStorage.getItem('geriatria_agendamentos')) || [];
-            const agendamentoIndex = agendamentos.findIndex(a => a.id === currentAppointment.id);
+            console.log('📋 Agendamentos no sistema:', agendamentos);
             
-            if (agendamentoIndex !== -1) {
-                agendamentos[agendamentoIndex].status = 'finalizado';
-                localStorage.setItem('geriatria_agendamentos', JSON.stringify(agendamentos));
-            }
-            
-            showAlert('Atendimento finalizado! Status atualizado no sistema.', 'success');
-            currentAppointment = null;
-            
-            // Opcional: Redirecionar para lista de pacientes ou resetar interface
-            setTimeout(() => {
-                if (confirm('Deseja carregar um novo paciente?')) {
-                    window.location.reload();
+            // Procurar agendamento para atualizar
+            let agendamentoEncontrado = false;
+            const agendamentosAtualizados = agendamentos.map(agendamento => {
+                if (agendamento.id === currentAppointment.id) {
+                    agendamentoEncontrado = true;
+                    return {
+                        ...agendamento,
+                        status: 'finalizado',
+                        dataFinalizacao: new Date().toISOString()
+                    };
                 }
-            }, 2000);
+                return agendamento;
+            });
+            
+            if (agendamentoEncontrado) {
+                localStorage.setItem('geriatria_agendamentos', JSON.stringify(agendamentosAtualizados));
+                console.log('✅ Status atualizado para FINALIZADO');
+                
+                // Salvar também o prontuário completo
+                salvarProntuarioCompleto();
+                
+                showAlert('Atendimento finalizado com sucesso! Status atualizado no sistema.', 'success');
+                
+                // Resetar dados após finalização
+                currentAppointment = null;
+                updateStatusVisual();
+                
+                setTimeout(() => {
+                    if (confirm('Atendimento finalizado! Deseja carregar um novo paciente?')) {
+                        window.location.reload();
+                    }
+                }, 2000);
+                
+            } else {
+                console.error('❌ Agendamento não encontrado com ID:', currentAppointment.id);
+                showAlert('Agendamento finalizado (não encontrado no sistema principal).', 'success');
+                currentAppointment = null;
+                updateStatusVisual();
+            }
         } else {
-            showAlert('Nenhum paciente em atendimento para finalizar.', 'error');
+            console.error('❌ Nenhum paciente em atendimento para finalizar');
+            showAlert('Nenhum paciente em atendimento para finalizar. Carregue um paciente da triagem primeiro.', 'error');
+        }
+    }
+
+    // Função para salvar prontuário completo
+    function salvarProntuarioCompleto() {
+        if (!currentAppointment) return;
+        
+        const prontuario = {
+            id: Date.now(),
+            agendamentoId: currentAppointment.id,
+            pacienteId: currentAppointment.pacienteId,
+            pacienteNome: currentAppointment.pacienteNome || currentAppointment.paciente.nome,
+            pacienteCPF: currentAppointment.pacienteCPF || currentAppointment.paciente.cpf,
+            medico: currentAppointment.medico,
+            dataAtendimento: new Date().toISOString(),
+            evolucao: document.getElementById('evolText').innerHTML,
+            medicamentos: medications,
+            exames: exams,
+            diagnosticos: selectedCids,
+            observacoes: "Atendimento finalizado pelo sistema"
+        };
+        
+        // Salvar no localStorage
+        const prontuarios = JSON.parse(localStorage.getItem('geriatria_prontuarios')) || [];
+        prontuarios.push(prontuario);
+        localStorage.setItem('geriatria_prontuarios', JSON.stringify(prontuarios));
+        
+        console.log('💾 Prontuário salvo:', prontuario);
+    }
+
+    // Atualizar status visual do paciente
+    function updateStatusVisual() {
+        const statusElement = document.getElementById('statusPaciente');
+        const debugInfo = document.getElementById('debugInfo');
+        
+        if (currentAppointment) {
+            const nomePaciente = currentAppointment.pacienteNome || currentAppointment.paciente?.nome || 'Paciente';
+            statusElement.innerHTML = `Paciente: <strong>${nomePaciente}</strong> | Pronto para finalizar`;
+            statusElement.style.color = 'var(--success)';
+            
+            // Mostrar informações de debug
+            debugInfo.style.display = 'block';
+            debugInfo.innerHTML = `ID: ${currentAppointment.id} | Médico: ${currentAppointment.medico} | Status: ${currentAppointment.status}`;
+        } else {
+            statusElement.innerHTML = 'Nenhum paciente em atendimento - Carregue um paciente da triagem';
+            statusElement.style.color = 'var(--danger)';
+            debugInfo.style.display = 'none';
         }
     }
 
@@ -1383,8 +1526,8 @@ Sugiro o abono da ausência conforme normas institucionais.`
         return;
       }
       
-      const patientName = currentAppointment ? currentAppointment.paciente.nome : currentPatient.name;
-      const patientCPF = currentAppointment ? currentAppointment.paciente.cpf : currentPatient.cpf;
+      const patientName = currentAppointment ? currentAppointment.pacienteNome || currentAppointment.paciente?.nome : currentPatient.name;
+      const patientCPF = currentAppointment ? currentAppointment.pacienteCPF || currentAppointment.paciente?.cpf : currentPatient.cpf;
       
       const prescription = {
         patient: patientName,
@@ -1404,8 +1547,8 @@ Sugiro o abono da ausência conforme normas institucionais.`
         return;
       }
       
-      const patientName = currentAppointment ? currentAppointment.paciente.nome : currentPatient.name;
-      const patientCPF = currentAppointment ? formatCPF(currentAppointment.paciente.cpf) : currentPatient.cpf;
+      const patientName = currentAppointment ? currentAppointment.pacienteNome || currentAppointment.paciente?.nome : currentPatient.name;
+      const patientCPF = currentAppointment ? formatCPF(currentAppointment.pacienteCPF || currentAppointment.paciente?.cpf) : currentPatient.cpf;
 
       const printContent = `
         <div style="padding: 20px; font-family: Arial;">
@@ -1474,8 +1617,8 @@ Sugiro o abono da ausência conforme normas institucionais.`
         return;
       }
       
-      const patientName = currentAppointment ? currentAppointment.paciente.nome : currentPatient.name;
-      const patientCPF = currentAppointment ? currentAppointment.paciente.cpf : currentPatient.cpf;
+      const patientName = currentAppointment ? currentAppointment.pacienteNome || currentAppointment.paciente?.nome : currentPatient.name;
+      const patientCPF = currentAppointment ? currentAppointment.pacienteCPF || currentAppointment.paciente?.cpf : currentPatient.cpf;
 
       const examData = {
         patient: patientName,
@@ -1495,8 +1638,8 @@ Sugiro o abono da ausência conforme normas institucionais.`
         return;
       }
       
-      const patientName = currentAppointment ? currentAppointment.paciente.nome : currentPatient.name;
-      const patientCPF = currentAppointment ? formatCPF(currentAppointment.paciente.cpf) : currentPatient.cpf;
+      const patientName = currentAppointment ? currentAppointment.pacienteNome || currentAppointment.paciente?.nome : currentPatient.name;
+      const patientCPF = currentAppointment ? formatCPF(currentAppointment.pacienteCPF || currentAppointment.paciente?.cpf) : currentPatient.cpf;
       const instructions = document.getElementById('examInstructions').value;
       
       const printContent = `
@@ -1534,8 +1677,8 @@ Sugiro o abono da ausência conforme normas institucionais.`
       updateCIDChipsAtestado();
       
       if (model && certModels[model]) {
-        const patientName = currentAppointment ? currentAppointment.paciente.nome : currentPatient.name;
-        const patientCPF = currentAppointment ? formatCPF(currentAppointment.paciente.cpf) : currentPatient.cpf;
+        const patientName = currentAppointment ? currentAppointment.pacienteNome || currentAppointment.paciente?.nome : currentPatient.name;
+        const patientCPF = currentAppointment ? formatCPF(currentAppointment.pacienteCPF || currentAppointment.paciente?.cpf) : currentPatient.cpf;
 
         // Preencher texto base do modelo com dados automáticos
         let text = certModels[model];
@@ -1636,8 +1779,8 @@ Sugiro o abono da ausência conforme normas institucionais.`
       const model = document.getElementById('certModel').value;
       if (!model) return;
 
-      const patientName = currentAppointment ? currentAppointment.paciente.nome : currentPatient.name;
-      const patientCPF = currentAppointment ? formatCPF(currentAppointment.paciente.cpf) : currentPatient.cpf;
+      const patientName = currentAppointment ? currentAppointment.pacienteNome || currentAppointment.paciente?.nome : currentPatient.name;
+      const patientCPF = currentAppointment ? formatCPF(currentAppointment.pacienteCPF || currentAppointment.paciente?.cpf) : currentPatient.cpf;
 
       let text = certModels[model];
       text = text.replace(/{{nome}}/g, patientName);
@@ -1857,6 +2000,33 @@ Sugiro o abono da ausência conforme normas institucionais.`
       alert(`Data selecionada: ${day}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`);
     }
     
+    // ===== FUNÇÕES DE DEBUG =====
+    function debugSistema() {
+        const debugOutput = document.getElementById('debugOutput');
+        let output = '<strong>=== DEBUG DO SISTEMA ===</strong><br>';
+        
+        output += `<strong>🩺 Current Appointment:</strong> ${JSON.stringify(currentAppointment, null, 2)}<br><br>`;
+        output += `<strong>📋 Triagem no localStorage:</strong> ${localStorage.getItem('triagem_agendamento')}<br><br>`;
+        
+        const pacientes = JSON.parse(localStorage.getItem('geriatria_pacientes') || '[]');
+        output += `<strong>👥 Pacientes (${pacientes.length}):</strong> ${JSON.stringify(pacientes, null, 2)}<br><br>`;
+        
+        const agendamentos = JSON.parse(localStorage.getItem('geriatria_agendamentos') || '[]');
+        output += `<strong>📅 Agendamentos (${agendamentos.length}):</strong> ${JSON.stringify(agendamentos, null, 2)}<br><br>`;
+        
+        const triagens = JSON.parse(localStorage.getItem('geriatria_triagens') || '[]');
+        output += `<strong>📊 Triagens (${triagens.length}):</strong> ${JSON.stringify(triagens, null, 2)}<br><br>`;
+        
+        debugOutput.innerHTML = output;
+        
+        // Também logar no console
+        console.log('=== DEBUG DO SISTEMA ===');
+        console.log('Current Appointment:', currentAppointment);
+        console.log('Pacientes:', pacientes);
+        console.log('Agendamentos:', agendamentos);
+        console.log('Triagens:', triagens);
+    }
+
     // Outras funções
     function saveEvolution() {
       showAlert('Evolução salva com sucesso!', 'success');
@@ -1896,6 +2066,9 @@ Sugiro o abono da ausência conforme normas institucionais.`
         option.value = med;
         medSuggestions.appendChild(option);
       });
+
+      // Configurar paciente de demonstração por padrão
+      setupPacienteDemonstracao();
     });
   </script>
 </body>
