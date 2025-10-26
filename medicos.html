@@ -819,6 +819,9 @@
                 <button class="btn btn-success" onclick="criarDadosDemonstracao()">
                   <i class="fas fa-plus"></i> Criar Dados de Teste
                 </button>
+                <button class="btn" onclick="testarIntegracao()">
+                  <i class="fas fa-vial"></i> Testar Integração
+                </button>
               </div>
             </div>
             
@@ -1318,12 +1321,17 @@
       agendamentosHoje.forEach(agendamento => {
         const paciente = pacientes.find(p => p.id == agendamento.pacienteId) || {};
         
-        // CORREÇÃO: Buscar triagem de forma mais flexível
-        const triagem = triagens.find(t => 
-          t.agendamentoId === agendamento.id || 
-          t.pacienteId === agendamento.pacienteId ||
-          (t.pacienteNome && t.pacienteNome === agendamento.pacienteNome)
-        );
+        // CORREÇÃO MELHORADA: Buscar triagem de forma mais robusta
+        const triagem = triagens.find(t => {
+          // Tentar por agendamentoId primeiro
+          if (t.agendamentoId === agendamento.id) return true;
+          // Tentar por pacienteId
+          if (t.pacienteId == agendamento.pacienteId) return true;
+          // Tentar por nome do paciente
+          if (t.pacienteNome && agendamento.pacienteNome && 
+              t.pacienteNome === agendamento.pacienteNome) return true;
+          return false;
+        });
         
         console.log(`Paciente: ${agendamento.pacienteNome}, Triagem encontrada:`, triagem);
         
@@ -1490,11 +1498,16 @@
         const paciente = pacientes.find(p => p.id == agendamento.pacienteId) || {};
         
         // CORREÇÃO: Buscar triagem de forma mais flexível
-        const triagem = triagens.find(t => 
-          t.agendamentoId === agendamento.id || 
-          t.pacienteId === agendamento.pacienteId ||
-          (t.pacienteNome && t.pacienteNome === agendamento.pacienteNome)
-        );
+        const triagem = triagens.find(t => {
+          // Tentar por agendamentoId primeiro
+          if (t.agendamentoId === agendamento.id) return true;
+          // Tentar por pacienteId
+          if (t.pacienteId == agendamento.pacienteId) return true;
+          // Tentar por nome do paciente
+          if (t.pacienteNome && agendamento.pacienteNome && 
+              t.pacienteNome === agendamento.pacienteNome) return true;
+          return false;
+        });
         
         currentAppointment = {
           id: agendamento.id,
@@ -1542,11 +1555,16 @@
         const paciente = pacientes.find(p => p.id == agendamento.pacienteId) || {};
         
         // CORREÇÃO: Buscar triagem de forma mais flexível
-        const triagem = triagens.find(t => 
-          t.agendamentoId === agendamento.id || 
-          t.pacienteId === agendamento.pacienteId ||
-          (t.pacienteNome && t.pacienteNome === agendamento.pacienteNome)
-        );
+        const triagem = triagens.find(t => {
+          // Tentar por agendamentoId primeiro
+          if (t.agendamentoId === agendamento.id) return true;
+          // Tentar por pacienteId
+          if (t.pacienteId == agendamento.pacienteId) return true;
+          // Tentar por nome do paciente
+          if (t.pacienteNome && agendamento.pacienteNome && 
+              t.pacienteNome === agendamento.pacienteNome) return true;
+          return false;
+        });
         
         currentAppointment = {
           id: agendamento.id,
@@ -1990,7 +2008,7 @@
       
       exams.forEach((exam, index) => {
         const li = document.createElement('li');
-        li.style.cssText = 'display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--gray-light);';
+        li.style.cssText = 'display: flex; justify-content: between; padding: 8px 0; border-bottom: 1px solid var(--gray-light);';
         li.innerHTML = `
           <span>${exam}</span>
           <button style="background: none; border: none; color: var(--danger); cursor: pointer;" onclick="removeExam(${index})">
@@ -2419,6 +2437,34 @@
       console.log('Pacientes:', pacientes);
       console.log('Agendamentos:', agendamentos);
       console.log('Triagens:', triagens);
+    }
+
+    // Função de teste de integração
+    function testarIntegracao() {
+      console.log('=== TESTE DE INTEGRAÇÃO ===');
+      
+      const agendamentos = JSON.parse(localStorage.getItem('geriatria_agendamentos')) || [];
+      const pacientes = JSON.parse(localStorage.getItem('geriatria_pacientes')) || [];
+      const triagens = JSON.parse(localStorage.getItem('geriatria_triagens')) || [];
+      
+      console.log('Pacientes:', pacientes);
+      console.log('Agendamentos:', agendamentos);
+      console.log('Triagens:', triagens);
+      
+      // Verificar se há agendamentos com triagem
+      agendamentos.forEach(ag => {
+        const triagem = triagens.find(t => 
+          t.agendamentoId === ag.id || 
+          t.pacienteId == ag.pacienteId
+        );
+        console.log(`Agendamento ${ag.id} (${ag.pacienteNome}):`, {
+          status: ag.status,
+          temTriagem: !!triagem,
+          triagem: triagem
+        });
+      });
+      
+      alert('Verifique o console (F12) para ver os resultados do teste.');
     }
     
     // Outras funções (placeholders)
