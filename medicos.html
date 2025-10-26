@@ -645,6 +645,16 @@
       color: var(--gray-light);
     }
     
+    .no-patient-alert {
+      background: #fff3cd;
+      border: 1px solid #ffeaa7;
+      color: #856404;
+      padding: 15px;
+      border-radius: var(--border-radius);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
     @media (max-width: 1200px) {
       .medical-dashboard {
         grid-template-columns: 1fr;
@@ -892,30 +902,251 @@
             </div>
           </div>
           
-          <!-- As outras abas (Medicação, Atestados, Documentos, Agendamento, Exames) permanecem iguais -->
           <!-- Medicação -->
           <div id="medicacao" class="tab-content">
-            <!-- ... conteúdo existente ... -->
+            <div class="tab-header">
+              <h2>Prescrição de Medicação</h2>
+              <div class="tab-actions">
+                <button class="btn" onclick="savePrescription()"><i class="fas fa-save"></i> Salvar Receita</button>
+                <button class="btn" onclick="printPrescription()"><i class="fas fa-print"></i> Imprimir</button>
+              </div>
+            </div>
+            
+            <div id="alertNoPatientMedicacao" class="no-patient-alert" style="display: none;">
+              <i class="fas fa-exclamation-triangle"></i> Nenhum paciente selecionado. Selecione um paciente na aba "Dashboard" para prescrever medicamentos.
+            </div>
+            
+            <div id="medicacaoContent">
+              <div class="medication-container">
+                <div class="medication-form">
+                  <input type="text" id="medName" class="form-control" placeholder="Medicamento" list="medSuggestions">
+                  <datalist id="medSuggestions">
+                    <option value="Losartana 50mg">
+                    <option value="AAS 100mg">
+                    <option value="Sinvastatina 20mg">
+                    <option value="Metformina 850mg">
+                    <option value="Omeprazol 20mg">
+                    <option value="Clopidogrel 75mg">
+                    <option value="Atenolol 50mg">
+                    <option value="Hidroclorotiazida 25mg">
+                  </datalist>
+                  <input type="text" id="medDosage" class="form-control" placeholder="Posologia (ex: 1x ao dia)">
+                  <input type="text" id="medDuration" class="form-control" placeholder="Duração (ex: 30 dias)">
+                  <button type="button" class="btn" onclick="addMedication()"><i class="fas fa-plus"></i> Adicionar</button>
+                </div>
+                
+                <div class="medication-list" id="medicationListContainer">
+                  <!-- Medicamentos aparecerão aqui -->
+                </div>
+              </div>
+            </div>
           </div>
           
           <!-- Atestados -->
           <div id="atestados" class="tab-content">
-            <!-- ... conteúdo existente ... -->
+            <div class="tab-header">
+              <h2>Emitir Atestados</h2>
+              <div class="tab-actions">
+                <button class="btn" onclick="saveCertificate()"><i class="fas fa-save"></i> Salvar</button>
+                <button class="btn" onclick="printCertificate()"><i class="fas fa-print"></i> Imprimir</button>
+              </div>
+            </div>
+            
+            <div id="alertNoPatientAtestado" class="no-patient-alert" style="display: none;">
+              <i class="fas fa-exclamation-triangle"></i> Nenhum paciente selecionado. Selecione um paciente na aba "Dashboard" para emitir atestados.
+            </div>
+            
+            <div id="atestadosContent">
+              <div class="form-group">
+                <label for="certModel">Modelo de Atestado</label>
+                <select id="certModel" class="form-control" onchange="changeCertModel(this.value)">
+                  <option value="">Selecione um modelo</option>
+                  <option value="modelo1">Modelo 1 - Afastamento</option>
+                  <option value="modelo2">Modelo 2 - Aptidão Física</option>
+                  <option value="modelo3">Modelo 3 - Comparecimento</option>
+                  <option value="modelo4">Modelo 4 - Acompanhante</option>
+                </select>
+              </div>
+
+              <div id="certFields">
+                <!-- Campos dinâmicos aparecem aqui -->
+              </div>
+
+              <div class="form-group">
+                <label for="cidSearchAtestado">CID-10 (opcional)</label>
+                <div class="cid-search-container">
+                  <input type="text" id="cidSearchAtestado" class="form-control" placeholder="Digite código CID-10 ou descrição...">
+                  <div id="cidResultsAtestado" class="cid-results"></div>
+                </div>
+                <div id="cidChipsAtestado" class="cid-chips"></div>
+              </div>
+
+              <div class="form-group">
+                <label for="certReason">Texto do Atestado</label>
+                <textarea id="certReason" class="form-control" rows="8" placeholder="O texto do atestado será preenchido automaticamente..."></textarea>
+              </div>
+            </div>
           </div>
           
           <!-- Documentos -->
           <div id="documentos" class="tab-content">
-            <!-- ... conteúdo existente ... -->
+            <div class="tab-header">
+              <h2>Documentos Médicos</h2>
+              <div class="tab-actions">
+                <button class="btn" onclick="newDocument()"><i class="fas fa-plus"></i> Novo Documento</button>
+              </div>
+            </div>
+            
+            <div class="documents-grid">
+              <div class="document-card">
+                <div class="document-icon">
+                  <i class="fas fa-file-prescription"></i>
+                </div>
+                <h3>Receituário</h3>
+                <p>Prescrição de medicamentos controlados e simples</p>
+                <button class="btn" onclick="openDocument('receita')">Abrir</button>
+              </div>
+              
+              <div class="document-card">
+                <div class="document-icon">
+                  <i class="fas fa-file-medical-alt"></i>
+                </div>
+                <h3>Solicitação de Exames</h3>
+                <p>Solicitação de exames laboratoriais e de imagem</p>
+                <button class="btn" onclick="openDocument('exames')">Abrir</button>
+              </div>
+              
+              <div class="document-card">
+                <div class="document-icon">
+                  <i class="fas fa-ambulance"></i>
+                </div>
+                <h3>Encaminhamento</h3>
+                <p>Encaminhamento para especialistas ou serviços de saúde</p>
+                <button class="btn" onclick="openDocument('encaminhamento')">Abrir</button>
+              </div>
+              
+              <div class="document-card">
+                <div class="document-icon">
+                  <i class="fas fa-procedures"></i>
+                </div>
+                <h3>Relatório de Internação</h3>
+                <p>Relatório médico para processos de internação</p>
+                <button class="btn" onclick="openDocument('internacao')">Abrir</button>
+              </div>
+            </div>
           </div>
           
           <!-- Agendamento -->
           <div id="agendamento" class="tab-content">
-            <!-- ... conteúdo existente ... -->
+            <div class="tab-header">
+              <h2>Agendamento de Consultas</h2>
+              <div class="tab-actions">
+                <button class="btn" onclick="newAppointment()"><i class="fas fa-plus"></i> Nova Consulta</button>
+              </div>
+            </div>
+            
+            <div class="calendar-container">
+              <div class="calendar-header">
+                <div class="calendar-nav">
+                  <button onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                </div>
+                <h3 id="currentMonth">Junho 2023</h3>
+                <div class="calendar-nav">
+                  <button onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+                </div>
+              </div>
+              
+              <div class="calendar-grid">
+                <div class="calendar-day">Dom</div>
+                <div class="calendar-day">Seg</div>
+                <div class="calendar-day">Ter</div>
+                <div class="calendar-day">Qua</div>
+                <div class="calendar-day">Qui</div>
+                <div class="calendar-day">Sex</div>
+                <div class="calendar-day">Sáb</div>
+              </div>
+              
+              <div id="calendarDates" class="calendar-dates">
+                <!-- Datas serão inseridas aqui pelo JavaScript -->
+              </div>
+            </div>
+            
+            <div class="appointment-list">
+              <h3 style="margin-bottom: 20px;">Consultas Agendadas</h3>
+              
+              <div class="appointment-item">
+                <div class="appointment-info">
+                  <h4>Maria Silva</h4>
+                  <p>Consulta de rotina - Geriatria</p>
+                </div>
+                <div class="appointment-time">
+                  10:00 - 10:40
+                </div>
+                <div class="appointment-status status-confirmed">
+                  Confirmada
+                </div>
+              </div>
+              
+              <div class="appointment-item">
+                <div class="appointment-info">
+                  <h4>João Santos</h4>
+                  <p>Avaliação de memória</p>
+                </div>
+                <div class="appointment-time">
+                  14:30 - 15:15
+                </div>
+                <div class="appointment-status status-scheduled">
+                  Agendada
+                </div>
+              </div>
+            </div>
           </div>
           
           <!-- Solicitar Exames -->
           <div id="exames" class="tab-content">
-            <!-- ... conteúdo existente ... -->
+            <div class="tab-header">
+              <h2>Solicitação de Exames</h2>
+              <div class="tab-actions">
+                <button class="btn" onclick="saveExams()"><i class="fas fa-save"></i> Salvar</button>
+                <button class="btn" onclick="printExams()"><i class="fas fa-print"></i> Imprimir</button>
+              </div>
+            </div>
+            
+            <div id="alertNoPatientExames" class="no-patient-alert" style="display: none;">
+              <i class="fas fa-exclamation-triangle"></i> Nenhum paciente selecionado. Selecione um paciente na aba "Dashboard" para solicitar exames.
+            </div>
+            
+            <div id="examesContent">
+              <div class="form-group">
+                <label for="examType">Tipo de Exame</label>
+                <select id="examType" class="form-control">
+                  <option value="laboratorial">Laboratorial</option>
+                  <option value="imagem">Imagem</option>
+                  <option value="funcional">Funcional</option>
+                  <option value="outros">Outros</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="examInput">Exames Solicitados</label>
+                <div style="display: flex; gap: 10px;">
+                  <input type="text" id="examInput" class="form-control" placeholder="Ex: Hemograma completo, Glicemia...">
+                  <button type="button" class="btn" onclick="addExam()"><i class="fas fa-plus"></i> Adicionar</button>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label>Exames Selecionados</label>
+                <ul id="examList" style="background: var(--light); padding: 15px; border-radius: var(--border-radius);">
+                  <!-- Exames aparecerão aqui -->
+                </ul>
+              </div>
+              
+              <div class="form-group">
+                <label for="examInstructions">Instruções Especiais</label>
+                <textarea id="examInstructions" class="form-control" rows="3" placeholder="Instruções para preparo ou realização dos exames..."></textarea>
+              </div>
+            </div>
           </div>
 
           <!-- Painel de Debug -->
@@ -973,6 +1204,35 @@
       { code: "Z00", description: "Exame geral de rotina" }
     ];
     
+    // Modelos de atestado
+    const certModels = {
+      modelo1: `ATESTADO MÉDICO
+
+Atesto, para os devidos fins, que o(a) paciente {{nome}}, portador(a) do CPF {{cpf}}, foi atendido(a) nesta data, apresentando condição clínica que justifica afastamento das atividades habituais por {{dias}} dias, a contar de hoje.
+
+{{cid}}
+Recomendado repouso e acompanhamento clínico.
+Retorno conforme evolução.`,
+
+      modelo2: `ATESTADO DE APTIDÃO FÍSICA
+
+Atesto, para os devidos fins, que o(a) paciente {{nome}}, portador(a) do CPF {{cpf}}, foi avaliado(a) em consulta médica, não apresentando contraindicações aparentes à prática de atividades físicas de forma orientada.
+
+Recomenda-se acompanhamento periódico e observar sinais e sintomas durante o exercício.`,
+
+      modelo3: `ATESTADO DE COMPARECIMENTO
+
+Atesto que o(a) paciente {{nome}}, portador(a) do CPF {{cpf}}, esteve em atendimento médico nesta unidade no dia {{data}} das {{horaInicio}} às {{horaFim}}.
+
+Recomenda-se abono de falta conforme legislação vigente.`,
+
+      modelo4: `ATESTADO PARA ACOMPANHANTE
+
+Atesto, para os devidos fins, que {{acompanhante}} acompanhou o(a) paciente {{nome}}, portador(a) do CPF {{cpf}}, em atendimento médico nesta data, sendo necessária sua presença durante o período.
+
+Sugiro o abono da ausência conforme normas institucionais.`
+    };
+    
     // Login
     function loginMed() {
       const user = document.getElementById('med-user').value;
@@ -1011,9 +1271,15 @@
           const tabId = this.getAttribute('data-tab');
           document.getElementById(tabId).classList.add('active');
           
-          // Se for a aba de evolução, verificar se há paciente selecionado
+          // Verificar se há paciente selecionado nas abas que precisam
           if (tabId === 'evolucao') {
-            verificarPacienteSelecionado();
+            verificarPacienteSelecionadoEvolucao();
+          } else if (tabId === 'medicacao') {
+            verificarPacienteSelecionadoMedicacao();
+          } else if (tabId === 'atestados') {
+            verificarPacienteSelecionadoAtestados();
+          } else if (tabId === 'exames') {
+            verificarPacienteSelecionadoExames();
           }
         });
       });
@@ -1256,8 +1522,8 @@
       evolText.innerHTML = triagemHTML + evolText.innerHTML;
     }
     
-    // Verificar se há paciente selecionado na aba de evolução
-    function verificarPacienteSelecionado() {
+    // Verificar se há paciente selecionado nas diferentes abas
+    function verificarPacienteSelecionadoEvolucao() {
       if (!currentAppointment) {
         document.getElementById('alertNoPatient').style.display = 'block';
         document.getElementById('finalizationCard').style.display = 'none';
@@ -1266,6 +1532,36 @@
         document.getElementById('alertNoPatient').style.display = 'none';
         document.getElementById('finalizationCard').style.display = 'block';
         document.getElementById('pacienteInfoEvolucao').style.display = 'block';
+      }
+    }
+    
+    function verificarPacienteSelecionadoMedicacao() {
+      if (!currentAppointment) {
+        document.getElementById('alertNoPatientMedicacao').style.display = 'block';
+        document.getElementById('medicacaoContent').style.display = 'none';
+      } else {
+        document.getElementById('alertNoPatientMedicacao').style.display = 'none';
+        document.getElementById('medicacaoContent').style.display = 'block';
+      }
+    }
+    
+    function verificarPacienteSelecionadoAtestados() {
+      if (!currentAppointment) {
+        document.getElementById('alertNoPatientAtestado').style.display = 'block';
+        document.getElementById('atestadosContent').style.display = 'none';
+      } else {
+        document.getElementById('alertNoPatientAtestado').style.display = 'none';
+        document.getElementById('atestadosContent').style.display = 'block';
+      }
+    }
+    
+    function verificarPacienteSelecionadoExames() {
+      if (!currentAppointment) {
+        document.getElementById('alertNoPatientExames').style.display = 'block';
+        document.getElementById('examesContent').style.display = 'none';
+      } else {
+        document.getElementById('alertNoPatientExames').style.display = 'none';
+        document.getElementById('examesContent').style.display = 'block';
       }
     }
     
@@ -1390,9 +1686,9 @@
     function verDetalhesAgendamento(agendamentoId) {
       showAlert('Funcionalidade de detalhes em desenvolvimento', 'success');
     }
-    
-    // ===== FUNÇÕES EXISTENTES (mantidas para compatibilidade) =====
-    
+
+    // ===== FUNÇÕES EXISTENTES DAS OUTRAS ABAS =====
+
     // Busca de CID para evolução
     function initCIDSearch() {
       const cidSearch = document.getElementById('cidSearch');
@@ -1477,6 +1773,462 @@
       document.getElementById('evolText').focus();
     }
     
+    // Sistema de medicamentos
+    function addMedication() {
+      const name = document.getElementById('medName').value;
+      const dosage = document.getElementById('medDosage').value;
+      const duration = document.getElementById('medDuration').value;
+      
+      if (name && dosage) {
+        medications.push({ name, dosage, duration });
+        renderMedications();
+        document.getElementById('medName').value = '';
+        document.getElementById('medDosage').value = '';
+        document.getElementById('medDuration').value = '';
+      } else {
+        alert('Preencha pelo menos o nome e a posologia do medicamento.');
+      }
+    }
+    
+    function renderMedications() {
+      const container = document.getElementById('medicationListContainer');
+      container.innerHTML = '';
+      
+      medications.forEach((med, index) => {
+        const medItem = document.createElement('div');
+        medItem.className = 'medication-item';
+        medItem.innerHTML = `
+          <div><strong>${med.name}</strong></div>
+          <div>${med.dosage}</div>
+          <div>${med.duration}</div>
+          <div class="medication-actions">
+            <button onclick="removeMedication(${index})"><i class="fas fa-trash"></i></button>
+          </div>
+        `;
+        container.appendChild(medItem);
+      });
+    }
+    
+    function removeMedication(index) {
+      medications.splice(index, 1);
+      renderMedications();
+    }
+    
+    function savePrescription() {
+      if (medications.length === 0) {
+        alert('Adicione pelo menos um medicamento antes de salvar.');
+        return;
+      }
+      
+      const patientName = currentAppointment ? currentAppointment.pacienteNome : 'Paciente';
+      const patientCPF = currentAppointment ? currentAppointment.pacienteCPF : 'Não informado';
+      
+      const prescription = {
+        patient: patientName,
+        patientCPF: patientCPF,
+        medications: medications,
+        date: new Date().toISOString(),
+        doctor: "Dr. Silva"
+      };
+      
+      localStorage.setItem('lastPrescription', JSON.stringify(prescription));
+      showAlert('Receita salva com sucesso!', 'success');
+    }
+    
+    function printPrescription() {
+      if (medications.length === 0) {
+        alert('Adicione pelo menos um medicamento antes de imprimir.');
+        return;
+      }
+      
+      const patientName = currentAppointment ? currentAppointment.pacienteNome : 'Paciente';
+      const patientCPF = currentAppointment ? formatCPF(currentAppointment.pacienteCPF) : 'Não informado';
+
+      const printContent = `
+        <div style="padding: 20px; font-family: Arial;">
+          <h2>Receita Médica - Geriatria 360</h2>
+          <p><strong>Paciente:</strong> ${patientName}</p>
+          <p><strong>CPF:</strong> ${patientCPF}</p>
+          <p><strong>Data:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
+          <hr>
+          <h3>Medicações Prescritas:</h3>
+          <ul>
+            ${medications.map(med => 
+              `<li><strong>${med.name}</strong> - ${med.dosage} - ${med.duration}</li>`
+            ).join('')}
+          </ul>
+          <br><br>
+          <p>________________________________</p>
+          <p><strong>Dr. Silva</strong><br>CRM: 123456</p>
+        </div>
+      `;
+      
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.print();
+    }
+    
+    // Sistema de exames
+    function addExam() {
+      const examInput = document.getElementById('examInput');
+      const examValue = examInput.value.trim();
+      
+      if (examValue) {
+        exams.push(examValue);
+        renderExams();
+        examInput.value = '';
+      } else {
+        alert('Digite um exame para adicionar.');
+      }
+    }
+    
+    function renderExams() {
+      const examList = document.getElementById('examList');
+      examList.innerHTML = '';
+      
+      exams.forEach((exam, index) => {
+        const li = document.createElement('li');
+        li.style.cssText = 'display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--gray-light);';
+        li.innerHTML = `
+          <span>${exam}</span>
+          <button style="background: none; border: none; color: var(--danger); cursor: pointer;" onclick="removeExam(${index})">
+            <i class="fas fa-times"></i>
+          </button>
+        `;
+        examList.appendChild(li);
+      });
+    }
+    
+    function removeExam(index) {
+      exams.splice(index, 1);
+      renderExams();
+    }
+    
+    function saveExams() {
+      if (exams.length === 0) {
+        alert('Adicione pelo menos um exame antes de salvar.');
+        return;
+      }
+      
+      const patientName = currentAppointment ? currentAppointment.pacienteNome : 'Paciente';
+      const patientCPF = currentAppointment ? currentAppointment.pacienteCPF : 'Não informado';
+
+      const examData = {
+        patient: patientName,
+        patientCPF: patientCPF,
+        exams: exams,
+        date: new Date().toISOString(),
+        instructions: document.getElementById('examInstructions').value
+      };
+      
+      localStorage.setItem('lastExams', JSON.stringify(examData));
+      showAlert('Solicitação de exames salva com sucesso!', 'success');
+    }
+    
+    function printExams() {
+      if (exams.length === 0) {
+        alert('Adicione pelo menos um exame antes de imprimir.');
+        return;
+      }
+      
+      const patientName = currentAppointment ? currentAppointment.pacienteNome : 'Paciente';
+      const patientCPF = currentAppointment ? formatCPF(currentAppointment.pacienteCPF) : 'Não informado';
+      const instructions = document.getElementById('examInstructions').value;
+      
+      const printContent = `
+        <div style="padding: 20px; font-family: Arial;">
+          <h2>Solicitação de Exames - Geriatria 360</h2>
+          <p><strong>Paciente:</strong> ${patientName}</p>
+          <p><strong>CPF:</strong> ${patientCPF}</p>
+          <p><strong>Data:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
+          <hr>
+          <h3>Exames Solicitados:</h3>
+          <ul>
+            ${exams.map(exam => `<li>${exam}</li>`).join('')}
+          </ul>
+          ${instructions ? `<h3>Instruções:</h3><p>${instructions}</p>` : ''}
+          <br><br>
+          <p>________________________________</p>
+          <p><strong>Dr. Silva</strong><br>CRM: 123456</p>
+        </div>
+      `;
+      
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.print();
+    }
+    
+    // Sistema de atestados
+    function changeCertModel(model) {
+      const certReason = document.getElementById('certReason');
+      const certFields = document.getElementById('certFields');
+      
+      // Limpar campos anteriores
+      certFields.innerHTML = '';
+      selectedCidsAtestado = [];
+      updateCIDChipsAtestado();
+      
+      if (model && certModels[model]) {
+        const patientName = currentAppointment ? currentAppointment.pacienteNome : 'Paciente';
+        const patientCPF = currentAppointment ? formatCPF(currentAppointment.pacienteCPF) : 'Não informado';
+
+        // Preencher texto base do modelo com dados automáticos
+        let text = certModels[model];
+        text = text.replace(/{{nome}}/g, patientName);
+        text = text.replace(/{{cpf}}/g, patientCPF);
+        certReason.value = text;
+        
+        // Adicionar campos específicos do modelo
+        switch(model) {
+          case 'modelo1':
+            certFields.innerHTML = `
+              <div class="cert-field-group">
+                <div class="form-group">
+                  <label>Nome do Paciente</label>
+                  <input type="text" class="form-control" value="${patientName}" readonly style="background-color: #f8f9fa;">
+                </div>
+                <div class="form-group">
+                  <label>CPF</label>
+                  <input type="text" class="form-control" value="${patientCPF}" readonly style="background-color: #f8f9fa;">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="certDias">Dias de Afastamento</label>
+                <input type="number" id="certDias" class="form-control" min="1" value="3" onchange="updateCertText()">
+              </div>
+            `;
+            break;
+            
+          case 'modelo2':
+            certFields.innerHTML = `
+              <div class="form-group">
+                <label>Nome do Paciente</label>
+                <input type="text" class="form-control" value="${patientName}" readonly style="background-color: #f8f9fa;">
+              </div>
+              <div class="form-group">
+                <label>CPF</label>
+                <input type="text" class="form-control" value="${patientCPF}" readonly style="background-color: #f8f9fa;">
+              </div>
+            `;
+            break;
+            
+          case 'modelo3':
+            const today = new Date().toISOString().split('T')[0];
+            certFields.innerHTML = `
+              <div class="cert-field-group">
+                <div class="form-group">
+                  <label>Nome do Paciente</label>
+                  <input type="text" class="form-control" value="${patientName}" readonly style="background-color: #f8f9fa;">
+                </div>
+                <div class="form-group">
+                  <label>CPF</label>
+                  <input type="text" class="form-control" value="${patientCPF}" readonly style="background-color: #f8f9fa;">
+                </div>
+              </div>
+              <div class="cert-field-group">
+                <div class="form-group">
+                  <label for="certData">Data do Atendimento</label>
+                  <input type="date" id="certData" class="form-control" value="${today}" onchange="updateCertText()">
+                </div>
+                <div class="form-group">
+                  <label for="certHoraInicio">Hora Início</label>
+                  <input type="time" id="certHoraInicio" class="form-control" value="09:00" onchange="updateCertText()">
+                </div>
+                <div class="form-group">
+                  <label for="certHoraFim">Hora Fim</label>
+                  <input type="time" id="certHoraFim" class="form-control" value="10:00" onchange="updateCertText()">
+                </div>
+              </div>
+            `;
+            break;
+            
+          case 'modelo4':
+            certFields.innerHTML = `
+              <div class="cert-field-group">
+                <div class="form-group">
+                  <label>Nome do Paciente</label>
+                  <input type="text" class="form-control" value="${patientName}" readonly style="background-color: #f8f9fa;">
+                </div>
+                <div class="form-group">
+                  <label>CPF</label>
+                  <input type="text" class="form-control" value="${patientCPF}" readonly style="background-color: #f8f9fa;">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="certAcompanhante">Nome do Acompanhante</label>
+                <input type="text" id="certAcompanhante" class="form-control" placeholder="Nome do acompanhante" onchange="updateCertText()">
+              </div>
+            `;
+            break;
+        }
+        
+        // Inicializar busca de CID para este modelo
+        initCIDSearchAtestado();
+      }
+    }
+
+    function updateCertText() {
+      const model = document.getElementById('certModel').value;
+      if (!model) return;
+
+      const patientName = currentAppointment ? currentAppointment.pacienteNome : 'Paciente';
+      const patientCPF = currentAppointment ? formatCPF(currentAppointment.pacienteCPF) : 'Não informado';
+
+      let text = certModels[model];
+      text = text.replace(/{{nome}}/g, patientName);
+      text = text.replace(/{{cpf}}/g, patientCPF);
+
+      switch(model) {
+        case 'modelo1':
+          const dias = document.getElementById('certDias') ? document.getElementById('certDias').value : '3';
+          text = text.replace(/{{dias}}/g, dias);
+          break;
+        case 'modelo3':
+          const data = document.getElementById('certData') ? document.getElementById('certData').value : new Date().toISOString().split('T')[0];
+          const horaInicio = document.getElementById('certHoraInicio') ? document.getElementById('certHoraInicio').value : '09:00';
+          const horaFim = document.getElementById('certHoraFim') ? document.getElementById('certHoraFim').value : '10:00';
+          const dataFormatada = data ? new Date(data).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR');
+          text = text.replace(/{{data}}/g, dataFormatada);
+          text = text.replace(/{{horaInicio}}/g, horaInicio);
+          text = text.replace(/{{horaFim}}/g, horaFim);
+          break;
+        case 'modelo4':
+          const acompanhante = document.getElementById('certAcompanhante') ? document.getElementById('certAcompanhante').value : '';
+          text = text.replace(/{{acompanhante}}/g, acompanhante);
+          break;
+      }
+
+      // Adicionar CIDs se houver
+      if (selectedCidsAtestado.length > 0) {
+        const cids = selectedCidsAtestado.map(cid => `${cid.code} - ${cid.description}`).join(', ');
+        text = text.replace(/{{cid}}/g, `\nCID: ${cids}`);
+      } else {
+        text = text.replace(/{{cid}}/g, '');
+      }
+
+      document.getElementById('certReason').value = text;
+    }
+    
+    // Sistema de CID-10 para atestado
+    function initCIDSearchAtestado() {
+      const cidSearch = document.getElementById('cidSearchAtestado');
+      const cidResults = document.getElementById('cidResultsAtestado');
+      
+      if (!cidSearch) return;
+      
+      cidSearch.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        
+        if (query.length < 2) {
+          cidResults.style.display = 'none';
+          return;
+        }
+        
+        const filtered = cidData.filter(item => 
+          item.code.toLowerCase().includes(query) || 
+          item.description.toLowerCase().includes(query)
+        );
+        
+        displayCIDResultsAtestado(filtered);
+      });
+      
+      document.addEventListener('click', function(e) {
+        if (!cidSearch.contains(e.target) && !cidResults.contains(e.target)) {
+          cidResults.style.display = 'none';
+        }
+      });
+    }
+    
+    function displayCIDResultsAtestado(results) {
+      const cidResults = document.getElementById('cidResultsAtestado');
+      cidResults.innerHTML = '';
+      
+      if (results.length === 0) {
+        cidResults.innerHTML = '<div class="cid-result">Nenhum CID encontrado</div>';
+      } else {
+        results.slice(0, 10).forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'cid-result';
+          div.innerHTML = `<strong>${item.code}</strong> - ${item.description}`;
+          div.addEventListener('click', () => selectCIDAtestado(item));
+          cidResults.appendChild(div);
+        });
+      }
+      
+      cidResults.style.display = 'block';
+    }
+    
+    function selectCIDAtestado(cid) {
+      if (!selectedCidsAtestado.find(item => item.code === cid.code)) {
+        selectedCidsAtestado.push(cid);
+        updateCIDChipsAtestado();
+        updateCertText();
+      }
+      
+      document.getElementById('cidSearchAtestado').value = '';
+      document.getElementById('cidResultsAtestado').style.display = 'none';
+    }
+    
+    function updateCIDChipsAtestado() {
+      const container = document.getElementById('cidChipsAtestado');
+      container.innerHTML = '';
+      
+      selectedCidsAtestado.forEach(cid => {
+        const chip = document.createElement('div');
+        chip.className = 'cid-chip';
+        chip.innerHTML = `
+          ${cid.code} - ${cid.description}
+          <button onclick="removeCIDAtestado('${cid.code}')"><i class="fas fa-times"></i></button>
+        `;
+        container.appendChild(chip);
+      });
+    }
+    
+    function removeCIDAtestado(code) {
+      selectedCidsAtestado = selectedCidsAtestado.filter(item => item.code !== code);
+      updateCIDChipsAtestado();
+      updateCertText();
+    }
+    
+    function saveCertificate() {
+      const certText = document.getElementById('certReason').value;
+      if (!certText) {
+        alert('Selecione um modelo de atestado primeiro.');
+        return;
+      }
+      
+      localStorage.setItem('lastCertificate', certText);
+      showAlert('Atestado salvo com sucesso!', 'success');
+    }
+    
+    function printCertificate() {
+      const certText = document.getElementById('certReason').value;
+      if (!certText) {
+        alert('Selecione um modelo de atestado primeiro.');
+        return;
+      }
+      
+      const printContent = `
+        <div style="padding: 30px; font-family: Arial; line-height: 1.6;">
+          <div style="white-space: pre-wrap; font-size: 14px;">${certText}</div>
+          <br><br><br>
+          <div style="margin-top: 50px; text-align: center;">
+            <p>_________________________________________</p>
+            <p><strong>Dr. Silva</strong></p>
+            <p>CRM: 123456</p>
+            <p>Geriatria 360</p>
+          </div>
+        </div>
+      `;
+      
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.print();
+    }
+    
     // Calendário
     let currentDate = new Date();
     
@@ -1485,12 +2237,61 @@
     }
     
     function updateCalendar() {
-      // Implementação do calendário (mantida do código original)
+      const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+                         "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+      
+      document.getElementById('currentMonth').textContent = 
+        `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+      
+      const calendarDates = document.getElementById('calendarDates');
+      calendarDates.innerHTML = '';
+      
+      const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+      
+      // Dias vazios no início
+      for (let i = 0; i < firstDay.getDay(); i++) {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'calendar-date';
+        calendarDates.appendChild(emptyDiv);
+      }
+      
+      // Dias do mês
+      for (let i = 1; i <= lastDay.getDate(); i++) {
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'calendar-date';
+        dateDiv.textContent = i;
+        
+        // Marcar data atual
+        const today = new Date();
+        if (i === today.getDate() && 
+            currentDate.getMonth() === today.getMonth() && 
+            currentDate.getFullYear() === today.getFullYear()) {
+          dateDiv.classList.add('today');
+        }
+        
+        dateDiv.addEventListener('click', () => selectDate(i));
+        calendarDates.appendChild(dateDiv);
+      }
     }
     
     function changeMonth(direction) {
       currentDate.setMonth(currentDate.getMonth() + direction);
       updateCalendar();
+    }
+    
+    function selectDate(day) {
+      // Remover seleção anterior
+      document.querySelectorAll('.calendar-date.selected').forEach(el => {
+        el.classList.remove('selected');
+      });
+      
+      // Adicionar seleção atual
+      const dates = document.querySelectorAll('.calendar-date');
+      const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
+      dates[firstDay + day - 1].classList.add('selected');
+      
+      alert(`Data selecionada: ${day}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`);
     }
     
     // Funções de debug
@@ -1526,6 +2327,18 @@
     
     function generateAIReport() {
       showAlert('Laudo gerado pela IA com base nas informações fornecidas!', 'success');
+    }
+    
+    function newDocument() {
+      alert('Criando novo documento médico...');
+    }
+    
+    function openDocument(type) {
+      alert(`Abrindo documento: ${type}`);
+    }
+    
+    function newAppointment() {
+      alert('Abrindo formulário para novo agendamento...');
     }
   </script>
 </body>
