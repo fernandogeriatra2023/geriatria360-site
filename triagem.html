@@ -457,7 +457,7 @@
           <td>${new Date(agendamento.data).toLocaleDateString('pt-BR')} às ${agendamento.hora}</td>
           <td><span class="status-badge status-agendado">Aguardando Triagem</span></td>
           <td>
-            <button onclick="iniciarTriagem(${agendamento.id})" class="btn">
+            <button onclick="iniciarTriagem('${agendamento.id}')" class="btn">
               <i class="fas fa-play"></i> Iniciar Triagem
             </button>
           </td>
@@ -546,9 +546,11 @@
       
       // Criar registro de triagem
       const triagem = {
-        id: Date.now(),
+        id: 'trg-' + Date.now(),
         agendamentoId: pacienteAtual.agendamentoId,
         pacienteId: pacienteAtual.pacienteId,
+        pacienteNome: pacienteAtual.nome,
+        pacienteCPF: pacienteAtual.cpf,
         dataTriagem: new Date().toISOString(),
         pressaoSistolica: document.getElementById('pressaoSistolica').value,
         pressaoDiastolica: document.getElementById('pressaoDiastolica').value,
@@ -568,14 +570,15 @@
       triagens.push(triagem);
       localStorage.setItem('geriatria_triagens', JSON.stringify(triagens));
       
-      // Atualizar status do agendamento para "pronto"
+      // MANTER status como 'agendado' para a área médica funcionar
+      // A área médica espera 'agendado' para mostrar "Iniciar"
       const agendamentoIndex = agendamentos.findIndex(a => a.id === pacienteAtual.agendamentoId);
       if (agendamentoIndex !== -1) {
-        agendamentos[agendamentoIndex].status = 'pronto';
+        agendamentos[agendamentoIndex].status = 'agendado'; 
         localStorage.setItem('geriatria_agendamentos', JSON.stringify(agendamentos));
       }
       
-      alert('Triagem finalizada com sucesso! Paciente encaminhado para o médico.');
+      alert('Triagem finalizada com sucesso! Paciente está pronto para atendimento médico.');
       
       // Limpar formulário
       this.reset();
