@@ -6,6 +6,368 @@
   <title>Área Médica — Geriatria 360</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    // Modelos de atestado
+const certModels = {
+  modelo1: `ATESTADO MÉDICO
+
+Atesto, para os devidos fins, que o(a) paciente {{nome}} foi atendido(a) nesta data, apresentando condição clínica que justifica afastamento das atividades habituais por {{dias}} dias, a contar de hoje.
+
+{{cid}}
+Recomendado repouso e acompanhamento clínico.
+Retorno conforme evolução.`,
+
+  modelo2: `ATESTADO DE APTIDÃO FÍSICA
+
+Atesto, para os devidos fins, que o(a) paciente {{nome}} foi avaliado(a) em consulta médica, não apresentando contraindicações aparentes à prática de atividades físicas de forma orientada.
+
+Recomenda-se acompanhamento periódico e observar sinais e sintomas durante o exercício.`,
+
+  modelo3: `ATESTADO DE COMPARECIMENTO
+
+Atesto que o(a) paciente {{nome}} esteve em atendimento médico nesta unidade no dia {{data}} das {{horaInicio}} às {{horaFim}}.
+
+Recomenda-se abono de falta conforme legislação vigente.`,
+
+  modelo4: `ATESTADO PARA ACOMPANHANTE
+
+Atesto, para os devidos fins, que {{acompanhante}} acompanhou o(a) paciente {{nome}} em atendimento médico nesta data, sendo necessária sua presença durante o período.
+
+Sugiro o abono da ausência conforme normas institucionais.`
+};
+
+// CID-10 para atestado
+let selectedCidsAtestado = [];
+
+function changeCertModel(model) {
+  const certReason = document.getElementById('certReason');
+  const certFields = document.getElementById('certFields');
+  
+  certFields.innerHTML = '';
+  selectedCidsAtestado = [];
+  updateCIDChipsAtestado();
+  
+  if (model && certModels[model]) {
+    certReason.value = certModels[model];
+    
+    switch(model) {
+      case 'modelo1':
+        certFields.innerHTML = `
+          <div class="cert-field-group">
+            <div class="form-group">
+              <label for="certNome">Nome do Paciente</label>
+              <input type="text" id="certNome" class="form-control" placeholder="Nome completo ou iniciais">
+            </div>
+            <div class="form-group">
+              <label for="certDias">Dias de Afastamento</label>
+              <input type="number" id="certDias" class="form-control" min="1" value="3">
+            </div>
+          </div>
+        `;
+        break;
+        
+      case 'modelo2':
+        certFields.innerHTML = `
+          <div class="form-group">
+            <label for="certNome">Nome do Paciente</label>
+            <input type="text" id="certNome" class="form-control" placeholder="Nome completo ou iniciais">
+          </div>
+        `;
+        break;
+        
+      case 'modelo3':
+        const today = new Date().toISOString().split('T')[0];
+        certFields.innerHTML = `
+          <div class="cert-field-group">
+            <div class="form-group">
+              <label for="certNome">Nome do Paciente</label>
+              <input type="text" id="certNome" class="form-control" placeholder="Nome completo ou iniciais">
+            </div>
+            <div class="form-group">
+              <label for="certData">Data do Atendimento</label>
+              <input type="date" id="certData" class="form-control" value="${today}">
+            </div>
+          </div>
+          <div class="cert-field-group">
+            <div class="form-group">
+              <label for="certHoraInicio">Hora Início</label>
+              <input type="time" id="certHoraInicio" class="form-control" value="09:00">
+            </div>
+            <div class="form-group">
+              <label for="certHoraFim">Hora Fim</label>
+              <input type="time" id="certHoraFim" class="form-control" value="10:00">
+            </div>
+          </div>
+        `;
+        break;
+        
+      case 'modelo4':
+        certFields.innerHTML = `
+          <div class="cert-field-group">
+            <div class="form-group">
+              <label for="certNome">Nome do Paciente</label>
+              <input type="text" id="certNome" class="form-control" placeholder="Nome do paciente">
+            </div>
+            <div class="form-group">
+              <label for="certAcompanhante">Nome do Acompanhante</label>
+              <input type="text" id="certAcompanhante" class="form-control" placeholder="Nome do acompanhante">
+            </div>
+          </div>
+        `;
+        break;
+    }
+    
+    initCIDSearchAtestado();
+  }
+}
+
+function initCIDSearchAtestado() {
+  const cidSearch = document.getElementById('cidSearchAtestado');
+  const cidResults = document.getElementById('cidResultsAtestado');
+  
+  if (!cidSearch) return;
+  
+  cidSearch.addEventListener('input', function() {
+    const query = this.value.toLowerCase();
+    
+    if (query.length < 2) {
+      cidResults.style.display = 'none';
+      return;
+    }
+    
+    const filtered = cidData.filter(item => 
+      item.code.toLowerCase().includes(query) || 
+      item.description.toLowerCase().includes(query)
+    );
+    
+    displayCIDResultsAtestado(filtered);
+  });
+  
+  document.addEventListener('click', function(e) {
+    if (!cidSearch.contains(e.target) && !cidResults.contains(e.target)) {
+      cidResults.style.display = 'none';
+    }
+  });
+}
+
+function displayCIDResultsAtestado(results) {
+  const cidResults = document.getElementById('cidResultsAtestado');
+  cidResults.innerHTML = '';
+  
+  if (results.length === 0) {
+    cidResults.innerHTML = '<div class="cid-result">Nenhum CID encontrado</div>';
+  } else {
+    results.slice(0, 10).forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'cid-result';
+      div.innerHTML = `<strong>${item.code}</strong> - ${item.description}`;
+      div.addEventListener('click', () => selectCIDAtestado(item));
+      cidResults.appendChild(div);
+    });
+  }
+  
+  cidResults.style.display = 'block';
+}
+
+function selectCIDAtestado(cid) {
+  if (!selectedCidsAtestado.find(item => item.code === cid.code)) {
+    selectedCidsAtestado.push(cid);
+    updateCIDChipsAtestado();
+    updateCertTextWithCID();
+  }
+  
+  document.getElementById('cidSearchAtestado').value = '';
+  document.getElementById('cidResultsAtestado').style.display = 'none';
+}
+
+function updateCIDChipsAtestado() {
+  const container = document.getElementById('cidChipsAtestado');
+  container.innerHTML = '';
+  
+  selectedCidsAtestado.forEach(cid => {
+    const chip = document.createElement('div');
+    chip.className = 'cid-chip';
+    chip.innerHTML = `
+      ${cid.code} - ${cid.description}
+      <button onclick="removeCIDAtestado('${cid.code}')"><i class="fas fa-times"></i></button>
+    `;
+    container.appendChild(chip);
+  });
+}
+
+function removeCIDAtestado(code) {
+  selectedCidsAtestado = selectedCidsAtestado.filter(item => item.code !== code);
+  updateCIDChipsAtestado();
+  updateCertTextWithCID();
+}
+
+function updateCertTextWithCID() {
+  const certReason = document.getElementById('certReason');
+  let text = certReason.value;
+  
+  text = text.replace(/\nCID: .+$/, '');
+  
+  if (selectedCidsAtestado.length > 0) {
+    const cids = selectedCidsAtestado.map(cid => `${cid.code} - ${cid.description}`).join(', ');
+    text += `\nCID: ${cids}`;
+  }
+  
+  certReason.value = text;
+}
+
+function generateCertText() {
+  const model = document.getElementById('certModel').value;
+  let text = document.getElementById('certReason').value;
+  
+  if (!model) {
+    alert('Selecione um modelo de atestado primeiro.');
+    return null;
+  }
+  
+  const nome = document.getElementById('certNome') ? document.getElementById('certNome').value : '';
+  text = text.replace(/{{nome}}/g, nome);
+  
+  switch(model) {
+    case 'modelo1':
+      const dias = document.getElementById('certDias') ? document.getElementById('certDias').value : '';
+      text = text.replace(/{{dias}}/g, dias);
+      break;
+      
+    case 'modelo3':
+      const data = document.getElementById('certData') ? document.getElementById('certData').value : '';
+      const horaInicio = document.getElementById('certHoraInicio') ? document.getElementById('certHoraInicio').value : '';
+      const horaFim = document.getElementById('certHoraFim') ? document.getElementById('certHoraFim').value : '';
+      
+      const dataFormatada = data ? new Date(data).toLocaleDateString('pt-BR') : '';
+      
+      text = text.replace(/{{data}}/g, dataFormatada);
+      text = text.replace(/{{horaInicio}}/g, horaInicio);
+      text = text.replace(/{{horaFim}}/g, horaFim);
+      break;
+      
+    case 'modelo4':
+      const acompanhante = document.getElementById('certAcompanhante') ? document.getElementById('certAcompanhante').value : '';
+      text = text.replace(/{{acompanhante}}/g, acompanhante);
+      break;
+  }
+  
+  return text;
+}
+
+function saveCertificate() {
+  const certText = generateCertText();
+  if (certText) {
+    localStorage.setItem('lastCertificate', certText);
+    alert('Atestado salvo com sucesso!');
+  }
+}
+
+function printCertificate() {
+  const certText = generateCertText();
+  if (!certText) return;
+  
+  const printContent = `
+    <div style="padding: 30px; font-family: Arial; line-height: 1.6;">
+      <div style="white-space: pre-wrap; font-size: 14px;">${certText}</div>
+      <br><br><br>
+      <div style="margin-top: 50px; text-align: center;">
+        <p>_________________________________________</p>
+        <p><strong>Dr. Silva</strong></p>
+        <p>CRM: 123456</p>
+        <p>Geriatria 360</p>
+      </div>
+    </div>
+  `;
+  
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(printContent);
+  printWindow.document.close();
+  printWindow.print();
+}
+
+// Base de dados de CID-10 (adicione esta variável se não existir)
+const cidData = [
+  { code: "A00", description: "Cólera" },
+  { code: "A01", description: "Febres tifóide e paratifóide" },
+  { code: "I10", description: "Hipertensão essencial (primária)" },
+  { code: "I11", description: "Doença cardíaca hipertensiva" },
+  { code: "E10", description: "Diabetes mellitus insulinodependente" },
+  { code: "E11", description: "Diabetes mellitus não-insulinodependente" },
+  { code: "F00", description: "Demência na doença de Alzheimer" },
+  { code: "F03", description: "Demência não especificada" },
+  { code: "G20", description: "Doença de Parkinson" },
+  { code: "J45", description: "Asma" },
+  { code: "M19", description: "Outras artroses" },
+  { code: "N18", description: "Doença renal crônica" },
+  { code: "R05", description: "Tosse" },
+  { code: "R53", description: "Mal-estar e fadiga" },
+  { code: "Z00", description: "Exame geral de rotina" }
+];
+   /* Estilos para atestados */
+.cert-field-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.cert-field-full {
+  grid-column: 1 / -1;
+}
+
+.cid-search-container {
+  position: relative;
+}
+
+.cid-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid var(--gray-light);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+  display: none;
+}
+
+.cid-result {
+  padding: 10px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--gray-light);
+}
+
+.cid-result:hover {
+  background: var(--gray-light);
+}
+
+.cid-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.cid-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--primary-light);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.cid-chip button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 0.8rem;
+} 
     :root {
       --primary: #2c5aa0;
       --primary-light: #4a7bc8;
