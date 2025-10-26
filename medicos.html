@@ -509,6 +509,12 @@
       color: var(--danger);
       border: 1px solid #f5b4ab;
     }
+
+    .alert-success {
+      background: #e6f4ea;
+      color: var(--success);
+      border: 1px solid #c8e6c9;
+    }
     
     /* Estilos para atestados */
     .cert-field-group {
@@ -520,6 +526,15 @@
     
     .cert-field-full {
       grid-column: 1 / -1;
+    }
+
+    /* Estilo para o card de finalização */
+    .finalization-card {
+      margin-top: 30px;
+      background: #e8f5e8;
+      border-left: 4px solid var(--success);
+      padding: 20px;
+      border-radius: var(--border-radius);
     }
     
     @media (max-width: 1200px) {
@@ -567,9 +582,8 @@
         
         <nav class="medical-nav">
           <a href="index.html"><i class="fas fa-home"></i> Início</a>
-          <a href="#"><i class="fas fa-calendar-alt"></i> Agenda</a>
-          <a href="#"><i class="fas fa-users"></i> Pacientes</a>
-          <a href="#"><i class="fas fa-chart-bar"></i> Relatórios</a>
+          <a href="recepcao.html"><i class="fas fa-user-injured"></i> Recepção</a>
+          <a href="triagem.html"><i class="fas fa-stethoscope"></i> Triagem</a>
         </nav>
         
         <div class="medical-user">
@@ -605,6 +619,12 @@
     
     <div class="alert alert-error" id="loginError" style="display: none;">
       CRM ou senha incorretos. Tente novamente.
+    </div>
+
+    <div style="text-align: center; margin-top: 20px; padding: 15px; background: #e8f4fd; border-radius: var(--border-radius);">
+      <p><strong>Credenciais de Teste:</strong></p>
+      <p>CRM: <strong>123456</strong></p>
+      <p>Senha: <strong>medico123</strong></p>
     </div>
   </section>
 
@@ -931,12 +951,30 @@
               <textarea id="examInstructions" class="form-control" rows="3" placeholder="Instruções para preparo ou realização dos exames..."></textarea>
             </div>
           </div>
+
+          <!-- Finalizar Atendimento -->
+          <div class="finalization-card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h3 style="color: var(--success); margin-bottom: 5px;">
+                  <i class="fas fa-check-circle"></i> Finalizar Atendimento
+                </h3>
+                <p style="color: var(--gray); margin: 0;">
+                  Ao finalizar, o paciente será marcado como atendido no sistema
+                </p>
+              </div>
+              <button class="btn btn-success" onclick="finalizarAtendimento()" style="font-size: 1.1rem;">
+                <i class="fas fa-flag-checkered"></i> Finalizar Atendimento
+              </button>
+            </div>
+          </div>
         </main>
       </div>
     </div>
   </section>
 
   <script>
+    // ===== SISTEMA PRINCIPAL =====
     // Arrays para armazenar dados
     let medications = [];
     let exams = [];
@@ -954,7 +992,163 @@
       allergies: "Penicilina",
       comorbidities: "Hipertensão, Diabetes"
     };
-    
+
+    // ===== INTEGRAÇÃO COM RECEPÇÃO/TRIAGEM =====
+    let currentAppointment = null;
+
+    // Função para carregar paciente da triagem
+    function loadPatientFromTriagem() {
+        const triagemData = localStorage.getItem('triagem_agendamento');
+        if (triagemData) {
+            const agendamento = JSON.parse(triagemData);
+            
+            // Buscar dados completos do paciente
+            const pacientes = JSON.parse(localStorage.getItem('geriatria_pacientes')) || [];
+            const paciente = pacientes.find(p => p.id == agendamento.pacienteId);
+            
+            if (paciente) {
+                currentAppointment = {
+                    ...agendamento,
+                    paciente: paciente
+                };
+                
+                // Atualizar interface com dados do paciente real
+                updatePatientInterface(paciente, agendamento);
+                
+                // Carregar dados da triagem se existirem
+                loadTriagemData(agendamento.id);
+                
+                // Limpar dados da triagem do localStorage
+                localStorage.removeItem('triagem_agendamento');
+                
+                // Mostrar alerta de sucesso
+                showAlert(`Paciente <strong>${paciente.nome}</strong> carregado da triagem com sucesso!`, 'success');
+            }
+        }
+    }
+
+    // Atualizar interface com dados reais do paciente
+    function updatePatientInterface(paciente, agendamento) {
+        // Atualizar informações do paciente na sidebar
+        document.querySelector('.patient-info h3').textContent = paciente.nome;
+        document.getElementById('patientCPF').textContent = formatCPF(paciente.cpf);
+        
+        // Atualizar avatar
+        const avatar = document.querySelector('.patient-avatar');
+        avatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(paciente.nome)}&background=34a38a&color=fff`;
+        avatar.alt = paciente.nome;
+        
+        // Atualizar detalhes do paciente
+        const idade = calcularIdade(paciente.dataNascimento);
+        const detailItems = document.querySelectorAll('.detail-item');
+        if (detailItems[0]) detailItems[0].querySelector('.detail-value').textContent = `${idade} anos`;
+        if (detailItems[3]) detailItems[3].querySelector('.detail-value').textContent = paciente.alergias || 'Nenhuma registrada';
+        if (detailItems[4]) detailItems[4].querySelector('.detail-value').textContent = paciente.comorbidades || 'Nenhuma registrada';
+        
+        // Atualizar ID do paciente
+        document.querySelector('.patient-info p strong').textContent = `P-${paciente.id}`;
+    }
+
+    // Carregar dados da triagem no prontuário
+    function loadTriagemData(agendamentoId) {
+        const triagens = JSON.parse(localStorage.getItem('geriatria_triagens')) || [];
+        const triagem = triagens.find(t => t.agendamentoId === agendamentoId);
+        
+        if (triagem) {
+            // Adicionar dados da triagem na evolução médica
+            const evolText = document.getElementById('evolText');
+            let triagemHTML = `
+                <div style="background: #e8f4fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid var(--primary);">
+                    <p style="margin: 0 0 10px 0;"><strong>📋 DADOS DA TRIAGEM:</strong></p>
+                    <p style="margin: 5px 0;"><strong>Queixa Principal:</strong> ${triagem.queixaPrincipal}</p>
+                    <p style="margin: 5px 0;"><strong>Sinais Vitais:</strong> PA ${triagem.pressaoSistolica}/${triagem.pressaoDiastolica} | FC ${triagem.batimentosCardiacos} bpm | Temp ${triagem.temperatura}°C | Sat O₂ ${triagem.saturacaoOxigenio}%</p>
+                    <p style="margin: 5px 0;"><strong>Antropometria:</strong> Peso ${triagem.peso}kg | Altura ${triagem.altura}m | IMC ${triagem.imc}</p>
+                    ${triagem.glicemia ? `<p style="margin: 5px 0;"><strong>Glicemia:</strong> ${triagem.glicemia} mg/dL</p>` : ''}
+                    ${triagem.observacoes ? `<p style="margin: 5px 0;"><strong>Observações da Triagem:</strong> ${triagem.observacoes}</p>` : ''}
+                    <p style="margin: 5px 0;"><strong>Prioridade:</strong> <span style="color: ${getPriorityColor(triagem.prioridade)}; font-weight: bold;">${triagem.prioridade.toUpperCase()}</span></p>
+                </div>
+                <hr>
+            `;
+            
+            evolText.innerHTML = triagemHTML + evolText.innerHTML;
+        }
+    }
+
+    // Função auxiliar para obter cor da prioridade
+    function getPriorityColor(prioridade) {
+        switch(prioridade) {
+            case 'alta': return '#e74c3c';
+            case 'media': return '#f39c12';
+            case 'baixa': return '#27ae60';
+            default: return '#6c757d';
+        }
+    }
+
+    // Calcular idade a partir da data de nascimento
+    function calcularIdade(dataNascimento) {
+        const nascimento = new Date(dataNascimento);
+        const hoje = new Date();
+        let idade = hoje.getFullYear() - nascimento.getFullYear();
+        const mes = hoje.getMonth() - nascimento.getMonth();
+        
+        if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+            idade--;
+        }
+        
+        return idade;
+    }
+
+    // Formatar CPF
+    function formatCPF(cpf) {
+        if (!cpf) return '';
+        cpf = cpf.replace(/\D/g, '');
+        return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+
+    // Mostrar alerta
+    function showAlert(message, type = 'success') {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type}`;
+        alertDiv.innerHTML = message;
+        alertDiv.style.position = 'fixed';
+        alertDiv.style.top = '100px';
+        alertDiv.style.right = '20px';
+        alertDiv.style.zIndex = '10000';
+        alertDiv.style.minWidth = '300px';
+        
+        document.body.appendChild(alertDiv);
+        
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
+
+    // Função para finalizar atendimento e atualizar status
+    function finalizarAtendimento() {
+        if (currentAppointment) {
+            const agendamentos = JSON.parse(localStorage.getItem('geriatria_agendamentos')) || [];
+            const agendamentoIndex = agendamentos.findIndex(a => a.id === currentAppointment.id);
+            
+            if (agendamentoIndex !== -1) {
+                agendamentos[agendamentoIndex].status = 'finalizado';
+                localStorage.setItem('geriatria_agendamentos', JSON.stringify(agendamentos));
+            }
+            
+            showAlert('Atendimento finalizado! Status atualizado no sistema.', 'success');
+            currentAppointment = null;
+            
+            // Opcional: Redirecionar para lista de pacientes ou resetar interface
+            setTimeout(() => {
+                if (confirm('Deseja carregar um novo paciente?')) {
+                    window.location.reload();
+                }
+            }, 2000);
+        } else {
+            showAlert('Nenhum paciente em atendimento para finalizar.', 'error');
+        }
+    }
+
+    // ===== SISTEMA ORIGINAL (MANTIDO) =====
     // Base de dados de CID-10
     const cidData = [
       { code: "A00", description: "Cólera" },
@@ -1028,16 +1222,12 @@ Sugiro o abono da ausência conforme normas institucionais.`
         initCIDSearch();
         initCalendar();
         setupTabNavigation();
-        loadPatientData(); // Carrega dados do paciente
+        
+        // CARREGAR PACIENTE DA TRIAGEM (se existir)
+        loadPatientFromTriagem();
       } else {
         document.getElementById('loginError').style.display = 'block';
       }
-    }
-    
-    // Carregar dados do paciente
-    function loadPatientData() {
-      // Em um sistema real, isso viria do banco de dados
-      document.getElementById('patientCPF').textContent = currentPatient.cpf;
     }
     
     // Navegação por abas
@@ -1193,16 +1383,19 @@ Sugiro o abono da ausência conforme normas institucionais.`
         return;
       }
       
+      const patientName = currentAppointment ? currentAppointment.paciente.nome : currentPatient.name;
+      const patientCPF = currentAppointment ? currentAppointment.paciente.cpf : currentPatient.cpf;
+      
       const prescription = {
-        patient: currentPatient.name,
-        patientCPF: currentPatient.cpf,
+        patient: patientName,
+        patientCPF: patientCPF,
         medications: medications,
         date: new Date().toISOString(),
         doctor: "Dr. Silva"
       };
       
       localStorage.setItem('lastPrescription', JSON.stringify(prescription));
-      alert('Receita salva com sucesso!');
+      showAlert('Receita salva com sucesso!', 'success');
     }
     
     function printPrescription() {
@@ -1211,11 +1404,14 @@ Sugiro o abono da ausência conforme normas institucionais.`
         return;
       }
       
+      const patientName = currentAppointment ? currentAppointment.paciente.nome : currentPatient.name;
+      const patientCPF = currentAppointment ? formatCPF(currentAppointment.paciente.cpf) : currentPatient.cpf;
+
       const printContent = `
         <div style="padding: 20px; font-family: Arial;">
           <h2>Receita Médica - Geriatria 360</h2>
-          <p><strong>Paciente:</strong> ${currentPatient.name}</p>
-          <p><strong>CPF:</strong> ${currentPatient.cpf}</p>
+          <p><strong>Paciente:</strong> ${patientName}</p>
+          <p><strong>CPF:</strong> ${patientCPF}</p>
           <p><strong>Data:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
           <hr>
           <h3>Medicações Prescritas:</h3>
@@ -1278,16 +1474,19 @@ Sugiro o abono da ausência conforme normas institucionais.`
         return;
       }
       
+      const patientName = currentAppointment ? currentAppointment.paciente.nome : currentPatient.name;
+      const patientCPF = currentAppointment ? currentAppointment.paciente.cpf : currentPatient.cpf;
+
       const examData = {
-        patient: currentPatient.name,
-        patientCPF: currentPatient.cpf,
+        patient: patientName,
+        patientCPF: patientCPF,
         exams: exams,
         date: new Date().toISOString(),
         instructions: document.getElementById('examInstructions').value
       };
       
       localStorage.setItem('lastExams', JSON.stringify(examData));
-      alert('Solicitação de exames salva com sucesso!');
+      showAlert('Solicitação de exames salva com sucesso!', 'success');
     }
     
     function printExams() {
@@ -1296,13 +1495,15 @@ Sugiro o abono da ausência conforme normas institucionais.`
         return;
       }
       
+      const patientName = currentAppointment ? currentAppointment.paciente.nome : currentPatient.name;
+      const patientCPF = currentAppointment ? formatCPF(currentAppointment.paciente.cpf) : currentPatient.cpf;
       const instructions = document.getElementById('examInstructions').value;
       
       const printContent = `
         <div style="padding: 20px; font-family: Arial;">
           <h2>Solicitação de Exames - Geriatria 360</h2>
-          <p><strong>Paciente:</strong> ${currentPatient.name}</p>
-          <p><strong>CPF:</strong> ${currentPatient.cpf}</p>
+          <p><strong>Paciente:</strong> ${patientName}</p>
+          <p><strong>CPF:</strong> ${patientCPF}</p>
           <p><strong>Data:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
           <hr>
           <h3>Exames Solicitados:</h3>
@@ -1333,10 +1534,13 @@ Sugiro o abono da ausência conforme normas institucionais.`
       updateCIDChipsAtestado();
       
       if (model && certModels[model]) {
+        const patientName = currentAppointment ? currentAppointment.paciente.nome : currentPatient.name;
+        const patientCPF = currentAppointment ? formatCPF(currentAppointment.paciente.cpf) : currentPatient.cpf;
+
         // Preencher texto base do modelo com dados automáticos
         let text = certModels[model];
-        text = text.replace(/{{nome}}/g, currentPatient.name);
-        text = text.replace(/{{cpf}}/g, currentPatient.cpf);
+        text = text.replace(/{{nome}}/g, patientName);
+        text = text.replace(/{{cpf}}/g, patientCPF);
         certReason.value = text;
         
         // Adicionar campos específicos do modelo
@@ -1346,16 +1550,16 @@ Sugiro o abono da ausência conforme normas institucionais.`
               <div class="cert-field-group">
                 <div class="form-group">
                   <label>Nome do Paciente</label>
-                  <input type="text" class="form-control" value="${currentPatient.name}" readonly style="background-color: #f8f9fa;">
+                  <input type="text" class="form-control" value="${patientName}" readonly style="background-color: #f8f9fa;">
                 </div>
                 <div class="form-group">
                   <label>CPF</label>
-                  <input type="text" class="form-control" value="${currentPatient.cpf}" readonly style="background-color: #f8f9fa;">
+                  <input type="text" class="form-control" value="${patientCPF}" readonly style="background-color: #f8f9fa;">
                 </div>
               </div>
               <div class="form-group">
                 <label for="certDias">Dias de Afastamento</label>
-                <input type="number" id="certDias" class="form-control" min="1" value="3">
+                <input type="number" id="certDias" class="form-control" min="1" value="3" onchange="updateCertText()">
               </div>
             `;
             break;
@@ -1364,11 +1568,11 @@ Sugiro o abono da ausência conforme normas institucionais.`
             certFields.innerHTML = `
               <div class="form-group">
                 <label>Nome do Paciente</label>
-                <input type="text" class="form-control" value="${currentPatient.name}" readonly style="background-color: #f8f9fa;">
+                <input type="text" class="form-control" value="${patientName}" readonly style="background-color: #f8f9fa;">
               </div>
               <div class="form-group">
                 <label>CPF</label>
-                <input type="text" class="form-control" value="${currentPatient.cpf}" readonly style="background-color: #f8f9fa;">
+                <input type="text" class="form-control" value="${patientCPF}" readonly style="background-color: #f8f9fa;">
               </div>
             `;
             break;
@@ -1379,25 +1583,25 @@ Sugiro o abono da ausência conforme normas institucionais.`
               <div class="cert-field-group">
                 <div class="form-group">
                   <label>Nome do Paciente</label>
-                  <input type="text" class="form-control" value="${currentPatient.name}" readonly style="background-color: #f8f9fa;">
+                  <input type="text" class="form-control" value="${patientName}" readonly style="background-color: #f8f9fa;">
                 </div>
                 <div class="form-group">
                   <label>CPF</label>
-                  <input type="text" class="form-control" value="${currentPatient.cpf}" readonly style="background-color: #f8f9fa;">
+                  <input type="text" class="form-control" value="${patientCPF}" readonly style="background-color: #f8f9fa;">
                 </div>
               </div>
               <div class="cert-field-group">
                 <div class="form-group">
                   <label for="certData">Data do Atendimento</label>
-                  <input type="date" id="certData" class="form-control" value="${today}">
+                  <input type="date" id="certData" class="form-control" value="${today}" onchange="updateCertText()">
                 </div>
                 <div class="form-group">
                   <label for="certHoraInicio">Hora Início</label>
-                  <input type="time" id="certHoraInicio" class="form-control" value="09:00">
+                  <input type="time" id="certHoraInicio" class="form-control" value="09:00" onchange="updateCertText()">
                 </div>
                 <div class="form-group">
                   <label for="certHoraFim">Hora Fim</label>
-                  <input type="time" id="certHoraFim" class="form-control" value="10:00">
+                  <input type="time" id="certHoraFim" class="form-control" value="10:00" onchange="updateCertText()">
                 </div>
               </div>
             `;
@@ -1408,16 +1612,16 @@ Sugiro o abono da ausência conforme normas institucionais.`
               <div class="cert-field-group">
                 <div class="form-group">
                   <label>Nome do Paciente</label>
-                  <input type="text" class="form-control" value="${currentPatient.name}" readonly style="background-color: #f8f9fa;">
+                  <input type="text" class="form-control" value="${patientName}" readonly style="background-color: #f8f9fa;">
                 </div>
                 <div class="form-group">
                   <label>CPF</label>
-                  <input type="text" class="form-control" value="${currentPatient.cpf}" readonly style="background-color: #f8f9fa;">
+                  <input type="text" class="form-control" value="${patientCPF}" readonly style="background-color: #f8f9fa;">
                 </div>
               </div>
               <div class="form-group">
                 <label for="certAcompanhante">Nome do Acompanhante</label>
-                <input type="text" id="certAcompanhante" class="form-control" placeholder="Nome do acompanhante">
+                <input type="text" id="certAcompanhante" class="form-control" placeholder="Nome do acompanhante" onchange="updateCertText()">
               </div>
             `;
             break;
@@ -1426,6 +1630,48 @@ Sugiro o abono da ausência conforme normas institucionais.`
         // Inicializar busca de CID para este modelo
         initCIDSearchAtestado();
       }
+    }
+
+    function updateCertText() {
+      const model = document.getElementById('certModel').value;
+      if (!model) return;
+
+      const patientName = currentAppointment ? currentAppointment.paciente.nome : currentPatient.name;
+      const patientCPF = currentAppointment ? formatCPF(currentAppointment.paciente.cpf) : currentPatient.cpf;
+
+      let text = certModels[model];
+      text = text.replace(/{{nome}}/g, patientName);
+      text = text.replace(/{{cpf}}/g, patientCPF);
+
+      switch(model) {
+        case 'modelo1':
+          const dias = document.getElementById('certDias') ? document.getElementById('certDias').value : '3';
+          text = text.replace(/{{dias}}/g, dias);
+          break;
+        case 'modelo3':
+          const data = document.getElementById('certData') ? document.getElementById('certData').value : new Date().toISOString().split('T')[0];
+          const horaInicio = document.getElementById('certHoraInicio') ? document.getElementById('certHoraInicio').value : '09:00';
+          const horaFim = document.getElementById('certHoraFim') ? document.getElementById('certHoraFim').value : '10:00';
+          const dataFormatada = data ? new Date(data).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR');
+          text = text.replace(/{{data}}/g, dataFormatada);
+          text = text.replace(/{{horaInicio}}/g, horaInicio);
+          text = text.replace(/{{horaFim}}/g, horaFim);
+          break;
+        case 'modelo4':
+          const acompanhante = document.getElementById('certAcompanhante') ? document.getElementById('certAcompanhante').value : '';
+          text = text.replace(/{{acompanhante}}/g, acompanhante);
+          break;
+      }
+
+      // Adicionar CIDs se houver
+      if (selectedCidsAtestado.length > 0) {
+        const cids = selectedCidsAtestado.map(cid => `${cid.code} - ${cid.description}`).join(', ');
+        text = text.replace(/{{cid}}/g, `\nCID: ${cids}`);
+      } else {
+        text = text.replace(/{{cid}}/g, '');
+      }
+
+      document.getElementById('certReason').value = text;
     }
     
     // Sistema de CID-10 para atestado
@@ -1481,7 +1727,7 @@ Sugiro o abono da ausência conforme normas institucionais.`
       if (!selectedCidsAtestado.find(item => item.code === cid.code)) {
         selectedCidsAtestado.push(cid);
         updateCIDChipsAtestado();
-        updateCertTextWithCID();
+        updateCertText();
       }
       
       document.getElementById('cidSearchAtestado').value = '';
@@ -1506,75 +1752,26 @@ Sugiro o abono da ausência conforme normas institucionais.`
     function removeCIDAtestado(code) {
       selectedCidsAtestado = selectedCidsAtestado.filter(item => item.code !== code);
       updateCIDChipsAtestado();
-      updateCertTextWithCID();
-    }
-    
-    function updateCertTextWithCID() {
-      const certReason = document.getElementById('certReason');
-      let text = certReason.value;
-      
-      // Remover CID anterior se existir
-      text = text.replace(/\nCID: .+$/, '');
-      
-      // Adicionar novos CIDs se houver
-      if (selectedCidsAtestado.length > 0) {
-        const cids = selectedCidsAtestado.map(cid => `${cid.code} - ${cid.description}`).join(', ');
-        text += `\nCID: ${cids}`;
-      }
-      
-      certReason.value = text;
-    }
-    
-    function generateCertText() {
-      const model = document.getElementById('certModel').value;
-      let text = document.getElementById('certReason').value;
-      
-      if (!model) {
-        alert('Selecione um modelo de atestado primeiro.');
-        return null;
-      }
-      
-      // Já temos nome e CPF preenchidos automaticamente
-      // Apenas substituir campos específicos do modelo
-      switch(model) {
-        case 'modelo1':
-          const dias = document.getElementById('certDias') ? document.getElementById('certDias').value : '';
-          text = text.replace(/{{dias}}/g, dias);
-          break;
-          
-        case 'modelo3':
-          const data = document.getElementById('certData') ? document.getElementById('certData').value : '';
-          const horaInicio = document.getElementById('certHoraInicio') ? document.getElementById('certHoraInicio').value : '';
-          const horaFim = document.getElementById('certHoraFim') ? document.getElementById('certHoraFim').value : '';
-          
-          // Formatar data para o padrão brasileiro
-          const dataFormatada = data ? new Date(data).toLocaleDateString('pt-BR') : '';
-          
-          text = text.replace(/{{data}}/g, dataFormatada);
-          text = text.replace(/{{horaInicio}}/g, horaInicio);
-          text = text.replace(/{{horaFim}}/g, horaFim);
-          break;
-          
-        case 'modelo4':
-          const acompanhante = document.getElementById('certAcompanhante') ? document.getElementById('certAcompanhante').value : '';
-          text = text.replace(/{{acompanhante}}/g, acompanhante);
-          break;
-      }
-      
-      return text;
+      updateCertText();
     }
     
     function saveCertificate() {
-      const certText = generateCertText();
-      if (certText) {
-        localStorage.setItem('lastCertificate', certText);
-        alert('Atestado salva com sucesso!');
+      const certText = document.getElementById('certReason').value;
+      if (!certText) {
+        alert('Selecione um modelo de atestado primeiro.');
+        return;
       }
+      
+      localStorage.setItem('lastCertificate', certText);
+      showAlert('Atestado salvo com sucesso!', 'success');
     }
     
     function printCertificate() {
-      const certText = generateCertText();
-      if (!certText) return;
+      const certText = document.getElementById('certReason').value;
+      if (!certText) {
+        alert('Selecione um modelo de atestado primeiro.');
+        return;
+      }
       
       const printContent = `
         <div style="padding: 30px; font-family: Arial; line-height: 1.6;">
@@ -1662,11 +1859,11 @@ Sugiro o abono da ausência conforme normas institucionais.`
     
     // Outras funções
     function saveEvolution() {
-      alert('Evolução salva com sucesso!');
+      showAlert('Evolução salva com sucesso!', 'success');
     }
     
     function generateAIReport() {
-      alert('Laudo gerado pela IA com base nas informações fornecidas!');
+      showAlert('Laudo gerado pela IA com base nas informações fornecidas!', 'success');
     }
     
     function newDocument() {
