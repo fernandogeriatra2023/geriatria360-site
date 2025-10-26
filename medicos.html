@@ -1292,8 +1292,16 @@ Sugiro o abono da ausência conforme normas institucionais.`
       const pacientes = JSON.parse(localStorage.getItem('geriatria_pacientes')) || [];
       const triagens = JSON.parse(localStorage.getItem('geriatria_triagens')) || [];
       
+      console.log('🔍 Buscando agendamentos para hoje:', hoje);
+      console.log('📋 Agendamentos encontrados:', agendamentos);
+      
       // Filtrar agendamentos de hoje
-      const agendamentosHoje = agendamentos.filter(ag => ag.data === hoje && ag.status !== 'finalizado');
+      const agendamentosHoje = agendamentos.filter(ag => {
+        console.log(`Agendamento ${ag.id}: data=${ag.data}, status=${ag.status}`);
+        return ag.data === hoje && ag.status !== 'finalizado';
+      });
+      
+      console.log('✅ Agendamentos de hoje:', agendamentosHoje);
       
       // Atualizar contadores
       document.getElementById('agendamentosCount').textContent = agendamentosHoje.length;
@@ -1312,6 +1320,9 @@ Sugiro o abono da ausência conforme normas institucionais.`
             <i class="fas fa-calendar-times"></i>
             <h3>Nenhum agendamento para hoje</h3>
             <p>Não há consultas agendadas para o dia de hoje.</p>
+            <button class="btn" onclick="criarDadosDemonstracao()" style="margin-top: 15px;">
+              <i class="fas fa-plus"></i> Criar Dados de Demonstração
+            </button>
           </div>
         `;
         return;
@@ -1347,6 +1358,73 @@ Sugiro o abono da ausência conforme normas institucionais.`
       
       // Carregar pacientes em atendimento
       carregarPacientesEmAtendimento();
+    }
+    
+    // Criar dados de demonstração
+    function criarDadosDemonstracao() {
+      const hoje = new Date().toISOString().split('T')[0];
+      
+      // Criar paciente de demonstração
+      const pacienteDemo = {
+        id: 'demo-001',
+        nome: 'Maria Silva',
+        cpf: '123.456.789-00',
+        dataNascimento: '1948-05-15',
+        telefone: '(11) 99999-9999',
+        endereco: 'Rua das Flores, 123 - São Paulo/SP',
+        escolaridade: '8 anos',
+        alergias: 'Penicilina',
+        comorbidades: 'Hipertensão, Diabetes'
+      };
+      
+      // Criar agendamento de demonstração
+      const agendamentoDemo = {
+        id: 'agd-' + Date.now(),
+        pacienteId: 'demo-001',
+        pacienteNome: 'Maria Silva',
+        pacienteCPF: '123.456.789-00',
+        medico: 'Dr. Silva',
+        data: hoje,
+        hora: '10:00',
+        status: 'agendado',
+        tipo: 'Consulta de rotina'
+      };
+      
+      // Criar triagem de demonstração
+      const triagemDemo = {
+        id: 'trg-' + Date.now(),
+        agendamentoId: agendamentoDemo.id,
+        queixaPrincipal: 'Dor articular difusa há 3 meses',
+        pressaoSistolica: '140',
+        pressaoDiastolica: '90',
+        batimentosCardiacos: '72',
+        temperatura: '36.5',
+        saturacaoOxigenio: '98',
+        peso: '65',
+        altura: '1.60',
+        imc: '25.4',
+        glicemia: '110',
+        prioridade: 'media',
+        observacoes: 'Paciente relata piora progressiva da dor'
+      };
+      
+      // Salvar no localStorage
+      const pacientes = JSON.parse(localStorage.getItem('geriatria_pacientes')) || [];
+      pacientes.push(pacienteDemo);
+      localStorage.setItem('geriatria_pacientes', JSON.stringify(pacientes));
+      
+      const agendamentos = JSON.parse(localStorage.getItem('geriatria_agendamentos')) || [];
+      agendamentos.push(agendamentoDemo);
+      localStorage.setItem('geriatria_agendamentos', JSON.stringify(agendamentos));
+      
+      const triagens = JSON.parse(localStorage.getItem('geriatria_triagens')) || [];
+      triagens.push(triagemDemo);
+      localStorage.setItem('geriatria_triagens', JSON.stringify(triagens));
+      
+      showAlert('Dados de demonstração criados com sucesso!', 'success');
+      
+      // Recarregar agendamentos
+      carregarAgendamentosDoDia();
     }
     
     // Carregar pacientes em atendimento
@@ -1395,11 +1473,17 @@ Sugiro o abono da ausência conforme normas institucionais.`
       });
     }
     
-    // Iniciar atendimento
+    // Iniciar atendimento - FUNÇÃO CORRIGIDA
     function iniciarAtendimento(agendamentoId) {
+      console.log('🎯 Iniciando atendimento para:', agendamentoId);
+      
       const agendamentos = JSON.parse(localStorage.getItem('geriatria_agendamentos')) || [];
       const pacientes = JSON.parse(localStorage.getItem('geriatria_pacientes')) || [];
       const triagens = JSON.parse(localStorage.getItem('geriatria_triagens')) || [];
+      
+      console.log('📋 Agendamentos:', agendamentos);
+      console.log('👥 Pacientes:', pacientes);
+      console.log('📊 Triagens:', triagens);
       
       const agendamentoIndex = agendamentos.findIndex(ag => ag.id === agendamentoId);
       
@@ -1426,6 +1510,8 @@ Sugiro o abono da ausência conforme normas institucionais.`
           triagem: triagem
         };
         
+        console.log('✅ Current Appointment definido:', currentAppointment);
+        
         // Mostrar sucesso
         showAlert(`Atendimento iniciado para <strong>${currentAppointment.pacienteNome}</strong>`, 'success');
         
@@ -1437,11 +1523,16 @@ Sugiro o abono da ausência conforme normas institucionais.`
         
         // Atualizar interface do paciente
         atualizarInterfacePaciente();
+      } else {
+        console.error('❌ Agendamento não encontrado com ID:', agendamentoId);
+        showAlert('Erro: Agendamento não encontrado.', 'error');
       }
     }
     
     // Continuar atendimento
     function continuarAtendimento(agendamentoId) {
+      console.log('🎯 Continuando atendimento para:', agendamentoId);
+      
       const agendamentos = JSON.parse(localStorage.getItem('geriatria_agendamentos')) || [];
       const pacientes = JSON.parse(localStorage.getItem('geriatria_pacientes')) || [];
       const triagens = JSON.parse(localStorage.getItem('geriatria_triagens')) || [];
@@ -1465,11 +1556,16 @@ Sugiro o abono da ausência conforme normas institucionais.`
           triagem: triagem
         };
         
+        console.log('✅ Current Appointment atualizado:', currentAppointment);
+        
         // Mudar para aba de evolução
         document.querySelector('.medical-tab[data-tab="evolucao"]').click();
         
         // Atualizar interface do paciente
         atualizarInterfacePaciente();
+      } else {
+        console.error('❌ Agendamento não encontrado com ID:', agendamentoId);
+        showAlert('Erro: Agendamento não encontrado.', 'error');
       }
     }
     
