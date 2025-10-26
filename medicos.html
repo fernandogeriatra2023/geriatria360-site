@@ -816,6 +816,9 @@
                 <button class="btn" onclick="carregarAgendamentosDoDia()">
                   <i class="fas fa-sync-alt"></i> Atualizar
                 </button>
+                <button class="btn btn-success" onclick="criarDadosDemonstracao()">
+                  <i class="fas fa-plus"></i> Criar Dados de Teste
+                </button>
               </div>
             </div>
             
@@ -902,6 +905,7 @@
             </div>
           </div>
           
+          <!-- As outras abas (Medicação, Atestados, Documentos, Agendamento, Exames) permanecem iguais -->
           <!-- Medicação -->
           <div id="medicacao" class="tab-content">
             <div class="tab-header">
@@ -1204,35 +1208,6 @@
       { code: "Z00", description: "Exame geral de rotina" }
     ];
     
-    // Modelos de atestado
-    const certModels = {
-      modelo1: `ATESTADO MÉDICO
-
-Atesto, para os devidos fins, que o(a) paciente {{nome}}, portador(a) do CPF {{cpf}}, foi atendido(a) nesta data, apresentando condição clínica que justifica afastamento das atividades habituais por {{dias}} dias, a contar de hoje.
-
-{{cid}}
-Recomendado repouso e acompanhamento clínico.
-Retorno conforme evolução.`,
-
-      modelo2: `ATESTADO DE APTIDÃO FÍSICA
-
-Atesto, para os devidos fins, que o(a) paciente {{nome}}, portador(a) do CPF {{cpf}}, foi avaliado(a) em consulta médica, não apresentando contraindicações aparentes à prática de atividades físicas de forma orientada.
-
-Recomenda-se acompanhamento periódico e observar sinais e sintomas durante o exercício.`,
-
-      modelo3: `ATESTADO DE COMPARECIMENTO
-
-Atesto que o(a) paciente {{nome}}, portador(a) do CPF {{cpf}}, esteve em atendimento médico nesta unidade no dia {{data}} das {{horaInicio}} às {{horaFim}}.
-
-Recomenda-se abono de falta conforme legislação vigente.`,
-
-      modelo4: `ATESTADO PARA ACOMPANHANTE
-
-Atesto, para os devidos fins, que {{acompanhante}} acompanhou o(a) paciente {{nome}}, portador(a) do CPF {{cpf}}, em atendimento médico nesta data, sendo necessária sua presença durante o período.
-
-Sugiro o abono da ausência conforme normas institucionais.`
-    };
-    
     // Login
     function loginMed() {
       const user = document.getElementById('med-user').value;
@@ -1293,7 +1268,7 @@ Sugiro o abono da ausência conforme normas institucionais.`
       const triagens = JSON.parse(localStorage.getItem('geriatria_triagens')) || [];
       
       console.log('🔍 Buscando agendamentos para hoje:', hoje);
-      console.log('📋 Agendamentos encontrados:', agendamentos);
+      console.log('📋 Todos os agendamentos:', agendamentos);
       
       // Filtrar agendamentos de hoje
       const agendamentosHoje = agendamentos.filter(ag => {
@@ -1320,9 +1295,7 @@ Sugiro o abono da ausência conforme normas institucionais.`
             <i class="fas fa-calendar-times"></i>
             <h3>Nenhum agendamento para hoje</h3>
             <p>Não há consultas agendadas para o dia de hoje.</p>
-            <button class="btn" onclick="criarDadosDemonstracao()" style="margin-top: 15px;">
-              <i class="fas fa-plus"></i> Criar Dados de Demonstração
-            </button>
+            <p><strong>Clique em "Criar Dados de Teste" para gerar pacientes de exemplo.</strong></p>
           </div>
         `;
         return;
@@ -1360,7 +1333,7 @@ Sugiro o abono da ausência conforme normas institucionais.`
       carregarPacientesEmAtendimento();
     }
     
-    // Criar dados de demonstração
+    // Criar dados de demonstração - FUNÇÃO CORRIGIDA
     function criarDadosDemonstracao() {
       const hoje = new Date().toISOString().split('T')[0];
       
@@ -1410,7 +1383,9 @@ Sugiro o abono da ausência conforme normas institucionais.`
       
       // Salvar no localStorage
       const pacientes = JSON.parse(localStorage.getItem('geriatria_pacientes')) || [];
-      pacientes.push(pacienteDemo);
+      if (!pacientes.find(p => p.id === 'demo-001')) {
+        pacientes.push(pacienteDemo);
+      }
       localStorage.setItem('geriatria_pacientes', JSON.stringify(pacientes));
       
       const agendamentos = JSON.parse(localStorage.getItem('geriatria_agendamentos')) || [];
@@ -1421,7 +1396,7 @@ Sugiro o abono da ausência conforme normas institucionais.`
       triagens.push(triagemDemo);
       localStorage.setItem('geriatria_triagens', JSON.stringify(triagens));
       
-      showAlert('Dados de demonstração criados com sucesso!', 'success');
+      showAlert('Dados de demonstração criados com sucesso! Agora você pode iniciar o atendimento.', 'success');
       
       // Recarregar agendamentos
       carregarAgendamentosDoDia();
@@ -1473,17 +1448,13 @@ Sugiro o abono da ausência conforme normas institucionais.`
       });
     }
     
-    // Iniciar atendimento - FUNÇÃO CORRIGIDA
+    // Iniciar atendimento
     function iniciarAtendimento(agendamentoId) {
       console.log('🎯 Iniciando atendimento para:', agendamentoId);
       
       const agendamentos = JSON.parse(localStorage.getItem('geriatria_agendamentos')) || [];
       const pacientes = JSON.parse(localStorage.getItem('geriatria_pacientes')) || [];
       const triagens = JSON.parse(localStorage.getItem('geriatria_triagens')) || [];
-      
-      console.log('📋 Agendamentos:', agendamentos);
-      console.log('👥 Pacientes:', pacientes);
-      console.log('📊 Triagens:', triagens);
       
       const agendamentoIndex = agendamentos.findIndex(ag => ag.id === agendamentoId);
       
@@ -2296,7 +2267,7 @@ Sugiro o abono da ausência conforme normas institucionais.`
       }
       
       localStorage.setItem('lastCertificate', certText);
-      showAlert('Atestado salvo com sucesso!', 'success');
+      showAlert('Atestado salva com sucesso!', 'success');
     }
     
     function printCertificate() {
