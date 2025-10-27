@@ -131,13 +131,17 @@
       cursor: pointer;
     }
     
-    /* Hero Section */
+    /* Hero Section COM SUPORTE A IMAGEM */
     .hero {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
       color: white;
       padding: 80px 0;
       position: relative;
       overflow: hidden;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    }
+
+    .hero.with-image {
+      background: linear-gradient(rgba(44, 90, 160, 0.7), rgba(44, 90, 160, 0.7));
     }
     
     .hero::before {
@@ -230,7 +234,7 @@
       margin: 0 auto;
     }
     
-    /* Cards de notícias */
+    /* Cards de notícias ATUALIZADOS */
     .news-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -257,6 +261,25 @@
       align-items: center;
       justify-content: center;
       color: var(--gray);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: var(--transition);
+    }
+
+    .news-card:hover .card-image img {
+      transform: scale(1.05);
+    }
+
+    .card-image .icon-fallback {
+      position: absolute;
+      font-size: 3rem;
+      opacity: 0.3;
     }
     
     .card-content {
@@ -556,8 +579,8 @@
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <section class="hero">
+  <!-- Hero Section DINÂMICO -->
+  <section class="hero" id="hero-banner">
     <div class="container">
       <div class="hero-content">
         <div class="hero-text">
@@ -566,7 +589,7 @@
           <a href="#agendar" class="btn-hero" id="hero-button">Agendar Consulta</a>
         </div>
         <div class="hero-image">
-          <div style="width: 100%; height: 350px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white;">
+          <div id="hero-image-placeholder" style="width: 100%; height: 350px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white;">
             <i class="fas fa-user-md" style="font-size: 5rem;"></i>
           </div>
         </div>
@@ -584,47 +607,6 @@
       
       <div class="news-grid" id="news-container">
         <!-- As notícias serão carregadas aqui pelo JavaScript -->
-        <div class="news-card">
-          <div class="card-image">
-            <i class="fas fa-syringe" style="font-size: 3rem;"></i>
-          </div>
-          <div class="card-content">
-            <h3>Campanha de Vacinação 2025</h3>
-            <p>Confira o calendário atualizado de vacinas para idosos e os locais de aplicação.</p>
-            <div class="card-meta">
-              <span><i class="far fa-calendar"></i> 15 Mar, 2025</span>
-              <span><i class="far fa-clock"></i> 3 min leitura</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="news-card">
-          <div class="card-image">
-            <i class="fas fa-ban" style="font-size: 3rem;"></i>
-          </div>
-          <div class="card-content">
-            <h3>Prevenção de Quedas em Idosos</h3>
-            <p>Dicas essenciais para adaptar o ambiente doméstico e prevenir acidentes.</p>
-            <div class="card-meta">
-              <span><i class="far fa-calendar"></i> 10 Mar, 2025</span>
-              <span><i class="far fa-clock"></i> 5 min leitura</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="news-card">
-          <div class="card-image">
-            <i class="fas fa-apple-alt" style="font-size: 3rem;"></i>
-          </div>
-          <div class="card-content">
-            <h3>Alimentação na Terceira Idade</h3>
-            <p>Guia completo sobre nutrição adequada para manter a saúde e vitalidade.</p>
-            <div class="card-meta">
-              <span><i class="far fa-calendar"></i> 5 Mar, 2025</span>
-              <span><i class="far fa-clock"></i> 4 min leitura</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </section>
@@ -639,37 +621,6 @@
       
       <div class="patologias-grid" id="topics-container">
         <!-- Os tópicos serão carregados aqui pelo JavaScript -->
-        <div class="patologia-card">
-          <div class="patologia-icon">
-            <i class="fas fa-brain"></i>
-          </div>
-          <h3>Demência</h3>
-          <p>Informações sobre diagnóstico, tratamento e cuidados com pacientes.</p>
-        </div>
-        
-        <div class="patologia-card">
-          <div class="patologia-icon">
-            <i class="fas fa-bone"></i>
-          </div>
-          <h3>Osteoporose</h3>
-          <p>Prevenção, diagnóstico e tratamento para manter a saúde óssea.</p>
-        </div>
-        
-        <div class="patologia-card">
-          <div class="patologia-icon">
-            <i class="fas fa-heart"></i>
-          </div>
-          <h3>Doenças Cardiovasculares</h3>
-          <p>Orientações sobre prevenção e controle de problemas cardíacos.</p>
-        </div>
-        
-        <div class="patologia-card">
-          <div class="patologia-icon">
-            <i class="fas fa-lungs"></i>
-          </div>
-          <h3>Doenças Respiratórias</h3>
-          <p>Cuidados com a saúde pulmonar e tratamento de condições crônicas.</p>
-        </div>
       </div>
     </div>
   </section>
@@ -790,7 +741,8 @@
       hero: {
         title: "Cuidado integral para a melhor idade",
         subtitle: "Prevenção, tratamento e acolhimento especializado em geriatria. Nossa missão é proporcionar qualidade de vida e bem-estar aos idosos.",
-        buttonText: "Agendar Consulta"
+        buttonText: "Agendar Consulta",
+        backgroundImage: null
       },
       news: [
         {
@@ -799,7 +751,8 @@
           description: "Confira o calendário atualizado de vacinas para idosos e os locais de aplicação.",
           type: "fa-syringe",
           date: "2025-03-15",
-          readTime: 3
+          readTime: 3,
+          image: null
         },
         {
           id: 2,
@@ -807,7 +760,8 @@
           description: "Dicas essenciais para adaptar o ambiente doméstico e prevenir acidentes.",
           type: "fa-ban",
           date: "2025-03-10",
-          readTime: 5
+          readTime: 5,
+          image: null
         },
         {
           id: 3,
@@ -815,7 +769,8 @@
           description: "Guia completo sobre nutrição adequada para manter a saúde e vitalidade.",
           type: "fa-apple-alt",
           date: "2025-03-05",
-          readTime: 4
+          readTime: 4,
+          image: null
         }
       ],
       topics: [
@@ -865,6 +820,18 @@
       return date.toLocaleDateString('pt-BR');
     }
 
+    // Obter ícone por categoria
+    function getIconByCategory(category) {
+      const icons = {
+        'vacina': 'fa-syringe',
+        'prevencao': 'fa-ban',
+        'alimentacao': 'fa-apple-alt',
+        'tratamento': 'fa-stethoscope',
+        'campanha': 'fa-bullhorn'
+      };
+      return icons[category] || 'fa-newspaper';
+    }
+
     // Atualizar conteúdo do site
     function updateSiteContent() {
       const siteData = loadSiteData();
@@ -873,6 +840,26 @@
       document.getElementById('hero-title').textContent = siteData.hero.title;
       document.getElementById('hero-subtitle').textContent = siteData.hero.subtitle;
       document.getElementById('hero-button').textContent = siteData.hero.buttonText;
+
+      // Atualizar imagem de fundo do banner
+      const heroBanner = document.getElementById('hero-banner');
+      const heroImagePlaceholder = document.getElementById('hero-image-placeholder');
+      
+      if (siteData.hero.backgroundImage) {
+        // Aplica a imagem como fundo do banner
+        heroBanner.style.backgroundImage = `linear-gradient(rgba(44, 90, 160, 0.7), rgba(44, 90, 160, 0.7)), url(${siteData.hero.backgroundImage})`;
+        heroBanner.style.backgroundSize = 'cover';
+        heroBanner.style.backgroundPosition = 'center';
+        heroBanner.classList.add('with-image');
+        
+        // Remove o placeholder da imagem
+        heroImagePlaceholder.style.display = 'none';
+      } else {
+        // Mantém o gradiente padrão
+        heroBanner.style.backgroundImage = 'linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%)';
+        heroBanner.classList.remove('with-image');
+        heroImagePlaceholder.style.display = 'flex';
+      }
       
       // Atualizar Notícias
       const newsContainer = document.getElementById('news-container');
@@ -880,7 +867,10 @@
         newsContainer.innerHTML = siteData.news.map(news => `
           <div class="news-card">
             <div class="card-image">
-              <i class="fas ${news.type}" style="font-size: 3rem;"></i>
+              ${news.image ? 
+                `<img src="${news.image}" alt="${news.title}" loading="lazy">` : 
+                `<div class="icon-fallback"><i class="fas ${getIconByCategory(news.category)}"></i></div>`
+              }
             </div>
             <div class="card-content">
               <h3>${news.title}</h3>
@@ -892,6 +882,14 @@
             </div>
           </div>
         `).join('');
+      } else {
+        newsContainer.innerHTML = `
+          <div style="text-align: center; grid-column: 1 / -1; padding: 40px; color: var(--gray);">
+            <i class="fas fa-newspaper" style="font-size: 3rem; margin-bottom: 15px;"></i>
+            <h3>Nenhuma notícia publicada</h3>
+            <p>Use o editor para adicionar notícias ao site</p>
+          </div>
+        `;
       }
       
       // Atualizar Tópicos
@@ -906,6 +904,14 @@
             <p>${topic.description}</p>
           </div>
         `).join('');
+      } else {
+        topicsContainer.innerHTML = `
+          <div style="text-align: center; grid-column: 1 / -1; padding: 40px; color: var(--gray);">
+            <i class="fas fa-folder" style="font-size: 3rem; margin-bottom: 15px;"></i>
+            <h3>Nenhum tópico cadastrado</h3>
+            <p>Use o editor para adicionar tópicos ao site</p>
+          </div>
+        `;
       }
     }
 
@@ -941,6 +947,13 @@
     // Recarregar conteúdo quando a página ganhar foco (útil quando volta do editor)
     window.addEventListener('focus', function() {
       updateSiteContent();
+    });
+
+    // Recarregar quando o storage mudar (útil quando editor salva em outra aba)
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'geriatria360-data') {
+        updateSiteContent();
+      }
     });
   </script>
 </body>
