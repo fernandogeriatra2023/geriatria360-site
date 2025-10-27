@@ -303,6 +303,19 @@
       color: var(--gray);
       font-size: 0.9rem;
     }
+
+    /* Links das notícias */
+    .news-card-link {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      transition: var(--transition);
+    }
+
+    .news-card-link:hover .news-card {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
     
     /* Seção de patologias */
     .patologias {
@@ -861,26 +874,28 @@
         heroImagePlaceholder.style.display = 'flex';
       }
       
-      // Atualizar Notícias
+      // Atualizar Notícias - AGORA COM LINKS CLICÁVEIS
       const newsContainer = document.getElementById('news-container');
       if (siteData.news && siteData.news.length > 0) {
         newsContainer.innerHTML = siteData.news.map(news => `
-          <div class="news-card">
-            <div class="card-image">
-              ${news.image ? 
-                `<img src="${news.image}" alt="${news.title}" loading="lazy">` : 
-                `<div class="icon-fallback"><i class="fas ${getIconByCategory(news.category)}"></i></div>`
-              }
-            </div>
-            <div class="card-content">
-              <h3>${news.title}</h3>
-              <p>${news.description}</p>
-              <div class="card-meta">
-                <span><i class="far fa-calendar"></i> ${formatDate(news.date)}</span>
-                <span><i class="far fa-clock"></i> ${news.readTime} min leitura</span>
+          <a href="noticia.html?id=${news.id}" class="news-card-link">
+            <div class="news-card">
+              <div class="card-image">
+                ${news.image ? 
+                  `<img src="${news.image}" alt="${news.title}" loading="lazy">` : 
+                  `<div class="icon-fallback"><i class="fas ${getIconByCategory(news.category)}"></i></div>`
+                }
+              </div>
+              <div class="card-content">
+                <h3>${news.title}</h3>
+                <p>${news.description}</p>
+                <div class="card-meta">
+                  <span><i class="far fa-calendar"></i> ${formatDate(news.date)}</span>
+                  <span><i class="far fa-clock"></i> ${news.readTime} min leitura</span>
+                </div>
               </div>
             </div>
-          </div>
+          </a>
         `).join('');
       } else {
         newsContainer.innerHTML = `
