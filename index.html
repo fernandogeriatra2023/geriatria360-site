@@ -561,9 +561,9 @@
     <div class="container">
       <div class="hero-content">
         <div class="hero-text">
-          <h1>Cuidado integral para a melhor idade</h1>
-          <p>Prevenção, tratamento e acolhimento especializado em geriatria. Nossa missão é proporcionar qualidade de vida e bem-estar aos idosos.</p>
-          <a href="#agendar" class="btn-hero">Agendar Consulta</a>
+          <h1 id="hero-title">Cuidado integral para a melhor idade</h1>
+          <p id="hero-subtitle">Prevenção, tratamento e acolhimento especializado em geriatria. Nossa missão é proporcionar qualidade de vida e bem-estar aos idosos.</p>
+          <a href="#agendar" class="btn-hero" id="hero-button">Agendar Consulta</a>
         </div>
         <div class="hero-image">
           <div style="width: 100%; height: 350px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white;">
@@ -582,7 +582,8 @@
         <p>Conteúdos de prevenção, vacinas, campanhas e orientações para a saúde do idoso.</p>
       </div>
       
-      <div class="news-grid">
+      <div class="news-grid" id="news-container">
+        <!-- As notícias serão carregadas aqui pelo JavaScript -->
         <div class="news-card">
           <div class="card-image">
             <i class="fas fa-syringe" style="font-size: 3rem;"></i>
@@ -636,7 +637,8 @@
         <p>Guias rápidos sobre temas frequentes na geriatria para pacientes e familiares.</p>
       </div>
       
-      <div class="patologias-grid">
+      <div class="patologias-grid" id="topics-container">
+        <!-- Os tópicos serão carregados aqui pelo JavaScript -->
         <div class="patologia-card">
           <div class="patologia-icon">
             <i class="fas fa-brain"></i>
@@ -783,6 +785,130 @@
   </footer>
 
   <script>
+    // Dados padrão (fallback caso não tenha dados salvos)
+    const defaultData = {
+      hero: {
+        title: "Cuidado integral para a melhor idade",
+        subtitle: "Prevenção, tratamento e acolhimento especializado em geriatria. Nossa missão é proporcionar qualidade de vida e bem-estar aos idosos.",
+        buttonText: "Agendar Consulta"
+      },
+      news: [
+        {
+          id: 1,
+          title: "Campanha de Vacinação 2025",
+          description: "Confira o calendário atualizado de vacinas para idosos e os locais de aplicação.",
+          type: "fa-syringe",
+          date: "2025-03-15",
+          readTime: 3
+        },
+        {
+          id: 2,
+          title: "Prevenção de Quedas em Idosos",
+          description: "Dicas essenciais para adaptar o ambiente doméstico e prevenir acidentes.",
+          type: "fa-ban",
+          date: "2025-03-10",
+          readTime: 5
+        },
+        {
+          id: 3,
+          title: "Alimentação na Terceira Idade",
+          description: "Guia completo sobre nutrição adequada para manter a saúde e vitalidade.",
+          type: "fa-apple-alt",
+          date: "2025-03-05",
+          readTime: 4
+        }
+      ],
+      topics: [
+        {
+          id: 1,
+          title: "Demência",
+          description: "Informações sobre diagnóstico, tratamento e cuidados com pacientes.",
+          icon: "fa-brain"
+        },
+        {
+          id: 2,
+          title: "Osteoporose",
+          description: "Prevenção, diagnóstico e tratamento para manter a saúde óssea.",
+          icon: "fa-bone"
+        },
+        {
+          id: 3,
+          title: "Doenças Cardiovasculares",
+          description: "Orientações sobre prevenção e controle de problemas cardíacos.",
+          icon: "fa-heart"
+        },
+        {
+          id: 4,
+          title: "Doenças Respiratórias",
+          description: "Cuidados com a saúde pulmonar e tratamento de condições crônicas.",
+          icon: "fa-lungs"
+        }
+      ]
+    };
+
+    // Carregar dados do localStorage
+    function loadSiteData() {
+      try {
+        const savedData = localStorage.getItem('geriatria360-data');
+        if (savedData) {
+          return JSON.parse(savedData);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+      }
+      return defaultData;
+    }
+
+    // Formatar data
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR');
+    }
+
+    // Atualizar conteúdo do site
+    function updateSiteContent() {
+      const siteData = loadSiteData();
+      
+      // Atualizar Hero/Banner
+      document.getElementById('hero-title').textContent = siteData.hero.title;
+      document.getElementById('hero-subtitle').textContent = siteData.hero.subtitle;
+      document.getElementById('hero-button').textContent = siteData.hero.buttonText;
+      
+      // Atualizar Notícias
+      const newsContainer = document.getElementById('news-container');
+      if (siteData.news && siteData.news.length > 0) {
+        newsContainer.innerHTML = siteData.news.map(news => `
+          <div class="news-card">
+            <div class="card-image">
+              <i class="fas ${news.type}" style="font-size: 3rem;"></i>
+            </div>
+            <div class="card-content">
+              <h3>${news.title}</h3>
+              <p>${news.description}</p>
+              <div class="card-meta">
+                <span><i class="far fa-calendar"></i> ${formatDate(news.date)}</span>
+                <span><i class="far fa-clock"></i> ${news.readTime} min leitura</span>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+      
+      // Atualizar Tópicos
+      const topicsContainer = document.getElementById('topics-container');
+      if (siteData.topics && siteData.topics.length > 0) {
+        topicsContainer.innerHTML = siteData.topics.map(topic => `
+          <div class="patologia-card">
+            <div class="patologia-icon">
+              <i class="fas ${topic.icon}"></i>
+            </div>
+            <h3>${topic.title}</h3>
+            <p>${topic.description}</p>
+          </div>
+        `).join('');
+      }
+    }
+
     // Menu mobile toggle
     document.querySelector('.mobile-menu').addEventListener('click', function() {
       document.querySelector('.nav-links').classList.toggle('active');
@@ -804,6 +930,17 @@
           });
         }
       });
+    });
+
+    // Inicializar o site quando carregar
+    document.addEventListener('DOMContentLoaded', function() {
+      updateSiteContent();
+      console.log('Site carregado com dados do editor!');
+    });
+
+    // Recarregar conteúdo quando a página ganhar foco (útil quando volta do editor)
+    window.addEventListener('focus', function() {
+      updateSiteContent();
     });
   </script>
 </body>
