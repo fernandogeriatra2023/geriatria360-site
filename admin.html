@@ -1,341 +1,939 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Editor · Geriatria 360</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editor - Geriatria 360</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="styles.css"/>
   <style>
-    /* ====== Admin styles atualizados ====== */
-    .admin-top{position:sticky;top:0;background:rgba(255,255,255,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);z-index:10}
-    .admin-top .row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0}
-    .brand{font-weight:800}
-    .pill-badge{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:3px 8px;font-size:12px;color:var(--muted)}
-    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 12px}
-    .tab{padding:8px 12px;border:1px solid var(--border);border-radius:999px;background:#fff;cursor:pointer}
-    .tab.active{background:linear-gradient(90deg,var(--brand),var(--brand2));color:#fff;border-color:transparent}
-    .adm-grid{display:grid;gap:20px;grid-template-columns:1fr}
-    @media(min-width:1000px){.adm-grid{grid-template-columns:1.1fr 1fr}}
-    .list{border:1px solid var(--border);border-radius:16px;background:#fff;overflow:hidden}
-    .list .head{display:flex;justify-content:space-between;align-items:center;padding:14px;border-bottom:1px solid var(--border)}
-    .list .row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:12px 14px;border-top:1px solid var(--border)}
-    .list .row:first-of-type{border-top:none}
-    .muted{color:var(--muted)}
-    .danger{color:#b91c1c}
-    .good{color:#047857}
-    .btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);padding:10px 14px;border-radius:12px;background:#fff;text-decoration:none;color:var(--ink);cursor:pointer}
-    .btn:hover{background:#f8fafc}
-    .primary{background:linear-gradient(90deg,var(--brand),var(--brand2));color:#fff;border:none}
-    .form{border:1px dashed var(--border);border-radius:16px;background:#fff;padding:16px}
-    .form .grid{display:grid;gap:12px}
-    .grid2{grid-template-columns:1fr}
-    @media(min-width:700px){.grid2{grid-template-columns:1fr 1fr}}
-    .footer-bar{display:flex;gap:10px;flex-wrap:wrap;padding:12px;border-top:1px solid var(--border);background:#fff;border-radius:0 0 16px 16px}
-    .empty{padding:20px;text-align:center;color:var(--muted)}
-    .login-card{max-width:420px;margin:12vh auto;border:1px solid var(--border);border-radius:16px;background:#fff;padding:22px}
-    
-    /* Novos estilos para editor rico e imagens */
-    .editor-rico {
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px;
-      min-height: 200px;
-      background: #fff;
+    /* Usando as mesmas variáveis do site */
+    :root {
+      --primary: #2c5aa0;
+      --primary-light: #4a7bc8;
+      --secondary: #34a38a;
+      --accent: #ff7b54;
+      --light: #f8f9fa;
+      --dark: #343a40;
+      --gray: #6c757d;
+      --gray-light: #e9ecef;
+      --border-radius: 12px;
+      --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      --transition: all 0.3s ease;
     }
-    .editor-toolbar {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-    .editor-toolbar button {
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: var(--dark);
+      background-color: #fff;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Header */
+    header {
       background: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+
+    .logo i {
+      font-size: 1.8rem;
+    }
+
+    .btn-whatsapp {
+      background: #25D366;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+      box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);
+    }
+
+    .btn-whatsapp:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(37, 211, 102, 0.4);
+    }
+
+    /* Layout do Editor */
+    .editor-layout {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      min-height: calc(100vh - 80px);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: var(--light);
+      padding: 20px 0;
+      border-right: 1px solid var(--gray-light);
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .nav-item {
+      padding: 15px 20px;
+      text-decoration: none;
+      color: var(--dark);
+      font-weight: 500;
+      transition: var(--transition);
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      background: white;
+      border-left-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .nav-item i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+    }
+
+    /* Área de Conteúdo */
+    .content-area {
+      padding: 30px;
+      background: #f8f9fa;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .card {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+
+    .card h2 {
+      color: var(--primary);
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid var(--gray-light);
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+    }
+
+    textarea.form-control {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 50px;
+      font-weight: 600;
       cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
     }
-    .editor-toolbar button:hover {
-      background: #f8fafc;
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
     }
-    .image-preview {
-      max-width: 200px;
-      max-height: 150px;
-      border-radius: 8px;
-      margin-top: 10px;
-      border: 1px solid var(--border);
+
+    .btn-primary:hover {
+      background: var(--primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(44, 90, 160, 0.3);
     }
-    .image-upload-area {
-      border: 2px dashed var(--border);
-      border-radius: 12px;
-      padding: 20px;
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-outline:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c82333;
+    }
+
+    .image-upload {
+      border: 2px dashed var(--gray-light);
+      border-radius: var(--border-radius);
+      padding: 40px;
       text-align: center;
       cursor: pointer;
-      margin: 10px 0;
+      transition: var(--transition);
     }
-    .image-upload-area:hover {
-      background: #f8fafc;
+
+    .image-upload:hover {
+      border-color: var(--primary);
     }
-    .image-upload-area i {
-      font-size: 24px;
-      margin-bottom: 8px;
-      color: var(--muted);
+
+    .image-preview {
+      max-width: 100%;
+      max-height: 200px;
+      margin-top: 15px;
+      display: none;
+    }
+
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      border: 1px solid var(--gray-light);
+      border-radius: var(--border-radius);
+      margin-bottom: 10px;
+      background: white;
+    }
+
+    .list-item:hover {
+      border-color: var(--primary);
+    }
+
+    .list-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--gray);
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      color: var(--gray-light);
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--gray-light);
+    }
+
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: var(--transition);
+    }
+
+    .tab.active {
+      border-bottom-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+      .editor-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .content-area {
+        padding: 20px;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <a href="index.html" class="logo">
+          <i class="fas fa-heartbeat"></i>
+          <span>Geriatria 360</span>
+        </a>
+        
+        <a href="https://wa.me/5511999999999" class="btn-whatsapp" target="_blank">
+          <i class="fab fa-whatsapp"></i>
+          WhatsApp
+        </a>
+      </div>
+    </div>
+  </header>
 
-<header class="admin-top">
-  <div class="container row">
-    <div class="brand">Geriatria 360 · <span class="muted">Editor Profissional</span></div>
-    <nav class="seg">
-      <a class="btn" href="index.html">Voltar ao site</a>
-      <a id="repoLink" class="btn" target="_blank">Abrir repositório</a>
-    </nav>
+  <div class="editor-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-tab="banner">
+          <i class="fas fa-image"></i> Banner Principal
+        </a>
+        <a href="#" class="nav-item" data-tab="news">
+          <i class="fas fa-newspaper"></i> Notícias
+        </a>
+        <a href="#" class="nav-item" data-tab="topics">
+          <i class="fas fa-folder"></i> Tópicos
+        </a>
+        <a href="#" class="nav-item" data-tab="settings">
+          <i class="fas fa-cog"></i> Configurações
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Área de Conteúdo -->
+    <main class="content-area">
+      <!-- Aba do Banner -->
+      <div id="banner" class="tab-content active">
+        <div class="card">
+          <h2>Banner Principal</h2>
+          <form id="bannerForm">
+            <div class="form-group">
+              <label for="heroTitle">Título</label>
+              <input type="text" id="heroTitle" class="form-control" placeholder="Digite o título do banner">
+            </div>
+            <div class="form-group">
+              <label for="heroSubtitle">Subtítulo</label>
+              <textarea id="heroSubtitle" class="form-control" placeholder="Digite o subtítulo do banner"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="heroButtonText">Texto do Botão</label>
+              <input type="text" id="heroButtonText" class="form-control" placeholder="Texto do botão de ação">
+            </div>
+            <div class="form-group">
+              <label for="heroButtonLink">Link do Botão</label>
+              <input type="text" id="heroButtonLink" class="form-control" placeholder="URL para onde o botão levará">
+            </div>
+            <div class="form-group">
+              <label>Imagem de Fundo</label>
+              <div class="image-upload" id="heroImageUpload">
+                <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: var(--gray); margin-bottom: 10px;"></i>
+                <p>Clique para fazer upload de uma imagem</p>
+                <input type="file" id="heroImage" accept="image/*" style="display: none;">
+              </div>
+              <img id="heroImagePreview" class="image-preview" src="" alt="Preview">
+            </div>
+            <button type="submit" class="btn btn-primary">Salvar Banner</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Aba de Notícias -->
+      <div id="news" class="tab-content">
+        <div class="card">
+          <h2>Gerenciar Notícias</h2>
+          <button class="btn btn-primary" id="addNewsBtn">
+            <i class="fas fa-plus"></i> Adicionar Notícia
+          </button>
+        </div>
+
+        <div class="card" id="newsFormCard" style="display: none;">
+          <h2 id="newsFormTitle">Adicionar Notícia</h2>
+          <form id="newsForm">
+            <input type="hidden" id="newsId">
+            <div class="form-group">
+              <label for="newsTitle">Título</label>
+              <input type="text" id="newsTitle" class="form-control" placeholder="Título da notícia">
+            </div>
+            <div class="form-group">
+              <label for="newsSummary">Resumo</label>
+              <textarea id="newsSummary" class="form-control" placeholder="Breve descrição da notícia"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="newsDate">Data</label>
+              <input type="date" id="newsDate" class="form-control">
+            </div>
+            <div class="form-group">
+              <label for="newsReadTime">Tempo de Leitura (minutos)</label>
+              <input type="number" id="newsReadTime" class="form-control" placeholder="5">
+            </div>
+            <div class="form-group">
+              <label>Ícone</label>
+              <div class="image-upload" id="newsIconUpload">
+                <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: var(--gray); margin-bottom: 10px;"></i>
+                <p>Clique para fazer upload de um ícone</p>
+                <input type="file" id="newsIcon" accept="image/*" style="display: none;">
+              </div>
+              <img id="newsIconPreview" class="image-preview" src="" alt="Preview">
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Salvar Notícia</button>
+              <button type="button" class="btn btn-outline" id="cancelNewsBtn">Cancelar</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>Lista de Notícias</h2>
+          <div id="newsList">
+            <!-- As notícias serão carregadas aqui -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Aba de Tópicos -->
+      <div id="topics" class="tab-content">
+        <div class="card">
+          <h2>Gerenciar Tópicos</h2>
+          <button class="btn btn-primary" id="addTopicBtn">
+            <i class="fas fa-plus"></i> Adicionar Tópico
+          </button>
+        </div>
+
+        <div class="card" id="topicFormCard" style="display: none;">
+          <h2 id="topicFormTitle">Adicionar Tópico</h2>
+          <form id="topicForm">
+            <input type="hidden" id="topicId">
+            <div class="form-group">
+              <label for="topicTitle">Título</label>
+              <input type="text" id="topicTitle" class="form-control" placeholder="Título do tópico">
+            </div>
+            <div class="form-group">
+              <label for="topicDescription">Descrição</label>
+              <textarea id="topicDescription" class="form-control" placeholder="Descrição do tópico"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="topicIcon">Ícone (classe FontAwesome)</label>
+              <input type="text" id="topicIcon" class="form-control" placeholder="Ex: fas fa-brain">
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Salvar Tópico</button>
+              <button type="button" class="btn btn-outline" id="cancelTopicBtn">Cancelar</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>Lista de Tópicos</h2>
+          <div id="topicsList">
+            <!-- Os tópicos serão carregados aqui -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Aba de Configurações -->
+      <div id="settings" class="tab-content">
+        <div class="card">
+          <h2>Configurações</h2>
+          <div class="form-group">
+            <label for="adminPassword">Senha de Administrador</label>
+            <input type="password" id="adminPassword" class="form-control" placeholder="Alterar senha">
+          </div>
+          <button class="btn btn-primary">Salvar Configurações</button>
+        </div>
+
+        <div class="card">
+          <h2>Exportar/Importar Dados</h2>
+          <div class="form-actions">
+            <button class="btn btn-outline" id="exportData">Exportar Dados</button>
+            <button class="btn btn-outline" id="importData">Importar Dados</button>
+            <input type="file" id="importFile" accept=".json" style="display: none;">
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
-</header>
 
-<main class="container" style="padding:18px 0 28px">
-  <!-- LOGIN -->
-  <section id="login">
-    <div class="login-card">
-      <h2 style="margin:0 0 8px">Entrar</h2>
-      <p class="muted" style="margin:0 0 12px">Use a senha do editor (definida em <code>data.json → auth.cms_password</code>).</p>
-      <div class="grid grid2">
-        <div>
-          <label class="muted">Senha</label>
-          <input id="cms-pass" type="password" placeholder="••••••••"/>
-        </div>
-        <div style="align-self:end">
-          <button class="btn primary" id="btnLogin">Entrar</button>
-        </div>
-      </div>
-      <div id="loginMsg" class="muted" style="margin-top:10px"></div>
-    </div>
-  </section>
+  <script>
+    // Dados iniciais
+    let siteData = {
+      banner: {
+        title: "Cuidado integral para a melhor idade",
+        subtitle: "Prevenção, tratamento e acolhimento especializado em geriatria. Nossa missão é proporcionar qualidade de vida e bem-estar aos idosos.",
+        buttonText: "Agendar Consulta",
+        buttonLink: "#agendar",
+        image: ""
+      },
+      news: [
+        {
+          id: 1,
+          title: "Campanha de Vacinação 2025",
+          summary: "Confira o calendário atualizado de vacinas para idosos e os locais de aplicação.",
+          date: "2025-03-15",
+          readTime: 3,
+          icon: ""
+        },
+        {
+          id: 2,
+          title: "Prevenção de Quedas em Idosos",
+          summary: "Dicas essenciais para adaptar o ambiente doméstico e prevenir acidentes.",
+          date: "2025-03-10",
+          readTime: 5,
+          icon: ""
+        },
+        {
+          id: 3,
+          title: "Alimentação na Terceira Idade",
+          summary: "Guia completo sobre nutrição adequada para manter a saúde e vitalidade.",
+          date: "2025-03-05",
+          readTime: 4,
+          icon: ""
+        }
+      ],
+      topics: [
+        {
+          id: 1,
+          title: "Demência",
+          description: "Informações sobre diagnóstico, tratamento e cuidados com pacientes.",
+          icon: "fas fa-brain"
+        },
+        {
+          id: 2,
+          title: "Osteoporose",
+          description: "Prevenção, diagnóstico e tratamento para manter a saúde óssea.",
+          icon: "fas fa-bone"
+        },
+        {
+          id: 3,
+          title: "Doenças Cardiovasculares",
+          description: "Orientações sobre prevenção e controle de problemas cardíacos.",
+          icon: "fas fa-heart"
+        },
+        {
+          id: 4,
+          title: "Doenças Respiratórias",
+          description: "Cuidados com a saúde pulmonar e tratamento de condições crônicas.",
+          icon: "fas fa-lungs"
+        }
+      ]
+    };
 
-  <!-- APP -->
-  <section id="app" style="display:none">
-    <div class="tabs">
-      <div class="tab active" data-panel="panel-banner">Banner</div>
-      <div class="tab" data-panel="panel-news">Notícias</div>
-      <div class="tab" data-panel="panel-topics">Tópicos</div>
-      <div class="tab" data-panel="panel-publicar">Publicar</div>
-    </div>
+    // Carregar dados salvos
+    function loadData() {
+      const saved = localStorage.getItem('geriatria360-data');
+      if (saved) {
+        siteData = JSON.parse(saved);
+      }
+      renderBannerForm();
+      renderNewsList();
+      renderTopicsList();
+    }
 
-    <!-- BANNER -->
-    <div id="panel-banner">
-      <div class="adm-grid">
-        <div class="list">
-          <div class="head">
-            <div><b>Itens do banner</b> <span class="pill-badge" id="countBanner">0</span></div>
-            <button class="btn" id="addBanner">Novo</button>
+    // Salvar dados
+    function saveData() {
+      localStorage.setItem('geriatria360-data', JSON.stringify(siteData));
+      alert('Dados salvos com sucesso!');
+    }
+
+    // Navegação por abas
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        const tabId = this.dataset.tab;
+        
+        // Atualizar navegação
+        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Mostrar aba correspondente
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+
+    // Banner Form
+    function renderBannerForm() {
+      document.getElementById('heroTitle').value = siteData.banner.title;
+      document.getElementById('heroSubtitle').value = siteData.banner.subtitle;
+      document.getElementById('heroButtonText').value = siteData.banner.buttonText;
+      document.getElementById('heroButtonLink').value = siteData.banner.buttonLink;
+      if (siteData.banner.image) {
+        document.getElementById('heroImagePreview').src = siteData.banner.image;
+        document.getElementById('heroImagePreview').style.display = 'block';
+      }
+    }
+
+    document.getElementById('bannerForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      siteData.banner.title = document.getElementById('heroTitle').value;
+      siteData.banner.subtitle = document.getElementById('heroSubtitle').value;
+      siteData.banner.buttonText = document.getElementById('heroButtonText').value;
+      siteData.banner.buttonLink = document.getElementById('heroButtonLink').value;
+      saveData();
+    });
+
+    // Upload de imagem do banner
+    document.getElementById('heroImageUpload').addEventListener('click', function() {
+      document.getElementById('heroImage').click();
+    });
+
+    document.getElementById('heroImage').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          siteData.banner.image = event.target.result;
+          document.getElementById('heroImagePreview').src = event.target.result;
+          document.getElementById('heroImagePreview').style.display = 'block';
+          saveData();
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Notícias
+    function renderNewsList() {
+      const newsList = document.getElementById('newsList');
+      newsList.innerHTML = '';
+
+      if (siteData.news.length === 0) {
+        newsList.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-newspaper"></i>
+            <p>Nenhuma notícia cadastrada</p>
           </div>
-          <div id="bannerList"></div>
-          <div class="empty" id="bannerEmpty" style="display:none">Nenhum item.</div>
-        </div>
+        `;
+        return;
+      }
 
-        <div class="form">
-          <h3 style="margin:0 0 8px">Editor do Banner</h3>
-          
-          <div class="grid grid2">
-            <div>
-              <label class="muted">Título</label>
-              <input id="b_title" placeholder="Ex.: Campanha de Vacinação"/>
-            </div>
-            <div>
-              <label class="muted">Data</label>
-              <input id="b_date" type="date"/>
-            </div>
-            <div>
-              <label class="muted">Tag</label>
-              <input id="b_tag" placeholder="Importante / Prevenção"/>
-            </div>
+      siteData.news.forEach(news => {
+        const newsItem = document.createElement('div');
+        newsItem.className = 'list-item';
+        newsItem.innerHTML = `
+          <div>
+            <h3>${news.title}</h3>
+            <p>${news.summary}</p>
+            <small>${news.date} • ${news.readTime} min leitura</small>
           </div>
-
-          <!-- Área de upload de imagem para banner -->
-          <div style="margin: 15px 0;">
-            <label class="muted">Imagem do Banner</label>
-            <div class="image-upload-area" id="bannerImageUpload">
-              <i class="fas fa-cloud-upload-alt"></i>
-              <div>Clique para adicionar imagem</div>
-              <input type="file" id="b_imageFile" accept="image/*" style="display: none"/>
-            </div>
-            <img id="bannerImagePreview" class="image-preview" style="display:none"/>
-            <input type="text" id="b_image" placeholder="Ou cole URL da imagem" style="margin-top: 10px; width: 100%"/>
+          <div class="list-actions">
+            <button class="btn btn-outline edit-news" data-id="${news.id}">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-danger delete-news" data-id="${news.id}">
+              <i class="fas fa-trash"></i>
+            </button>
           </div>
+        `;
+        newsList.appendChild(newsItem);
+      });
 
-          <!-- Editor de texto rico para banner -->
-          <div style="margin: 15px 0;">
-            <label class="muted">Descrição/Conteúdo</label>
-            <div class="editor-toolbar">
-              <button type="button" data-cmd="bold"><i class="fas fa-bold"></i></button>
-              <button type="button" data-cmd="italic"><i class="fas fa-italic"></i></button>
-              <button type="button" data-cmd="insertUnorderedList"><i class="fas fa-list-ul"></i></button>
-              <button type="button" data-cmd="insertOrderedList"><i class="fas fa-list-ol"></i></button>
-              <button type="button" data-cmd="createLink"><i class="fas fa-link"></i></button>
-            </div>
-            <div class="editor-rico" id="b_content" contenteditable="true"></div>
+      // Eventos para editar e excluir
+      document.querySelectorAll('.edit-news').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const newsId = parseInt(this.dataset.id);
+          editNews(newsId);
+        });
+      });
+
+      document.querySelectorAll('.delete-news').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const newsId = parseInt(this.dataset.id);
+          deleteNews(newsId);
+        });
+      });
+    }
+
+    document.getElementById('addNewsBtn').addEventListener('click', function() {
+      document.getElementById('newsFormTitle').textContent = 'Adicionar Notícia';
+      document.getElementById('newsForm').reset();
+      document.getElementById('newsId').value = '';
+      document.getElementById('newsIconPreview').style.display = 'none';
+      document.getElementById('newsFormCard').style.display = 'block';
+    });
+
+    document.getElementById('cancelNewsBtn').addEventListener('click', function() {
+      document.getElementById('newsFormCard').style.display = 'none';
+    });
+
+    document.getElementById('newsForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const newsId = document.getElementById('newsId').value;
+      const newsData = {
+        title: document.getElementById('newsTitle').value,
+        summary: document.getElementById('newsSummary').value,
+        date: document.getElementById('newsDate').value,
+        readTime: parseInt(document.getElementById('newsReadTime').value),
+        icon: siteData.news.find(n => n.id === parseInt(newsId))?.icon || ''
+      };
+
+      if (newsId) {
+        // Editar existente
+        const index = siteData.news.findIndex(n => n.id === parseInt(newsId));
+        if (index !== -1) {
+          newsData.id = parseInt(newsId);
+          siteData.news[index] = newsData;
+        }
+      } else {
+        // Nova notícia
+        newsData.id = Date.now();
+        siteData.news.push(newsData);
+      }
+
+      saveData();
+      renderNewsList();
+      document.getElementById('newsFormCard').style.display = 'none';
+    });
+
+    // Upload de ícone para notícia
+    document.getElementById('newsIconUpload').addEventListener('click', function() {
+      document.getElementById('newsIcon').click();
+    });
+
+    document.getElementById('newsIcon').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          document.getElementById('newsIconPreview').src = event.target.result;
+          document.getElementById('newsIconPreview').style.display = 'block';
+          // Aqui você precisaria salvar a imagem na notícia atual sendo editada
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function editNews(id) {
+      const news = siteData.news.find(n => n.id === id);
+      if (news) {
+        document.getElementById('newsFormTitle').textContent = 'Editar Notícia';
+        document.getElementById('newsId').value = news.id;
+        document.getElementById('newsTitle').value = news.title;
+        document.getElementById('newsSummary').value = news.summary;
+        document.getElementById('newsDate').value = news.date;
+        document.getElementById('newsReadTime').value = news.readTime;
+        if (news.icon) {
+          document.getElementById('newsIconPreview').src = news.icon;
+          document.getElementById('newsIconPreview').style.display = 'block';
+        }
+        document.getElementById('newsFormCard').style.display = 'block';
+      }
+    }
+
+    function deleteNews(id) {
+      if (confirm('Tem certeza que deseja excluir esta notícia?')) {
+        siteData.news = siteData.news.filter(n => n.id !== id);
+        saveData();
+        renderNewsList();
+      }
+    }
+
+    // Tópicos
+    function renderTopicsList() {
+      const topicsList = document.getElementById('topicsList');
+      topicsList.innerHTML = '';
+
+      if (siteData.topics.length === 0) {
+        topicsList.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-folder"></i>
+            <p>Nenhum tópico cadastrado</p>
           </div>
+        `;
+        return;
+      }
 
-          <div class="footer-bar">
-            <button class="btn primary" id="saveBanner">Salvar</button>
-            <button class="btn" id="resetBanner">Limpar</button>
+      siteData.topics.forEach(topic => {
+        const topicItem = document.createElement('div');
+        topicItem.className = 'list-item';
+        topicItem.innerHTML = `
+          <div>
+            <h3><i class="${topic.icon}"></i> ${topic.title}</h3>
+            <p>${topic.description}</p>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- NEWS -->
-    <div id="panel-news" style="display:none">
-      <div class="adm-grid">
-        <div class="list">
-          <div class="head">
-            <div><b>Notícias</b> <span class="pill-badge" id="countNews">0</span></div>
-            <button class="btn" id="addNews">Nova</button>
+          <div class="list-actions">
+            <button class="btn btn-outline edit-topic" data-id="${topic.id}">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-danger delete-topic" data-id="${topic.id}">
+              <i class="fas fa-trash"></i>
+            </button>
           </div>
-          <div id="newsList"></div>
-          <div class="empty" id="newsEmpty" style="display:none">Nenhuma notícia.</div>
-        </div>
+        `;
+        topicsList.appendChild(topicItem);
+      });
 
-        <div class="form">
-          <h3 style="margin:0 0 8px">Editor de Notícias</h3>
-          <div class="grid grid2">
-            <div>
-              <label class="muted">Título</label>
-              <input id="n_title" placeholder="Ex.: Sarcopenia: sinais de alerta"/>
-            </div>
-            <div>
-              <label class="muted">Tipo</label>
-              <select id="n_type">
-                <option>Notícia</option>
-                <option>Artigo</option>
-                <option>Comunicado</option>
-              </select>
-            </div>
-            <div>
-              <label class="muted">Data</label>
-              <input id="n_date" type="date"/>
-            </div>
-            <div>
-              <label class="muted">Link (href)</label>
-              <input id="n_href" placeholder="post.html?id=1"/>
-            </div>
-          </div>
+      // Eventos para editar e excluir
+      document.querySelectorAll('.edit-topic').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const topicId = parseInt(this.dataset.id);
+          editTopic(topicId);
+        });
+      });
 
-          <!-- Imagem para notícias -->
-          <div style="margin: 15px 0;">
-            <label class="muted">Imagem da Notícia</label>
-            <div class="image-upload-area" id="newsImageUpload">
-              <i class="fas fa-cloud-upload-alt"></i>
-              <div>Clique para adicionar imagem</div>
-              <input type="file" id="n_imageFile" accept="image/*" style="display: none"/>
-            </div>
-            <img id="newsImagePreview" class="image-preview" style="display:none"/>
-            <input type="text" id="n_image" placeholder="Ou cole URL da imagem" style="margin-top: 10px; width: 100%"/>
-          </div>
+      document.querySelectorAll('.delete-topic').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const topicId = parseInt(this.dataset.id);
+          deleteTopic(topicId);
+        });
+      });
+    }
 
-          <!-- Editor de texto rico para notícias -->
-          <div style="margin: 15px 0;">
-            <label class="muted">Conteúdo da Notícia</label>
-            <div class="editor-toolbar">
-              <button type="button" data-cmd="bold"><i class="fas fa-bold"></i></button>
-              <button type="button" data-cmd="italic"><i class="fas fa-italic"></i></button>
-              <button type="button" data-cmd="insertUnorderedList"><i class="fas fa-list-ul"></i></button>
-              <button type="button" data-cmd="insertOrderedList"><i class="fas fa-list-ol"></i></button>
-              <button type="button" data-cmd="createLink"><i class="fas fa-link"></i></button>
-            </div>
-            <div class="editor-rico" id="n_content" contenteditable="true"></div>
-          </div>
+    document.getElementById('addTopicBtn').addEventListener('click', function() {
+      document.getElementById('topicFormTitle').textContent = 'Adicionar Tópico';
+      document.getElementById('topicForm').reset();
+      document.getElementById('topicId').value = '';
+      document.getElementById('topicFormCard').style.display = 'block';
+    });
 
-          <div class="footer-bar">
-            <button class="btn primary" id="saveNews">Salvar</button>
-            <button class="btn" id="resetNews">Limpar</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    document.getElementById('cancelTopicBtn').addEventListener('click', function() {
+      document.getElementById('topicFormCard').style.display = 'none';
+    });
 
-    <!-- TOPICS -->
-    <div id="panel-topics" style="display:none">
-      <div class="adm-grid">
-        <div class="list">
-          <div class="head">
-            <div><b>Tópicos</b> <span class="pill-badge" id="countTopics">0</span></div>
-            <button class="btn" id="addTopic">Novo</button>
-          </div>
-          <div id="topicsList"></div>
-          <div class="empty" id="topicsEmpty" style="display:none">Nenhum tópico.</div>
-        </div>
+    document.getElementById('topicForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const topicId = document.getElementById('topicId').value;
+      const topicData = {
+        title: document.getElementById('topicTitle').value,
+        description: document.getElementById('topicDescription').value,
+        icon: document.getElementById('topicIcon').value
+      };
 
-        <div class="form">
-          <h3 style="margin:0 0 8px">Editor de Tópicos</h3>
-          <div class="grid grid2">
-            <div>
-              <label class="muted">Título</label>
-              <input id="t_title" placeholder="Ex.: Doença de Alzheimer"/>
-            </div>
-            <div>
-              <label class="muted">Subtítulo</label>
-              <input id="t_subtitle" placeholder="Sinais e condutas iniciais."/>
-            </div>
-            <div>
-              <label class="muted">Link (href)</label>
-              <input id="t_href" placeholder="post.html?id=alzheimer"/>
-            </div>
-          </div>
+      if (topicId) {
+        // Editar existente
+        const index = siteData.topics.findIndex(t => t.id === parseInt(topicId));
+        if (index !== -1) {
+          topicData.id = parseInt(topicId);
+          siteData.topics[index] = topicData;
+        }
+      } else {
+        // Novo tópico
+        topicData.id = Date.now();
+        siteData.topics.push(topicData);
+      }
 
-          <!-- Imagem para tópicos -->
-          <div style="margin: 15px 0;">
-            <label class="muted">Imagem do Tópico</label>
-            <div class="image-upload-area" id="topicImageUpload">
-              <i class="fas fa-cloud-upload-alt"></i>
-              <div>Clique para adicionar imagem</div>
-              <input type="file" id="t_imageFile" accept="image/*" style="display: none"/>
-            </div>
-            <img id="topicImagePreview" class="image-preview" style="display:none"/>
-            <input type="text" id="t_image" placeholder="Ou cole URL da imagem" style="margin-top: 10px; width: 100%"/>
-          </div>
+      saveData();
+      renderTopicsList();
+      document.getElementById('topicFormCard').style.display = 'none';
+    });
 
-          <!-- Editor de texto rico para tópicos -->
-          <div style="margin: 15px 0;">
-            <label class="muted">Conteúdo Detalhado</label>
-            <div class="editor-toolbar">
-              <button type="button" data-cmd="bold"><i class="fas fa-bold"></i></button>
-              <button type="button" data-cmd="italic"><i class="fas fa-italic"></i></button>
-              <button type="button" data-cmd="insertUnorderedList"><i class="fas fa-list-ul"></i></button>
-              <button type="button" data-cmd="insertOrderedList"><i class="fas fa-list-ol"></i></button>
-              <button type="button" data-cmd="createLink"><i class="fas fa-link"></i></button>
-            </div>
-            <div class="editor-rico" id="t_content" contenteditable="true"></div>
-          </div>
+    function editTopic(id) {
+      const topic = siteData.topics.find(t => t.id === id);
+      if (topic) {
+        document.getElementById('topicFormTitle').textContent = 'Editar Tópico';
+        document.getElementById('topicId').value = topic.id;
+        document.getElementById('topicTitle').value = topic.title;
+        document.getElementById('topicDescription').value = topic.description;
+        document.getElementById('topicIcon').value = topic.icon;
+        document.getElementById('topicFormCard').style.display = 'block';
+      }
+    }
 
-          <div class="footer-bar">
-            <button class="btn primary" id="saveTopic">Salvar</button>
-            <button class="btn" id="resetTopic">Limpar</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    function deleteTopic(id) {
+      if (confirm('Tem certeza que deseja excluir este tópico?')) {
+        siteData.topics = siteData.topics.filter(t => t.id !== id);
+        saveData();
+        renderTopicsList();
+      }
+    }
 
-    <!-- PUBLICAR -->
-    <div id="panel-publicar" style="display:none">
-      <div class="card">
-        <h3 style="margin-top:0">Publicar alterações</h3>
-        <p class="muted">Como é um site estático, exporte o <code>data.json</code> e substitua no repositório.</p>
-        <div class="seg" style="gap:10px;margin:10px 0 0">
-          <button class="btn primary" id="downloadJson">Baixar data.json</button>
-          <button class="btn" id="copyJson">Copiar JSON</button>
-          <button class="btn" id="openRepo">Abrir repositório</button>
-        </div>
-        <textarea id="jsonPreview" class="editor" style="margin-top:14px;min-height:200px" spellcheck="false"></textarea>
-      </div>
-    </div>
+    // Exportar/Importar
+    document.getElementById('exportData').addEventListener('click', function() {
+      const dataStr = JSON.stringify(siteData, null, 2);
+      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+      const exportFileDefaultName = 'geriatria360-data.json';
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', exportFileDefaultName);
+      linkElement.click();
+    });
 
-  </section>
-</main>
+    document.getElementById('importData').addEventListener('click', function() {
+      document.getElementById('importFile').click();
+    });
 
-<script src="admin.js" defer></script>
+    document.getElementById('importFile').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          try {
+            const importedData = JSON.parse(event.target.result);
+            siteData = importedData;
+            saveData();
+            loadData();
+            alert('Dados importados com sucesso!');
+          } catch (error) {
+            alert('Erro ao importar dados. Verifique o arquivo.');
+          }
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    // Inicializar
+    loadData();
+  </script>
 </body>
 </html>
