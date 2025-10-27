@@ -261,8 +261,14 @@
           Geriatria 360 - Triagem
         </a>
         <nav>
+          <span style="margin-right: 15px; color: var(--primary);">
+            <i class="fas fa-user-nurse"></i> Enfermeiro
+          </span>
           <a href="recepcao.html" class="btn">Recepção</a>
-          <a href="medicos.html" class="btn">Médicos</a>
+          <a href="medico.html" class="btn">Médicos</a>
+          <button onclick="sair()" class="btn" style="background: #e74c3c; margin-left: 10px;">
+            <i class="fas fa-sign-out-alt"></i> Sair
+          </button>
         </nav>
       </div>
     </div>
@@ -392,6 +398,27 @@
   </main>
 
   <script>
+    // ===== VERIFICAÇÃO DE LOGIN =====
+    (function() {
+        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        
+        if (!usuarioLogado || usuarioLogado.area !== 'triagem') {
+            window.location.href = 'login-geral.html';
+            return;
+        }
+        
+        // Verificar se o login expirou (8 horas)
+        const loginTime = new Date(usuarioLogado.loginTime);
+        const agora = new Date();
+        const diferencaHoras = (agora - loginTime) / (1000 * 60 * 60);
+        
+        if (diferencaHoras > 8) {
+            localStorage.removeItem('usuarioLogado');
+            window.location.href = 'login-geral.html';
+            return;
+        }
+    })();
+
     // "Banco de dados" simulado no LocalStorage
     let pacientes = JSON.parse(localStorage.getItem('geriatria_pacientes')) || [];
     let agendamentos = JSON.parse(localStorage.getItem('geriatria_agendamentos')) || [];
@@ -597,6 +624,14 @@
       // Recarregar lista
       carregarPacientesTriagem();
     });
+
+    // Função de logout
+    function sair() {
+        if (confirm('Deseja realmente sair do sistema?')) {
+            localStorage.removeItem('usuarioLogado');
+            window.location.href = 'login-geral.html';
+        }
+    }
 
     // Inicialização
     document.addEventListener('DOMContentLoaded', function() {
