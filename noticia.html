@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notícia - Geriatria 360</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Reset e variáveis - Mesmo estilo do site principal */
+    :root {
+      --primary: #2c5aa0;
+      --primary-light: #4a7bc8;
+      --secondary: #34a38a;
+      --accent: #ff7b54;
+      --light: #f8f9fa;
+      --dark: #343a40;
+      --gray: #6c757d;
+      --gray-light: #e9ecef;
+      --border-radius: 12px;
+      --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: var(--dark);
+      background-color: #fff;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    /* Header moderno */
+    header {
+      background: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+    
+    .logo i {
+      font-size: 1.8rem;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 25px;
+    }
+    
+    .nav-links a {
+      text-decoration: none;
+      color: var(--dark);
+      font-weight: 500;
+      transition: var(--transition);
+      position: relative;
+    }
+    
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+    
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--primary);
+      transition: var(--transition);
+    }
+    
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+    
+    .btn-whatsapp {
+      background: #25D366;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+      box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);
+    }
+    
+    .btn-whatsapp:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(37, 211, 102, 0.4);
+    }
+    
+    .mobile-menu {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    /* Conteúdo da Notícia */
+    .noticia-header {
+      padding: 60px 0 30px;
+      text-align: center;
+      background: var(--light);
+      border-bottom: 1px solid var(--gray-light);
+    }
+
+    .noticia-title {
+      font-size: 2.5rem;
+      color: var(--primary);
+      margin-bottom: 20px;
+      line-height: 1.3;
+    }
+
+    .noticia-meta {
+      color: var(--gray);
+      font-size: 1.1rem;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .noticia-image {
+      width: 100%;
+      max-height: 500px;
+      object-fit: cover;
+      border-radius: var(--border-radius);
+      margin: 30px 0;
+      box-shadow: var(--box-shadow);
+    }
+
+    .noticia-content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 50px 20px;
+    }
+
+    .noticia-content p {
+      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+      line-height: 1.8;
+      color: var(--dark);
+    }
+
+    .noticia-content h2 {
+      color: var(--primary);
+      margin: 2.5rem 0 1.5rem;
+      font-size: 1.8rem;
+    }
+
+    .noticia-content h3 {
+      color: var(--primary-light);
+      margin: 2rem 0 1rem;
+      font-size: 1.4rem;
+    }
+
+    .noticia-content ul, .noticia-content ol {
+      margin-bottom: 1.5rem;
+      padding-left: 2rem;
+    }
+
+    .noticia-content li {
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .noticia-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: var(--border-radius);
+      margin: 1.5rem 0;
+      box-shadow: var(--box-shadow);
+    }
+
+    .noticia-content blockquote {
+      border-left: 4px solid var(--primary);
+      padding-left: 1.5rem;
+      margin: 2rem 0;
+      font-style: italic;
+      color: var(--gray);
+    }
+
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 25px;
+      background: var(--primary);
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      margin: 30px 0;
+      transition: var(--transition);
+      font-weight: 600;
+    }
+
+    .back-button:hover {
+      background: var(--primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(44, 90, 160, 0.3);
+    }
+
+    /* Footer */
+    footer {
+      background: var(--dark);
+      color: white;
+      padding: 60px 0 30px;
+      margin-top: 50px;
+    }
+    
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    
+    .footer-column h3 {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      color: white;
+    }
+    
+    .footer-links {
+      list-style: none;
+    }
+    
+    .footer-links li {
+      margin-bottom: 10px;
+    }
+    
+    .footer-links a {
+      color: var(--gray-light);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    
+    .footer-links a:hover {
+      color: white;
+      padding-left: 5px;
+    }
+    
+    .footer-contact li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+      color: var(--gray-light);
+    }
+    
+    .footer-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--gray-light);
+      font-size: 0.9rem;
+    }
+    
+    .social-links {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .social-links a {
+      color: white;
+      font-size: 1.2rem;
+      transition: var(--transition);
+    }
+    
+    .social-links a:hover {
+      color: var(--primary-light);
+    }
+    
+    /* Responsividade */
+    @media (max-width: 992px) {
+      .footer-content {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .noticia-title {
+        font-size: 2.2rem;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+      
+      .mobile-menu {
+        display: block;
+      }
+      
+      .noticia-title {
+        font-size: 1.8rem;
+      }
+      
+      .noticia-content {
+        padding: 30px 15px;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .footer-content {
+        grid-template-columns: 1fr;
+      }
+      
+      .footer-bottom {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+      }
+
+      .noticia-meta {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .noticia-title {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <a href="index.html" class="logo">
+          <i class="fas fa-heartbeat"></i>
+          <span>Geriatria 360</span>
+        </a>
+        
+        <nav class="nav-links">
+          <a href="index.html">Início</a>
+          <a href="index.html#agendar">Agendamento</a>
+          <a href="medicos.html">Área Médica</a>
+          <a href="admin.html">Editor</a>
+        </nav>
+        
+        <a href="https://wa.me/5511999999999" class="btn-whatsapp" target="_blank">
+          <i class="fab fa-whatsapp"></i>
+          WhatsApp
+        </a>
+        
+        <button class="mobile-menu">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Conteúdo da Notícia -->
+  <main>
+    <div class="container">
+      <a href="index.html" class="back-button">
+        <i class="fas fa-arrow-left"></i> Voltar para Notícias
+      </a>
+      <article id="noticia-container">
+        <!-- O conteúdo da notícia será carregado aqui pelo JavaScript -->
+        <div style="text-align: center; padding: 60px 20px;">
+          <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary); margin-bottom: 20px;"></i>
+          <p>Carregando notícia...</p>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-column">
+          <h3>Geriatria 360</h3>
+          <p style="color: #adb5bd; margin-bottom: 20px;">Cuidado integral e especializado para a melhor idade.</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        
+        <div class="footer-column">
+          <h3>Links Rápidos</h3>
+          <ul class="footer-links">
+            <li><a href="index.html">Início</a></li>
+            <li><a href="index.html#agendar">Agendamento</a></li>
+            <li><a href="medicos.html">Área Médica</a></li>
+            <li><a href="admin.html">Editor</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-column">
+          <h3>Informações</h3>
+          <ul class="footer-links">
+            <li><a href="#">Sobre Nós</a></li>
+            <li><a href="#">Nossa Equipe</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Contato</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-column">
+          <h3>Contato</h3>
+          <ul class="footer-contact">
+            <li>
+              <i class="fas fa-map-marker-alt"></i>
+              <span>Av. Paulista, 1000 - São Paulo, SP</span>
+            </li>
+            <li>
+              <i class="fas fa-phone-alt"></i>
+              <span>(11) 3333-4444</span>
+            </li>
+            <li>
+              <i class="far fa-envelope"></i>
+              <span>contato@geriatria360.com.br</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <div>© 2025 Geriatria 360. Todos os direitos reservados.</div>
+        <div>
+          <a href="#" style="color: #adb5bd; text-decoration: none; margin-left: 15px;">Política de Privacidade</a>
+          <a href="#" style="color: #adb5bd; text-decoration: none; margin-left: 15px;">Termos de Uso</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Função para obter parâmetro da URL
+    function getUrlParameter(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+
+    // Carregar dados do localStorage
+    function loadSiteData() {
+      try {
+        const savedData = localStorage.getItem('geriatria360-data');
+        return savedData ? JSON.parse(savedData) : { news: [] };
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+        return { news: [] };
+      }
+    }
+
+    // Formatar data
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR');
+    }
+
+    // Carregar a notícia
+    function loadNoticia() {
+      const noticiaId = getUrlParameter('id');
+      
+      if (!noticiaId) {
+        document.getElementById('noticia-container').innerHTML = `
+          <div class="noticia-header">
+            <h1 class="noticia-title">Notícia não encontrada</h1>
+            <p>O ID da notícia não foi fornecido na URL.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const siteData = loadSiteData();
+      const noticia = siteData.news.find(n => n.id == noticiaId);
+
+      if (!noticia) {
+        document.getElementById('noticia-container').innerHTML = `
+          <div class="noticia-header">
+            <h1 class="noticia-title">Notícia não encontrada</h1>
+            <p>A notícia solicitada não existe ou foi removida.</p>
+            <a href="index.html" class="back-button" style="margin-top: 20px;">
+              <i class="fas fa-arrow-left"></i> Voltar para Notícias
+            </a>
+          </div>
+        `;
+        return;
+      }
+
+      // Exibir a notícia completa
+      document.getElementById('noticia-container').innerHTML = `
+        <div class="noticia-header">
+          <h1 class="noticia-title">${noticia.title}</h1>
+          <div class="noticia-meta">
+            <span><i class="far fa-calendar"></i> Publicado em ${formatDate(noticia.date)}</span>
+            <span><i class="far fa-clock"></i> ${noticia.readTime} min de leitura</span>
+            <span><i class="fas fa-tag"></i> ${noticia.category || 'Geral'}</span>
+          </div>
+        </div>
+        
+        ${noticia.image ? `
+          <div style="text-align: center; margin: 30px 0;">
+            <img src="${noticia.image}" alt="${noticia.title}" class="noticia-image">
+          </div>
+        ` : ''}
+        
+        <div class="noticia-content">
+          ${noticia.content || `
+            <p><strong>Resumo:</strong> ${noticia.description}</p>
+            <p>O conteúdo completo desta notícia estará disponível em breve.</p>
+          `}
+        </div>
+      `;
+
+      // Atualizar título da página
+      document.title = `${noticia.title} - Geriatria 360`;
+    }
+
+    // Menu mobile toggle
+    document.querySelector('.mobile-menu')?.addEventListener('click', function() {
+      document.querySelector('.nav-links').classList.toggle('active');
+    });
+
+    // Smooth scroll para links internos
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        if(targetId === '#') return;
+        const targetElement = document.querySelector(targetId);
+        if(targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+
+    // Carregar a notícia quando a página carregar
+    document.addEventListener('DOMContentLoaded', loadNoticia);
+  </script>
+</body>
+</html>
