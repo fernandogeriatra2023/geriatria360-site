@@ -4,9 +4,10 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Editor · Geriatria 360</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="styles.css"/>
   <style>
-    /* ====== Admin styles (só aqui) ====== */
+    /* ====== Admin styles atualizados ====== */
     .admin-top{position:sticky;top:0;background:rgba(255,255,255,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);z-index:10}
     .admin-top .row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0}
     .brand{font-weight:800}
@@ -33,13 +34,61 @@
     .footer-bar{display:flex;gap:10px;flex-wrap:wrap;padding:12px;border-top:1px solid var(--border);background:#fff;border-radius:0 0 16px 16px}
     .empty{padding:20px;text-align:center;color:var(--muted)}
     .login-card{max-width:420px;margin:12vh auto;border:1px solid var(--border);border-radius:16px;background:#fff;padding:22px}
+    
+    /* Novos estilos para editor rico e imagens */
+    .editor-rico {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 200px;
+      background: #fff;
+    }
+    .editor-toolbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .editor-toolbar button {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+    }
+    .editor-toolbar button:hover {
+      background: #f8fafc;
+    }
+    .image-preview {
+      max-width: 200px;
+      max-height: 150px;
+      border-radius: 8px;
+      margin-top: 10px;
+      border: 1px solid var(--border);
+    }
+    .image-upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    .image-upload-area:hover {
+      background: #f8fafc;
+    }
+    .image-upload-area i {
+      font-size: 24px;
+      margin-bottom: 8px;
+      color: var(--muted);
+    }
   </style>
 </head>
 <body>
 
 <header class="admin-top">
   <div class="container row">
-    <div class="brand">Geriatria 360 · <span class="muted">Editor</span></div>
+    <div class="brand">Geriatria 360 · <span class="muted">Editor Profissional</span></div>
     <nav class="seg">
       <a class="btn" href="index.html">Voltar ao site</a>
       <a id="repoLink" class="btn" target="_blank">Abrir repositório</a>
@@ -88,7 +137,8 @@
         </div>
 
         <div class="form">
-          <h3 style="margin:0 0 8px">Editor</h3>
+          <h3 style="margin:0 0 8px">Editor do Banner</h3>
+          
           <div class="grid grid2">
             <div>
               <label class="muted">Título</label>
@@ -103,6 +153,32 @@
               <input id="b_tag" placeholder="Importante / Prevenção"/>
             </div>
           </div>
+
+          <!-- Área de upload de imagem para banner -->
+          <div style="margin: 15px 0;">
+            <label class="muted">Imagem do Banner</label>
+            <div class="image-upload-area" id="bannerImageUpload">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <div>Clique para adicionar imagem</div>
+              <input type="file" id="b_imageFile" accept="image/*" style="display: none"/>
+            </div>
+            <img id="bannerImagePreview" class="image-preview" style="display:none"/>
+            <input type="text" id="b_image" placeholder="Ou cole URL da imagem" style="margin-top: 10px; width: 100%"/>
+          </div>
+
+          <!-- Editor de texto rico para banner -->
+          <div style="margin: 15px 0;">
+            <label class="muted">Descrição/Conteúdo</label>
+            <div class="editor-toolbar">
+              <button type="button" data-cmd="bold"><i class="fas fa-bold"></i></button>
+              <button type="button" data-cmd="italic"><i class="fas fa-italic"></i></button>
+              <button type="button" data-cmd="insertUnorderedList"><i class="fas fa-list-ul"></i></button>
+              <button type="button" data-cmd="insertOrderedList"><i class="fas fa-list-ol"></i></button>
+              <button type="button" data-cmd="createLink"><i class="fas fa-link"></i></button>
+            </div>
+            <div class="editor-rico" id="b_content" contenteditable="true"></div>
+          </div>
+
           <div class="footer-bar">
             <button class="btn primary" id="saveBanner">Salvar</button>
             <button class="btn" id="resetBanner">Limpar</button>
@@ -124,7 +200,7 @@
         </div>
 
         <div class="form">
-          <h3 style="margin:0 0 8px">Editor</h3>
+          <h3 style="margin:0 0 8px">Editor de Notícias</h3>
           <div class="grid grid2">
             <div>
               <label class="muted">Título</label>
@@ -147,6 +223,32 @@
               <input id="n_href" placeholder="post.html?id=1"/>
             </div>
           </div>
+
+          <!-- Imagem para notícias -->
+          <div style="margin: 15px 0;">
+            <label class="muted">Imagem da Notícia</label>
+            <div class="image-upload-area" id="newsImageUpload">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <div>Clique para adicionar imagem</div>
+              <input type="file" id="n_imageFile" accept="image/*" style="display: none"/>
+            </div>
+            <img id="newsImagePreview" class="image-preview" style="display:none"/>
+            <input type="text" id="n_image" placeholder="Ou cole URL da imagem" style="margin-top: 10px; width: 100%"/>
+          </div>
+
+          <!-- Editor de texto rico para notícias -->
+          <div style="margin: 15px 0;">
+            <label class="muted">Conteúdo da Notícia</label>
+            <div class="editor-toolbar">
+              <button type="button" data-cmd="bold"><i class="fas fa-bold"></i></button>
+              <button type="button" data-cmd="italic"><i class="fas fa-italic"></i></button>
+              <button type="button" data-cmd="insertUnorderedList"><i class="fas fa-list-ul"></i></button>
+              <button type="button" data-cmd="insertOrderedList"><i class="fas fa-list-ol"></i></button>
+              <button type="button" data-cmd="createLink"><i class="fas fa-link"></i></button>
+            </div>
+            <div class="editor-rico" id="n_content" contenteditable="true"></div>
+          </div>
+
           <div class="footer-bar">
             <button class="btn primary" id="saveNews">Salvar</button>
             <button class="btn" id="resetNews">Limpar</button>
@@ -168,7 +270,7 @@
         </div>
 
         <div class="form">
-          <h3 style="margin:0 0 8px">Editor</h3>
+          <h3 style="margin:0 0 8px">Editor de Tópicos</h3>
           <div class="grid grid2">
             <div>
               <label class="muted">Título</label>
@@ -183,6 +285,32 @@
               <input id="t_href" placeholder="post.html?id=alzheimer"/>
             </div>
           </div>
+
+          <!-- Imagem para tópicos -->
+          <div style="margin: 15px 0;">
+            <label class="muted">Imagem do Tópico</label>
+            <div class="image-upload-area" id="topicImageUpload">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <div>Clique para adicionar imagem</div>
+              <input type="file" id="t_imageFile" accept="image/*" style="display: none"/>
+            </div>
+            <img id="topicImagePreview" class="image-preview" style="display:none"/>
+            <input type="text" id="t_image" placeholder="Ou cole URL da imagem" style="margin-top: 10px; width: 100%"/>
+          </div>
+
+          <!-- Editor de texto rico para tópicos -->
+          <div style="margin: 15px 0;">
+            <label class="muted">Conteúdo Detalhado</label>
+            <div class="editor-toolbar">
+              <button type="button" data-cmd="bold"><i class="fas fa-bold"></i></button>
+              <button type="button" data-cmd="italic"><i class="fas fa-italic"></i></button>
+              <button type="button" data-cmd="insertUnorderedList"><i class="fas fa-list-ul"></i></button>
+              <button type="button" data-cmd="insertOrderedList"><i class="fas fa-list-ol"></i></button>
+              <button type="button" data-cmd="createLink"><i class="fas fa-link"></i></button>
+            </div>
+            <div class="editor-rico" id="t_content" contenteditable="true"></div>
+          </div>
+
           <div class="footer-bar">
             <button class="btn primary" id="saveTopic">Salvar</button>
             <button class="btn" id="resetTopic">Limpar</button>
