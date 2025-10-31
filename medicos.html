@@ -697,15 +697,15 @@
   <header class="medical-header">
     <div class="container">
       <div class="header-content">
-        <a href="index.html" class="medical-brand">
+        <a href="#" class="medical-brand">
           <i class="fas fa-heartbeat"></i>
           <span>Geriatria 360 - Área Médica</span>
         </a>
         
         <nav class="medical-nav">
-          <a href="index.html"><i class="fas fa-home"></i> Início</a>
-          <a href="recepcao.html"><i class="fas fa-user-injured"></i> Recepção</a>
-          <a href="triagem.html"><i class="fas fa-stethoscope"></i> Triagem</a>
+          <a href="#"><i class="fas fa-home"></i> Início</a>
+          <a href="#"><i class="fas fa-user-injured"></i> Recepção</a>
+          <a href="#"><i class="fas fa-stethoscope"></i> Triagem</a>
         </nav>
         
         <div class="medical-user">
@@ -1174,33 +1174,69 @@
   <script>
     // ===== VERIFICAÇÃO DE LOGIN - ÁREA MÉDICA =====
     (function() {
+        // Verificar se já está logado como médico
         const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
         
-        // Verificar se está logado como médico
-        if (!usuarioLogado || usuarioLogado.area !== 'medico') {
-            // Não redireciona imediatamente para mostrar a tela de login interna
-            // A área médica será escondida e a tela de login interna será mostrada
+        if (usuarioLogado && usuarioLogado.area === 'medico') {
+            // Se já está logado, mostrar área médica diretamente
+            document.getElementById('loginArea').style.display = 'none';
+            document.getElementById('medicalArea').style.display = 'block';
+            
+            // Inicializar componentes da área médica
+            initCIDSearch();
+            initCalendar();
+            setupTabNavigation();
+            carregarAgendamentosDoDia();
+        } else {
+            // Se não está logado, mostrar tela de login
             document.getElementById('loginArea').style.display = 'block';
             document.getElementById('medicalArea').style.display = 'none';
-            return;
         }
-        
-        // Verificar se o login expirou (8 horas)
-        const loginTime = new Date(usuarioLogado.loginTime);
-        const agora = new Date();
-        const diferencaHoras = (agora - loginTime) / (1000 * 60 * 60);
-        
-        if (diferencaHoras > 8) {
-            localStorage.removeItem('usuarioLogado');
-            document.getElementById('loginArea').style.display = 'block';
-            document.getElementById('medicalArea').style.display = 'none';
-            return;
-        }
-        
-        // Se passou na verificação, mostrar a área médica e esconder o login
-        document.getElementById('loginArea').style.display = 'none';
-        document.getElementById('medicalArea').style.display = 'block';
     })();
+
+    // ===== SISTEMA DE LOGIN MÉDICO =====
+    function loginMed() {
+      const crm = document.getElementById('med-user').value;
+      const senha = document.getElementById('med-pass').value;
+      
+      // Credenciais de teste
+      if (crm === '123456' && senha === 'medico123') {
+          // Salvar informações de login
+          const usuarioLogado = {
+              area: 'medico',
+              crm: crm,
+              nome: 'Dr. Silva',
+              loginTime: new Date().toISOString()
+          };
+          localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));
+          
+          // Esconder login e mostrar área médica
+          document.getElementById('loginArea').style.display = 'none';
+          document.getElementById('medicalArea').style.display = 'block';
+          
+          // Inicializar componentes
+          initCIDSearch();
+          initCalendar();
+          setupTabNavigation();
+          carregarAgendamentosDoDia();
+          
+          // Esconder mensagem de erro se estiver visível
+          document.getElementById('loginError').style.display = 'none';
+      } else {
+          // Mostrar mensagem de erro
+          document.getElementById('loginError').style.display = 'block';
+      }
+    }
+
+    // ===== FUNÇÃO DE LOGOUT =====
+    function sairMedico() {
+        if (confirm('Deseja realmente sair da área médica?')) {
+            localStorage.removeItem('usuarioLogado');
+            // Mostrar tela de login e esconder área médica
+            document.getElementById('loginArea').style.display = 'block';
+            document.getElementById('medicalArea').style.display = 'none';
+        }
+    }
 
     // ===== SISTEMA PRINCIPAL =====
     let currentAppointment = null;
@@ -1253,19 +1289,6 @@
       
       modelo4: `Atesto que {{nome}}, portador(a) do CPF {{cpf}}, necessita de acompanhante {{acompanhante}} para consultas e exames médicos devido à sua condição de saúde.{{cid}}`
     };
-    
-    // Login médico - redireciona para o sistema geral
-    function loginMed() {
-      window.location.href = 'login-geral.html';
-    }
-    
-    // Função de logout para área médica
-    function sairMedico() {
-        if (confirm('Deseja realmente sair da área médica?')) {
-            localStorage.removeItem('usuarioLogado');
-            window.location.href = 'login-geral.html';
-        }
-    }
     
     // Navegação por abas
     function setupTabNavigation() {
@@ -2514,18 +2537,6 @@
     function newAppointment() {
       alert('Abrindo formulário para novo agendamento...');
     }
-
-    // Inicialização quando a área médica é carregada
-    document.addEventListener('DOMContentLoaded', function() {
-      // Só inicializar se o usuário estiver logado
-      const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
-      if (usuarioLogado && usuarioLogado.area === 'medico') {
-        initCIDSearch();
-        initCalendar();
-        setupTabNavigation();
-        carregarAgendamentosDoDia();
-      }
-    });
   </script>
 </body>
 </html>
