@@ -454,7 +454,7 @@
         tr.innerHTML = `
           <td>${agendamento.pacienteNome}</td>
           <td>${agendamento.medico}</td>
-          <td>${new Date(agendamento.data).toLocaleDateString('pt-BR')} às ${agendamento.hora}</td>
+          <td>${formatarDataBrasil(agendamento.data)} às ${agendamento.hora}</td>
           <td>${statusBadge}</td>
           <td>
             <button onclick="encaminharTriagem('${agendamento.id}')" class="btn" style="padding: 5px 10px; font-size: 0.9rem;">
@@ -497,6 +497,22 @@
             window.location.href = 'login-geral.html';
         }
     }
+
+    // Função para formatar data no formato brasileiro
+function formatarDataBrasil(dataString) {
+  if (!dataString) return '';
+  
+  // Se já estiver no formato brasileiro, retorna como está
+  if (dataString.includes('/')) return dataString;
+  
+  // Converte de YYYY-MM-DD para DD/MM/YYYY
+  const partes = dataString.split('-');
+  if (partes.length === 3) {
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+  }
+  
+  return dataString;
+}
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', function() {
