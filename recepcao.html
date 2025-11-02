@@ -498,16 +498,22 @@
         }
     }
 
-    // Inicialização
-    document.addEventListener('DOMContentLoaded', function() {
-      carregarPacientesSelect();
-      carregarAgendamentos();
-      
-      // Data atual como padrão para filtro
-      const hoje = new Date().toISOString().split('T')[0];
-      document.getElementById('dataFiltro').value = hoje;
-      document.getElementById('dataConsulta').value = hoje;
-    });
+// Inicialização
+document.addEventListener('DOMContentLoaded', function() {
+  carregarPacientesSelect();
+  carregarAgendamentos();
+  
+  // CORREÇÃO: Data atual considerando fuso horário local
+  const hoje = new Date();
+  // Ajuste para o fuso horário brasileiro
+  const offset = hoje.getTimezoneOffset();
+  hoje.setMinutes(hoje.getMinutes() - offset);
+  
+  const dataFormatada = hoje.toISOString().split('T')[0];
+  
+  document.getElementById('dataFiltro').value = dataFormatada;
+  document.getElementById('dataConsulta').value = dataFormatada;
+});
   </script>
 </body>
 </html>
