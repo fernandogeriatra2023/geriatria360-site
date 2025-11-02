@@ -503,16 +503,18 @@ document.addEventListener('DOMContentLoaded', function() {
   carregarPacientesSelect();
   carregarAgendamentos();
   
-  // CORREÇÃO: Data atual considerando fuso horário local
-  const hoje = new Date();
-  // Ajuste para o fuso horário brasileiro
-  const offset = hoje.getTimezoneOffset();
-  hoje.setMinutes(hoje.getMinutes() - offset);
+  // CORREÇÃO: Função específica para data local
+  function getDataLocal() {
+    const data = new Date();
+    const ano = data.getFullYear();
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    const dia = String(data.getDate()).padStart(2, '0');
+    return `${ano}-${mes}-${dia}`;
+  }
   
-  const dataFormatada = hoje.toISOString().split('T')[0];
-  
-  document.getElementById('dataFiltro').value = dataFormatada;
-  document.getElementById('dataConsulta').value = dataFormatada;
+  const dataHoje = getDataLocal();
+  document.getElementById('dataFiltro').value = dataHoje;
+  document.getElementById('dataConsulta').value = dataHoje;
 });
   </script>
 </body>
