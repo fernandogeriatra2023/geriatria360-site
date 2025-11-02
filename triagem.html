@@ -265,7 +265,7 @@
             <i class="fas fa-user-nurse"></i> Enfermeiro
           </span>
           <a href="recepcao.html" class="btn">Recepção</a>
-          <a href="medico.html" class="btn">Médicos</a>
+          <a href="medicos.html" class="btn">Médicos</a>
           <button onclick="sair()" class="btn" style="background: #e74c3c; margin-left: 10px;">
             <i class="fas fa-sign-out-alt"></i> Sair
           </button>
@@ -427,6 +427,22 @@
     // Paciente atualmente em triagem
     let pacienteAtual = null;
 
+    // Função para formatar data no formato brasileiro (CORREÇÃO DO FUSO HORÁRIO)
+    function formatarDataBrasil(dataString) {
+      if (!dataString) return '';
+      
+      // Se já estiver no formato brasileiro, retorna como está
+      if (dataString.includes('/')) return dataString;
+      
+      // Converte de YYYY-MM-DD para DD/MM/YYYY sem problemas de fuso horário
+      const partes = dataString.split('-');
+      if (partes.length === 3) {
+        return `${partes[2]}/${partes[1]}/${partes[0]}`;
+      }
+      
+      return dataString;
+    }
+
     // Atualizar valores em tempo real nos cards de sinais vitais
     function atualizarValoresVitals() {
       document.getElementById('pressaoSistolica').addEventListener('input', function() {
@@ -481,7 +497,7 @@
         tr.innerHTML = `
           <td>${agendamento.pacienteNome}</td>
           <td>${agendamento.medico}</td>
-          <td>${new Date(agendamento.data).toLocaleDateString('pt-BR')} às ${agendamento.hora}</td>
+          <td>${formatarDataBrasil(agendamento.data)} às ${agendamento.hora}</td>
           <td><span class="status-badge status-agendado">Aguardando Triagem</span></td>
           <td>
             <button onclick="iniciarTriagem('${agendamento.id}')" class="btn">
